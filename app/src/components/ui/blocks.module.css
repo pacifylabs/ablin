@@ -1,0 +1,246 @@
+/* Section blocks shared by the inner pages. */
+
+.split {
+  display: grid;
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.prose {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 66ch;
+}
+
+@media (min-width: 900px) {
+  .split {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    gap: var(--space-16);
+  }
+}
+
+/* Bordered cell grid: hairlines from a 1px gap over a border field. Five cells lay out 3 + 2 with equal heights. */
+.cells {
+  display: grid;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.cell {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--panel);
+}
+
+@media (min-width: 900px) {
+  .cells {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .cell {
+    grid-column: span 2;
+  }
+
+  .cell:nth-child(n + 4) {
+    grid-column: span 3;
+  }
+}
+
+/* Two-column checklist for "what this covers". */
+.covers {
+  display: grid;
+  gap: var(--space-3) var(--space-12);
+}
+
+@media (min-width: 640px) {
+  .covers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Approach mapping: five cards in a row on wide screens, all the same height. */
+.how {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.howStep {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  height: 100%;
+  padding: var(--space-6);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: var(--r-lg);
+}
+
+.howNumber {
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--accent);
+}
+
+@media (min-width: 640px) {
+  .how {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .howStep:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1100px) {
+  .how {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .howStep:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+/* Audience rows on Who we serve. */
+.rows {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-6);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  scroll-margin-top: calc(var(--header-h) + 1rem);
+}
+
+.rowText {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+}
+
+.rowLinks {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.rowLinks a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rowLinks a:hover {
+  text-decoration: underline;
+}
+
+@media (min-width: 900px) {
+  .row {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-12);
+  }
+
+  .rowLinks {
+    padding-top: 0;
+    padding-left: var(--space-12);
+    border-top: 0;
+    border-left: 1px solid var(--border);
+  }
+}
+
+/* Contact layout. */
+.contactGrid {
+  display: grid;
+  gap: var(--space-8);
+  align-items: stretch;
+}
+
+.contactAside {
+  display: grid;
+  gap: var(--space-6);
+  align-content: start;
+}
+
+@media (min-width: 900px) {
+  /* The first card absorbs spare height so both columns end on the same line as the form. */
+  .contactAside {
+    grid-template-rows: 1fr auto;
+    align-content: stretch;
+  }
+}
+
+.contactSteps {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.contactSteps li {
+  display: grid;
+  gap: var(--space-1);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.contactSteps li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+@media (min-width: 900px) {
+  .contactGrid {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-12);
+  }
+}
+
+/* Insights empty state. */
+.topicList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.topic {
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-pill);
+  font-size: 0.9375rem;
+}
+
+/* Legal documents. */
+.legal {
+  display: grid;
+  gap: var(--space-10);
+}
+
+.legalSection {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.legalSection h2 {
+  font-size: clamp(1.4rem, 2.2vw, 1.75rem);
+}
+
+.notice {
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  font-size: 0.9375rem;
+}

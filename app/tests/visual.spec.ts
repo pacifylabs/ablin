@@ -1,0 +1,119 @@
+import { expect, test } from '@playwright/test';
+
+test('photographs: decorative ones have empty alt, meaningful ones have descriptive alt', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const imgs = await page
+    .locator('main img')
+    .evaluateAll((nodes) =>
+      nodes.map((n) => ({ alt: (n as HTMLImageElement).alt, src: (n as HTMLImageElement).src })),
+    );
+  expect(imgs.length).toBeGreaterThanOrEqual(4);
+  for (const img of imgs) {
+    // Either intentionally decorative (empty) or genuinely described; never a filename or generic word.
+    expect(img.alt === '' || img.alt.length > 10, img.src).toBe(true);
+    expect(img.alt.toLowerCase()).not.toMatch(/\.(jpg|png)|image of|photo of/);
+  }
+});
+
+test('photographs use the navy duotone filter and load lazily except the hero', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const first = page.locator('main img').first();
+  await expect(first).toHaveCSS('filter', /grayscale/);
+  // The two blend layers that map greyscale onto the navy pair live on the frame.
+  const blends = await first.evaluate((img) => {
+    const frame = img.parentElement as HTMLElement;
+    return [
+      getComputedStyle(frame, '::before').mixBlendMode,
+      getComputedStyle(frame, '::after').mixBlendMode,
+    ];
+  });
+  expect(blends).toEqual(['multiply', 'lighten']);
+  const loading = await page
+    .locator('main img')
+    .evaluateAll((n) => n.map((i) => (i as HTMLImageElement).loading));
+  // The hero photograph is the LCP candidate: never lazy. Everything else below the fold is.
+  expect(loading[0]).not.toBe('lazy');
+  expect(loading.slice(1).every((l) => l === 'lazy')).toBe(true);
+});
+
+test('decorative motifs are hidden from assistive technology', async ({ page }) => {
+  await page.goto('/');
+  const exposed = await page
+    .locator('main svg')
+    .evaluateAll((nodes) => nodes.filter((n) => !n.closest('[aria-hidden="true"]')).length);
+  expect(exposed).toBe(0);
+});
+
+test('hero arcs sweep in when motion is allowed', async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: 'no-preference' });
+  const page = await context.newPage();
+  await page.goto('/');
+  const name = await page
+    .locator('main .m-sweep')
+    .first()
+    .evaluate((el) => getComputedStyle(el).animationName);
+  expect(name).toBe('m-sweep');
+  await context.close();
+});
+
+test('all motif and scroll motion is off under reduced motion', async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  await page.goto('/');
+  const states = await page.evaluate(() =>
+    [...document.querySelectorAll('.m-sweep, .m-parallax, .m-reveal')].map((el) => {
+      const s = getComputedStyle(el);
+      return s.animationName;
+    }),
+  );
+  expect(states.length).toBeGreaterThan(0);
+  for (const state of states) expect(state).toBe('none');
+  // Nothing may be left invisible waiting for an animation that will never run.
+  const hidden = await page
+    .locator('.m-sweep, .m-reveal')
+    .evaluateAll((nodes) => nodes.filter((n) => Number(getComputedStyle(n).opacity) < 1).length);
+  expect(hidden).toBe(0);
+  await context.close();
+});
+
+test('frameworks section states advisory framing and shows no certificate wording', async ({
+  page,
+}) => {
+  await page.goto('/');
+  const section = page.locator('section[aria-labelledby="frameworks-title"]');
+  await expect(section).toContainText('do not issue certificates');
+  const text = (await section.innerText()).toLowerCase();
+  for (const banned of ['certified', 'accredited', 'approved by', 'partner']) {
+    expect(text, banned).not.toContain(banned);
+  }
+  await expect(section.locator('ul').first().locator('> li')).toHaveCount(5);
+  // Every framework links out to its authoritative page, safely.
+  const links = await section.locator('a[href^="https://"]').evaluateAll((as) =>
+    as.map((a) => ({
+      href: (a as HTMLAnchorElement).href,
+      rel: a.getAttribute('rel'),
+      target: a.getAttribute('target'),
+    })),
+  );
+  expect(links.length).toBeGreaterThanOrEqual(5);
+  for (const link of links) {
+    expect(link.target).toBe('_blank');
+    expect(link.rel).toContain('noopener');
+  }
+});
+
+test('hero photograph overlaps the tagline strip', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/');
+  const photo = await page.locator('section[aria-labelledby="hero-title"] img').boundingBox();
+  const strip = await page
+    .getByText('Secure · Scalable · Smart IT Consulting')
+    .first()
+    .boundingBox();
+  expect(photo && strip).toBeTruthy();
+  expect(photo!.y + photo!.height).toBeGreaterThan(strip!.y);
+});

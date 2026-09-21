@@ -1,0 +1,124 @@
+.form {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.row {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 640px) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+
+.field label {
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.required,
+.optional {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--input-border);
+  border-radius: var(--r-md);
+  font: inherit;
+  line-height: 1.4;
+  transition:
+    border-color 0.18s,
+    box-shadow 0.18s;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 9rem;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.field [aria-invalid='true'] {
+  border-color: var(--error);
+}
+
+.error {
+  color: var(--error);
+  font-size: 0.9375rem;
+}
+
+.summary {
+  padding: var(--space-4);
+  border: 1px solid var(--error);
+  border-radius: var(--r-md);
+  color: var(--error);
+  font-weight: 600;
+}
+
+.summary[hidden] {
+  display: none;
+}
+
+/* Honeypot: off-screen rather than display:none, which some bots skip. */
+.trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.consent {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.checkLabel {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  cursor: pointer;
+}
+
+.checkLabel input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--accent);
+}
+
+.sent {
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+  justify-items: start;
+}
+
+.sent h2 {
+  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+}

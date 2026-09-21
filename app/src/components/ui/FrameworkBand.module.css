@@ -1,0 +1,84 @@
+.band {
+  padding-block: clamp(3.5rem, 7vw, 6rem);
+  background: var(--surface);
+}
+
+.rule {
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.head {
+  display: grid;
+  gap: var(--space-4);
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.item {
+  gap: var(--space-2);
+  align-content: start;
+}
+
+.item > :first-child {
+  margin-bottom: var(--space-3);
+}
+
+.name {
+  font-weight: 600;
+  color: var(--heading);
+  line-height: 1.3;
+}
+
+.note {
+  margin-top: var(--space-6);
+  max-width: 64ch;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* An odd last item spans the row so the grid never ends on a lone half-width card. */
+  .item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 900px) {
+  .head {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: var(--space-16);
+    align-items: end;
+  }
+}
+
+@media (min-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .item:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+/* Publisher and edition, stated as a fact about the framework. */
+.meta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* Links to the authoritative pages sit at the bottom of every card, so all five align. */
+.sources {
+  display: grid;
+  gap: var(--space-1);
+  font-size: 0.9375rem;
+}

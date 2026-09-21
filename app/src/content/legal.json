@@ -1,0 +1,200 @@
+[
+  {
+    "slug": "privacy-policy",
+    "title": "Privacy Policy",
+    "description": "How Ablin Limited collects, uses and protects personal data.",
+    "lead": "This policy explains what personal data Ablin Limited collects through this website, why, and what your rights are.",
+    "reviewStatus": "draft",
+    "updated": "19 September 2026",
+    "sections": [
+      {
+        "heading": "Who we are",
+        "paragraphs": [
+          "Ablin Limited is a United Kingdom governance, risk, compliance and technology advisory firm. We are the controller of the personal data described in this policy."
+        ]
+      },
+      {
+        "heading": "What we collect",
+        "paragraphs": [
+          "We collect personal data only when you give it to us or when your browser sends it to us."
+        ],
+        "list": [
+          "Contact form details: your name, work email address, organisation, enquiry type, message and your consent.",
+          "Technical data needed to keep the site secure: a hashed form of your IP address and your browser's user agent, used to detect abuse and limit repeated submissions.",
+          "Your theme preference (light or dark), which is stored in your own browser and is not sent to us."
+        ]
+      },
+      {
+        "heading": "How we use it",
+        "list": [
+          "To read and respond to your enquiry.",
+          "To keep the website and contact form secure and to prevent abuse.",
+          "To meet our legal obligations."
+        ]
+      },
+      {
+        "heading": "Our lawful basis",
+        "paragraphs": [
+          "We handle enquiry details on the basis of our legitimate interest in responding to people who contact us, and on your consent where you give it through the form. We handle security data on the basis of our legitimate interest in protecting the site."
+        ]
+      },
+      {
+        "heading": "Who we share it with",
+        "paragraphs": [
+          "We do not sell personal data. We use service providers, such as website hosting and email delivery, who process data on our instructions. We may disclose data where the law requires it."
+        ]
+      },
+      {
+        "heading": "How long we keep it",
+        "paragraphs": [
+          "We keep enquiry details for as long as we need them to respond and for a reasonable period afterwards, then delete them. Hashed security data is kept only as long as needed to detect abuse."
+        ]
+      },
+      {
+        "heading": "Your rights",
+        "paragraphs": ["Under UK data protection law you have the right to:"],
+        "list": [
+          "be told how your data is used and to access a copy of it;",
+          "have inaccurate data corrected;",
+          "ask for your data to be erased or its use restricted in some circumstances;",
+          "object to processing based on legitimate interests;",
+          "withdraw consent where we rely on it."
+        ]
+      },
+      {
+        "heading": "Contact and complaints",
+        "paragraphs": [
+          "To exercise a right or ask a question, use the contact form and mark your message as a data protection request. You also have the right to complain to the Information Commissioner's Office."
+        ]
+      },
+      {
+        "heading": "Changes to this policy",
+        "paragraphs": [
+          "We will update this page if our practices change and show the date of the latest update."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "cookie-policy",
+    "title": "Cookie Policy",
+    "description": "How Ablin Limited uses cookies and similar technologies on this website.",
+    "lead": "This policy explains which cookies and similar technologies this website uses and how you can control them.",
+    "reviewStatus": "draft",
+    "updated": "19 September 2026",
+    "sections": [
+      {
+        "heading": "What we use now",
+        "paragraphs": [
+          "This website currently sets no analytics or advertising cookies. It stores one item in your browser's local storage: your light or dark theme choice. It stays on your device and is not sent to us."
+        ]
+      },
+      {
+        "heading": "Analytics",
+        "paragraphs": [
+          "If we introduce analytics, we will load it only after you accept it in a cookie banner, and we will update this policy to describe what it collects."
+        ]
+      },
+      {
+        "heading": "Controlling storage",
+        "paragraphs": [
+          "You can clear stored data or block cookies and site storage in your browser settings. The website works without them, but it will not remember your theme choice."
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "terms-of-use",
+    "title": "Terms of Use",
+    "description": "Terms that apply when you use the Ablin Limited website.",
+    "lead": "By using this website you agree to these terms.",
+    "reviewStatus": "draft",
+    "updated": "19 September 2026",
+    "sections": [
+      {
+        "heading": "About this website",
+        "paragraphs": [
+          "This website is operated by Ablin Limited. The information on it is general in nature and is not legal, regulatory or professional advice for your circumstances. Take advice before acting on it."
+        ]
+      },
+      {
+        "heading": "No certification",
+        "paragraphs": [
+          "Ablin Limited advises and prepares organisations for standards and assessments. We are not a certification or accreditation body and do not issue certificates."
+        ]
+      },
+      {
+        "heading": "Intellectual property",
+        "paragraphs": [
+          "The content and design of this website belong to Ablin Limited or its licensors. You may view and print pages for your own use, but you may not copy or reuse them commercially without our written permission."
+        ]
+      },
+      {
+        "heading": "Acceptable use",
+        "paragraphs": [
+          "You must not use the website in a way that is unlawful or that could damage or interfere with it, including by:"
+        ],
+        "list": [
+          "attempting to gain unauthorised access to the site or its systems;",
+          "sending automated or repeated submissions through the contact form;",
+          "introducing malicious code."
+        ]
+      },
+      {
+        "heading": "Links to other sites",
+        "paragraphs": [
+          "We are not responsible for the content or practices of websites we link to."
+        ]
+      },
+      {
+        "heading": "Liability",
+        "paragraphs": [
+          "We take reasonable care to keep the website accurate and available but provide it as is. To the extent the law allows, we are not liable for loss arising from your use of it. Nothing in these terms limits liability that cannot be limited by law."
+        ]
+      },
+      {
+        "heading": "Governing law",
+        "paragraphs": ["These terms are governed by the law of England and Wales."]
+      }
+    ]
+  },
+  {
+    "slug": "accessibility",
+    "title": "Accessibility",
+    "description": "Accessibility statement for the Ablin Limited website.",
+    "lead": "We want everyone to be able to use this website, including people who use assistive technology.",
+    "reviewStatus": "draft",
+    "updated": "19 September 2026",
+    "sections": [
+      {
+        "heading": "Our target",
+        "paragraphs": [
+          "We are building this website to meet the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA."
+        ]
+      },
+      {
+        "heading": "What we have done",
+        "list": [
+          "Semantic page structure with landmarks and a logical heading order.",
+          "A skip link and full keyboard operation of navigation, the theme toggle and forms.",
+          "Visible focus indicators on every interactive element.",
+          "Colour contrast checked in both the light and dark themes.",
+          "Labelled form fields, with errors described in text and linked to their fields.",
+          "Respect for the reduced-motion and colour-scheme settings of your device."
+        ]
+      },
+      {
+        "heading": "Testing and known limitations",
+        "paragraphs": [
+          "We test with automated tools and keyboard checks. We have not yet completed an independent accessibility audit, so we do not claim full conformance. We will update this statement when one has been carried out."
+        ]
+      },
+      {
+        "heading": "Tell us about a problem",
+        "paragraphs": [
+          "If you find something you cannot use or read, tell us through the contact form and describe the page and the difficulty. We will respond and work to fix it."
+        ]
+      }
+    ]
+  }
+]

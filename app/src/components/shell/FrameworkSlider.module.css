@@ -1,0 +1,114 @@
+.slider {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--footer-text);
+}
+
+.note {
+  font-size: 0.875rem;
+  color: var(--footer-muted);
+}
+
+.viewport {
+  overflow: hidden;
+  border-radius: var(--r-md);
+}
+
+.viewport:focus-visible {
+  outline: 2px solid var(--feature-text);
+  outline-offset: 4px;
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: slide 44s linear infinite;
+}
+
+/* Stops for a pointer or for keyboard focus; the strip is a focusable group for exactly this reason. */
+.viewport:hover .track,
+.viewport:focus .track {
+  animation-play-state: paused;
+}
+
+.set {
+  display: flex;
+  gap: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex: 0 0 auto;
+  width: 17.5rem;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--footer-line);
+  border-radius: var(--r-md);
+  white-space: nowrap;
+}
+
+.text {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  color: var(--footer-text);
+}
+
+.scope {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.8125rem;
+  color: var(--footer-muted);
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Reduced motion: no movement, so the list wraps into a grid and the redundant copy goes away. */
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    width: auto;
+    animation: none;
+  }
+
+  .set {
+    flex-wrap: wrap;
+  }
+
+  .clone {
+    display: none;
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "title": "About Ablin",
+  "lead": "A UK governance, risk, compliance and technology advisory firm.",
+  "illustration": "structure",
+  "introTitle": "Who we are",
+  "intro": [
+    "Ablin Limited helps organisations understand their obligations, manage information and technology risk, and put controls in place that people can operate.",
+    "We work across governance, risk and compliance, cybersecurity governance, data protection, AI governance and technology assurance. Technology is part of the picture, but our starting point is always the organisation: what it must do, what could go wrong and who is accountable."
+  ],
+  "mission": {
+    "title": "Our mission",
+    "body": "To help organisations manage risk and meet their obligations through clear, practical governance."
+  },
+  "vision": {
+    "title": "Our vision",
+    "body": "Organisations of every size adopting technology with confidence because their governance is sound."
+  },
+  "values": {
+    "title": "Our values",
+    "lead": "How we approach every engagement.",
+    "items": [
+      {
+        "title": "Integrity",
+        "description": "We give honest advice, including when it is not what you hoped to hear."
+      },
+      {
+        "title": "Accountability",
+        "description": "We say what we will do, and we do it and answer for the result."
+      },
+      {
+        "title": "Security",
+        "description": "We treat the information you share with us with the care we advise you to take."
+      },
+      {
+        "title": "Practicality",
+        "description": "We recommend what your organisation can realistically adopt and keep doing."
+      },
+      {
+        "title": "Continuous improvement",
+        "description": "We expect controls and our own work to be reviewed and to get better over time."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Talk to us about your requirements",
+    "body": "Tell us what you are working towards and we will advise on where to start.",
+    "primary": {
+      "label": "Request a consultation",
+      "href": "/contact"
+    }
+  },
+  "image": "light-stairs"
+}

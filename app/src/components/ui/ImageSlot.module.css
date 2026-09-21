@@ -1,0 +1,40 @@
+/*
+ * Navy duotone without an SVG filter (those run on the CPU and were the biggest cost on phones). CSS filter
+ * functions turn the photograph into a blue monotone; two blend layers then map black to the theme's deep navy
+ * (lighten) and white to its pale blue (multiply). All of it is GPU work. Colours come from --duo-shadow and
+ * --duo-light, so each theme has its own.
+ */
+.frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  background: var(--duo-shadow);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}
+
+.img {
+  object-fit: cover;
+  filter: grayscale(1) sepia(1) hue-rotate(178deg) saturate(0.85) contrast(1.02) brightness(0.9);
+}
+
+.frame::before,
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.frame::before {
+  z-index: 1;
+  background: var(--duo-light);
+  mix-blend-mode: multiply;
+}
+
+.frame::after {
+  z-index: 2;
+  background: var(--duo-shadow);
+  mix-blend-mode: lighten;
+}

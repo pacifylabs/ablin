@@ -1,0 +1,69 @@
+[
+  {
+    "id": "iso-27001",
+    "name": "ISO/IEC 27001",
+    "scope": "Information security management",
+    "publisher": "ISO/IEC",
+    "edition": "2022 edition",
+    "sources": [
+      {
+        "label": "ISO/IEC 27001:2022 on iso.org",
+        "url": "https://www.iso.org/standard/27001"
+      }
+    ]
+  },
+  {
+    "id": "iso-42001",
+    "name": "ISO/IEC 42001",
+    "scope": "AI management systems",
+    "publisher": "ISO/IEC",
+    "edition": "2023 edition",
+    "sources": [
+      {
+        "label": "ISO/IEC 42001:2023 on iso.org",
+        "url": "https://www.iso.org/standard/42001"
+      }
+    ]
+  },
+  {
+    "id": "uk-gdpr",
+    "name": "UK GDPR and Data Protection Act 2018",
+    "scope": "Data protection",
+    "publisher": "UK Parliament",
+    "sources": [
+      {
+        "label": "UK GDPR on legislation.gov.uk",
+        "url": "https://www.legislation.gov.uk/eur/2016/679/contents"
+      },
+      {
+        "label": "Data Protection Act 2018 on legislation.gov.uk",
+        "url": "https://www.legislation.gov.uk/ukpga/2018/12/contents"
+      }
+    ]
+  },
+  {
+    "id": "soc-2",
+    "name": "SOC 2",
+    "scope": "Service organisation controls",
+    "publisher": "AICPA",
+    "sources": [
+      {
+        "label": "SOC suite of services on aicpa-cima.com",
+        "url": "https://www.aicpa-cima.com/resources/landing/system-and-organization-controls-soc-suite-of-services"
+      }
+    ]
+  },
+  {
+    "id": "nist-ai-rmf",
+    "name": "NIST AI RMF",
+    "scope": "AI risk management",
+    "publisher": "NIST",
+    "edition": "version 1.0",
+    "sources": [
+      {
+        "label": "AI Risk Management Framework on nist.gov",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework"
+      }
+    ]
+  }
+]

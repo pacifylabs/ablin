@@ -1,0 +1,168 @@
+/* Design tokens — Design System v2 §5, §7, §8. Components consume these names only. */
+:root {
+  color-scheme: light;
+
+  --brand: #1c4e8b;
+  --brand-strong: #16406f;
+  --brand-soft: #eaf0f7;
+
+  --bg: #ffffff;
+  --surface: #f3f5f8;
+  --surface-2: #eaf0f7;
+  --panel: #ffffff;
+  --text: #2c2c2c;
+  --text-muted: #566072;
+  --heading: #16283f;
+  --border: #e4e9f0;
+  --border-strong: #cbd5e3;
+  --input-border: #7b8798;
+  --accent: var(--brand);
+  --accent-hover: var(--brand-strong);
+  --on-accent: #ffffff;
+  --link: var(--brand);
+  --link-hover: var(--brand-strong);
+
+  --feature-bg: #1c4e8b;
+  --feature-text: #ffffff;
+  --feature-muted: #c6d6ec;
+  --feature-line: rgba(255, 255, 255, 0.28);
+
+  --footer-bg: var(--brand-strong);
+  --footer-text: #ffffff;
+  --footer-muted: #c6d6ec;
+  --footer-line: rgba(255, 255, 255, 0.22);
+
+  --success: #2e7d5b;
+  --error: #c0392b;
+  --warning: #b7791f;
+
+  --focus: #1c4e8b;
+  --shadow-pop: 0 10px 30px rgba(16, 30, 50, 0.1);
+
+  /* Imagery and motif tokens — Design System v2.1 */
+  --duo-shadow: #16283f;
+  --duo-light: #eaf0f7;
+  --grain-color: #1c4e8b;
+  --grain-opacity: 0.07;
+  --wash: color-mix(in srgb, var(--brand) 7%, transparent);
+  --motif-stroke: var(--brand);
+  --motif-soft: var(--border-strong);
+
+  /* Scale (theme-independent) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  --r-xs: 3px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  --container: 1200px;
+  --container-narrow: 760px;
+  --gutter: clamp(1.25rem, 5vw, 3rem);
+  --section-y: clamp(5rem, 9vw, 8.5rem);
+  --header-h: 4.5rem;
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+/* Dark is a separately tuned palette, not an inversion (§14). */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0c1420;
+  --surface: #111c2b;
+  --surface-2: #16243a;
+  --panel: #131f30;
+  --text: #c9d3e0;
+  --text-muted: #8b99ad;
+  --heading: #eef3fa;
+  --border: #22344c;
+  --border-strong: #34486a;
+  --input-border: #5f7391;
+  --accent: #5e95d6;
+  --accent-hover: #7daee4;
+  --on-accent: #0a1220;
+  --link: #7daee4;
+  --link-hover: #9bc1ec;
+
+  --feature-bg: #142339;
+  --feature-text: #eef3fa;
+  --feature-muted: #9db4d4;
+  --feature-line: rgba(255, 255, 255, 0.14);
+
+  --footer-bg: #0a111c;
+  --footer-text: #eef3fa;
+  --footer-muted: #9db4d4;
+  --footer-line: rgba(255, 255, 255, 0.14);
+
+  --success: #4fb183;
+  --error: #e06a5c;
+  --warning: #e0a950;
+
+  --focus: #7daee4;
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.48);
+  --duo-shadow: #0a111c;
+  --duo-light: #9eb5d6;
+  --grain-color: #9db4d4;
+  --grain-opacity: 0.09;
+  --wash: color-mix(in srgb, var(--accent) 9%, transparent);
+  --motif-stroke: var(--accent);
+}
+
+/* System preference for visitors who haven't toggled — mirrors the dark block. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --bg: #0c1420;
+    --surface: #111c2b;
+    --surface-2: #16243a;
+    --panel: #131f30;
+    --text: #c9d3e0;
+    --text-muted: #8b99ad;
+    --heading: #eef3fa;
+    --border: #22344c;
+    --border-strong: #34486a;
+    --input-border: #5f7391;
+    --accent: #5e95d6;
+    --accent-hover: #7daee4;
+    --on-accent: #0a1220;
+    --link: #7daee4;
+    --link-hover: #9bc1ec;
+
+    --feature-bg: #142339;
+    --feature-text: #eef3fa;
+    --feature-muted: #9db4d4;
+    --feature-line: rgba(255, 255, 255, 0.14);
+
+    --footer-bg: #0a111c;
+    --footer-text: #eef3fa;
+    --footer-muted: #9db4d4;
+    --footer-line: rgba(255, 255, 255, 0.14);
+
+    --success: #4fb183;
+    --error: #e06a5c;
+    --warning: #e0a950;
+
+    --focus: #7daee4;
+    --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.48);
+    --duo-shadow: #0a111c;
+    --duo-light: #9eb5d6;
+    --grain-color: #9db4d4;
+    --grain-opacity: 0.09;
+    --wash: color-mix(in srgb, var(--accent) 9%, transparent);
+    --motif-stroke: var(--accent);
+  }
+}

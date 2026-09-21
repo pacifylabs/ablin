@@ -1,0 +1,49 @@
+[
+  {
+    "slug": "smes-growing-businesses",
+    "title": "SMEs and growing businesses",
+    "summary": "Structured governance, risk and compliance support without a large internal specialist team.",
+    "description": "Growing organisations meet customer, regulator and investor expectations before they have a dedicated risk or compliance function. We provide the structure, documentation and ownership that would otherwise need a team, sized to how you operate today and able to scale.",
+    "services": [
+      "governance-risk-compliance",
+      "iso-compliance-readiness",
+      "data-protection-privacy"
+    ]
+  },
+  {
+    "slug": "technology-digital-businesses",
+    "title": "Technology and digital businesses",
+    "summary": "Help managing cybersecurity, data protection, AI, cloud and wider technology risk.",
+    "description": "Technology businesses are often asked to evidence their controls in customer due diligence and security questionnaires. We help you define those controls, keep evidence current and prepare for assessments such as ISO 27001 and SOC 2.",
+    "services": [
+      "cybersecurity-governance",
+      "soc2-controls-readiness",
+      "technology-risk-it-controls"
+    ]
+  },
+  {
+    "slug": "regulated-organisations",
+    "title": "Regulated and compliance-sensitive organisations",
+    "summary": "Stronger controls, documentation, risk management and assurance.",
+    "description": "Organisations under regulatory scrutiny need controls that are documented, owned and demonstrably operating. We strengthen risk management and assurance so audits and regulatory engagement draw on evidence you already hold.",
+    "services": [
+      "audit-assurance-regulatory-readiness",
+      "governance-risk-compliance",
+      "technology-risk-it-controls"
+    ]
+  },
+  {
+    "slug": "professional-services",
+    "title": "Professional services organisations",
+    "summary": "Protection for confidential information under growing regulatory obligation.",
+    "description": "Firms that hold client and personal information carry duties of confidentiality as well as legal obligations. We help you govern how that information is handled, shared and secured, and how you would respond if something went wrong.",
+    "services": ["data-protection-privacy", "cybersecurity-governance", "iso-compliance-readiness"]
+  },
+  {
+    "slug": "ai-emerging-technology",
+    "title": "Organisations adopting AI and emerging technology",
+    "summary": "Governance over how these technologies are selected, implemented, used and monitored.",
+    "description": "Adopting AI raises questions about accountability, data use, supplier reliance and oversight that existing policies rarely cover. We help you set clear governance before use spreads, and keep it proportionate as your use develops.",
+    "services": ["ai-governance", "data-protection-privacy", "technology-risk-it-controls"]
+  }
+]

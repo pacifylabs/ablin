@@ -1,0 +1,63 @@
+/* Texture and depth — Design System v2.1 §B. Quiet by design: depth, not decoration. */
+
+/*
+ * Film grain: a small pre-rendered noise used as a CSS mask, coloured by --grain-color (navy in light, pale blue in
+ * dark). A static bitmap costs almost nothing to paint, unlike a live SVG turbulence filter.
+ */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--grain-color);
+  -webkit-mask-image: url('/image/grain.png');
+  mask-image: url('/image/grain.png');
+  -webkit-mask-size: 112px 112px;
+  mask-size: 112px 112px;
+  opacity: var(--grain-opacity);
+  pointer-events: none;
+}
+
+@media (prefers-contrast: more) {
+  .grain::before {
+    display: none;
+  }
+}
+
+/* Motif backdrop: an absolutely placed decorative SVG that fades at its edges with a mask (no visible gradient). */
+.motif-bg {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--motif-stroke);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+
+.motif-bg svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* A flat tonal panel peeking out behind an image or card gives layered depth without a shadow. */
+.stack {
+  position: relative;
+  isolation: isolate;
+}
+
+.stack::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--wash);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  transform: translate(var(--stack-x, 1.25rem), var(--stack-y, 1.25rem));
+}

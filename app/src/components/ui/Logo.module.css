@@ -1,0 +1,27 @@
+.logo {
+  display: block;
+  width: auto;
+  height: 2.25rem;
+}
+
+.forDark {
+  display: none;
+}
+
+:global(:root[data-theme='dark']) .forLight {
+  display: none;
+}
+
+:global(:root[data-theme='dark']) .forDark {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .forLight {
+    display: none;
+  }
+
+  :global(:root:not([data-theme='light'])) .forDark {
+    display: block;
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "hero": {
+    "title": "Governance, Risk & Compliance for a Secure Digital Future",
+    "lead": "Ablin Limited helps organisations navigate regulatory complexity, manage technology and information risk, strengthen compliance, protect data and adopt emerging technologies responsibly.",
+    "primary": {
+      "label": "Explore our services",
+      "href": "/services"
+    },
+    "secondary": {
+      "label": "Speak to our consultants",
+      "href": "/contact"
+    },
+    "illustration": "structure",
+    "image": "hero-stairs"
+  },
+  "frameworks": {
+    "title": "Frameworks we advise on",
+    "lead": "The standards and regulations our advice is built around. We help you prepare for them, and we do not issue certificates.",
+    "note": "Advisory and readiness support only. Independent bodies carry out assessments and issue any certificate."
+  },
+  "capabilities": {
+    "title": "Core capabilities",
+    "lead": "Three areas where organisations most often need clear, practical support.",
+    "items": [
+      {
+        "title": "Governance, Risk & Compliance",
+        "description": "Governance structures, risk management and compliance programmes that show leadership what is required and how it is being met.",
+        "serviceSlug": "governance-risk-compliance",
+        "illustration": "governance"
+      },
+      {
+        "title": "Cybersecurity & Technology Risk",
+        "description": "Cybersecurity governance, vulnerability management and IT controls, set against the frameworks and regulations that apply to you.",
+        "serviceSlug": "cybersecurity-governance",
+        "illustration": "cyber"
+      },
+      {
+        "title": "Data Protection & AI Governance",
+        "description": "Data protection and privacy obligations, and governance over how emerging technologies are adopted and used.",
+        "serviceSlug": "data-protection-privacy",
+        "illustration": "data"
+      }
+    ]
+  },
+  "services": {
+    "kicker": "Services",
+    "title": "How we can help",
+    "lead": "Eight areas of advisory work, each covering the obligations, risks and controls involved."
+  },
+  "audiences": {
+    "kicker": "Who we serve",
+    "title": "Organisations that need clear governance over risk",
+    "lead": "Our work suits organisations that must show they manage risk well, whatever their size.",
+    "image": "zigzag-stairs"
+  },
+  "why": {
+    "title": "Why Ablin",
+    "lead": "What you can expect when you work with us.",
+    "illustration": "controls",
+    "points": [
+      {
+        "title": "Governance first",
+        "description": "We start from your obligations and risks, not from a product or a toolset."
+      },
+      {
+        "title": "Practical delivery",
+        "description": "Controls and documents sized to your organisation, and usable by your team."
+      },
+      {
+        "title": "Technology-aware",
+        "description": "We understand the systems behind the risks, including cloud, data and AI."
+      },
+      {
+        "title": "Advisory, not certification",
+        "description": "We prepare you for assessments such as ISO 27001 and SOC 2. Independent bodies carry out the assessments and issue certificates."
+      }
+    ]
+  },
+  "insights": {
+    "kicker": "Insights",
+    "title": "Guidance on the areas we advise on",
+    "lead": "Practical articles on these topics will be published in Insights.",
+    "image": "light-stairs"
+  },
+  "cta": {
+    "title": "Discuss your governance, risk and compliance requirements",
+    "body": "Tell us what you are working towards and we will advise on where to start.",
+    "primary": {
+      "label": "Speak to our consultants",
+      "href": "/contact"
+    },
+    "image": "glass-facade"
+  },
+  "statement": {
+    "text": "Good governance is not paperwork. It is knowing what your organisation must do, who is responsible for it, and whether it is working.",
+    "image": "review-documents"
+  }
+}

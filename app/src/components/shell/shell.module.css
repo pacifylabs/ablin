@@ -1,0 +1,429 @@
+.skip {
+  position: absolute;
+  left: var(--gutter);
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-120%);
+}
+
+.skip:focus {
+  transform: translateY(0);
+  color: var(--on-accent);
+}
+
+/* Header — Design System v2 §10.2 */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  --header-h: 4.5rem;
+  /* Nearly opaque instead of blurred: a live backdrop blur over large photographs is costly on phones. */
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+.header[data-condensed='true'] {
+  --header-h: 3.75rem;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: var(--header-h);
+  transition: height 0.2s var(--ease);
+}
+
+.wordmark {
+  display: block;
+  margin-right: auto;
+  text-decoration: none;
+}
+
+/* Logo scales with the header so it condenses on scroll with the bar. */
+.wordmark .headerLogo {
+  height: calc(var(--header-h) * 0.5);
+  transition: height 0.2s var(--ease);
+}
+
+.nav {
+  display: none;
+}
+
+.navList {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.navLink {
+  display: inline-block;
+  padding-block: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition:
+    color 0.18s,
+    border-color 0.18s;
+}
+
+.navLink:hover {
+  color: var(--accent);
+}
+
+.navLink[aria-current='page'] {
+  color: var(--heading);
+  border-bottom-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.actions .cta {
+  display: none;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.9375rem;
+}
+
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  background: transparent;
+  color: var(--heading);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition:
+    border-color 0.18s,
+    color 0.18s;
+}
+
+.iconButton:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* The right icon is chosen in CSS so it matches the theme from first paint, with no JS. */
+.sun {
+  display: none;
+}
+
+:global(:root[data-theme='dark']) .sun {
+  display: block;
+}
+
+:global(:root[data-theme='dark']) .moon {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme='light'])) .sun {
+    display: block;
+  }
+
+  :global(:root:not([data-theme='light'])) .moon {
+    display: none;
+  }
+}
+
+.panel {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: var(--shadow-pop);
+  padding-block: var(--space-4) var(--space-6);
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panelList {
+  display: grid;
+}
+
+.panelLink {
+  display: block;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--heading);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.panelLink[aria-current='page'] {
+  color: var(--accent);
+}
+
+.panelCta {
+  margin-top: var(--space-6);
+  width: 100%;
+}
+
+/* Below 70rem the six-item nav plus the persistent CTA no longer fit on one line. */
+@media (min-width: 70rem) {
+  .nav {
+    display: block;
+    margin-inline: auto;
+  }
+
+  .actions .cta {
+    display: inline-flex;
+  }
+
+  .menuButton,
+  .panel {
+    display: none;
+  }
+
+  .bar {
+    gap: var(--space-8);
+  }
+
+  .wordmark {
+    margin-right: 0;
+  }
+}
+
+/* CTA band */
+.cta_band {
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  padding-block: clamp(3.5rem, 6vw, 5rem);
+}
+
+.ctaInner {
+  display: grid;
+  gap: var(--space-8);
+  align-items: center;
+}
+
+.ctaCopy {
+  display: grid;
+  gap: var(--space-6);
+  align-content: center;
+}
+
+.ctaText {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.ctaActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.ctaPhoto {
+  --stack-x: 1.25rem;
+  --stack-y: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .ctaInner {
+    grid-template-columns: 1fr auto;
+    gap: var(--space-16);
+  }
+
+  .ctaWithImage .ctaInner {
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  }
+
+  /* The photograph rises above the band, breaking its top edge. */
+  .ctaWithImage .ctaPhoto {
+    transform: translateY(-3.5rem);
+  }
+}
+
+/* Footer: four bands (see Footer.tsx). Bands share one hairline rhythm; columns of similar length share a band. */
+.footer {
+  background: var(--footer-bg);
+  color: var(--footer-muted);
+  padding-block: clamp(3rem, 5vw, 4.5rem) var(--space-8);
+  font-size: 0.9375rem;
+}
+
+.bandBrand,
+.bandLinks,
+.bandFrameworks {
+  border-bottom: 1px solid var(--footer-line);
+}
+
+/* Band 1: brand left, call to action right. */
+.bandBrand {
+  display: grid;
+  gap: var(--space-8);
+  align-items: center;
+  padding-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.brandBlock {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  max-width: 40ch;
+}
+
+.brandBlock .footerLogo {
+  height: 3rem;
+  width: auto;
+  margin-bottom: var(--space-2);
+}
+
+.ctaBlock {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  justify-items: start;
+}
+
+.footerCta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.4rem;
+  border: 1px solid var(--footer-text);
+  border-radius: var(--r-md);
+  color: var(--footer-text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.18s;
+}
+
+.footer a.footerCta:hover {
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+/* Band 2: three columns of about four rows each. Services runs in two columns, filled top to bottom. */
+.bandLinks {
+  display: grid;
+  gap: var(--space-8) var(--space-6);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-block: clamp(2rem, 4vw, 3rem);
+}
+
+.colServices {
+  grid-column: 1 / -1;
+}
+
+.footerList.servicesList {
+  /* Multi-column, not grid: each column flows on its own, so a wrapped title never stretches a row across both. */
+  display: block;
+  columns: 2;
+  column-gap: var(--space-6);
+}
+
+.servicesList li {
+  break-inside: avoid;
+  margin-bottom: var(--space-2);
+}
+
+@media (max-width: 639px) {
+  .footerList.servicesList {
+    columns: 1;
+  }
+}
+
+/* Band 3: the frameworks strip, full width. */
+.bandFrameworks {
+  padding-block: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+@media (min-width: 900px) {
+  .bandBrand {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-8);
+  }
+
+  .brandBlock {
+    grid-column: 1 / 8;
+  }
+
+  .ctaBlock {
+    grid-column: 9 / 13;
+    justify-items: end;
+    text-align: right;
+  }
+
+  /* Tracks follow the content: 3 / 6 / 3, so the long Services list gets the widest track. */
+  .bandLinks {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--space-8);
+  }
+
+  .colCompany {
+    grid-column: 1 / 4;
+  }
+
+  .colServices {
+    grid-column: 4 / 10;
+  }
+
+  .colLegal {
+    grid-column: 10 / 13;
+  }
+}
+
+/* The one permitted all-caps treatment: the fixed brand tagline (§6.2). */
+.footerTagline {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--footer-text);
+}
+
+.footerHeading {
+  margin-bottom: var(--space-4);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+  color: var(--footer-text);
+}
+
+.ctaBlock .footerHeading {
+  margin-bottom: 0;
+}
+
+.footerList {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.footer a {
+  color: var(--footer-muted);
+  text-decoration: none;
+}
+
+.footer a:hover {
+  color: var(--footer-text);
+  text-decoration: underline;
+}
+
+.footer a.footerCta {
+  color: var(--footer-text);
+}
+
+.footerBase {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-6);
+  padding-top: var(--space-6);
+}

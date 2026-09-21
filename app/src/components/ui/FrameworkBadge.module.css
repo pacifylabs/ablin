@@ -1,0 +1,23 @@
+.badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  color: var(--accent);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+}
+
+.logo {
+  max-width: 80%;
+  max-height: 80%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.badge.onDark {
+  color: var(--footer-text);
+  background: transparent;
+  border-color: var(--footer-line);
+}

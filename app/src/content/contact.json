@@ -1,0 +1,31 @@
+{
+  "title": "Contact us",
+  "lead": "Tell us about your organisation and what you need. A consultant will read your message and reply by email.",
+  "enquiryTypes": [
+    { "value": "grc", "label": "Governance, risk and compliance" },
+    { "value": "iso", "label": "ISO and compliance readiness" },
+    { "value": "data-protection", "label": "Data protection and privacy" },
+    { "value": "ai-governance", "label": "AI governance" },
+    { "value": "cybersecurity", "label": "Cybersecurity" },
+    { "value": "soc2", "label": "SOC 2" },
+    { "value": "general", "label": "General enquiry" }
+  ],
+  "next": {
+    "title": "What happens next",
+    "steps": [
+      {
+        "title": "We read your message",
+        "description": "A consultant reviews what you have told us about your organisation and requirements."
+      },
+      {
+        "title": "We reply by email",
+        "description": "We respond to the work email address you provide, with questions or a suggested next step."
+      },
+      {
+        "title": "We agree how to proceed",
+        "description": "If we can help, we set out the scope and approach before any work starts."
+      }
+    ]
+  },
+  "privacyNote": "We use the details you send only to respond to your enquiry. Read our Privacy Policy for how we handle personal data."
+}

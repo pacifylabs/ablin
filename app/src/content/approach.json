@@ -1,0 +1,27 @@
+{
+  "kicker": "Our approach",
+  "title": "A structured approach to governance, risk and compliance",
+  "lead": "Five steps, from understanding where you are to keeping controls effective as things change.",
+  "steps": [
+    {
+      "title": "Assess",
+      "description": "Understand your organisation, obligations, systems and existing controls."
+    },
+    {
+      "title": "Identify",
+      "description": "Find the gaps and risks that matter, and rank them by their effect on you."
+    },
+    {
+      "title": "Design",
+      "description": "Design proportionate controls, policies and documentation to close those gaps."
+    },
+    {
+      "title": "Implement",
+      "description": "Support your team in putting the controls and processes into practice."
+    },
+    {
+      "title": "Monitor & Improve",
+      "description": "Review how controls perform, track change and keep improving over time."
+    }
+  ]
+}

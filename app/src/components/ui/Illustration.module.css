@@ -1,0 +1,100 @@
+/* Frame: every illustration shares one aspect ratio so grouped images always align (§9). */
+.frame {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gridDot {
+  fill: var(--border-strong);
+}
+
+.line,
+.lineHeavy,
+.soft,
+.softBox,
+.softDash,
+.accentStroke,
+.accentDash,
+.ring,
+.trackSoft,
+.trackAccent {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.line {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+
+.lineHeavy {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.soft,
+.softBox {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+
+.softDash {
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 6;
+}
+
+.accentStroke {
+  stroke: var(--accent);
+  stroke-width: 1.75;
+}
+
+.accentDash {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 6;
+}
+
+.ring {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  fill: var(--panel);
+}
+
+.trackSoft {
+  stroke: var(--border-strong);
+  stroke-width: 3;
+}
+
+.trackAccent {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+
+/* Fills applied after strokes so a shape can combine .line and .panel. */
+.panel {
+  fill: var(--panel);
+}
+
+.dot,
+.accentFill {
+  fill: var(--accent);
+  stroke: none;
+}
+
+.bar,
+.track {
+  fill: var(--border-strong);
+  stroke: none;
+}
