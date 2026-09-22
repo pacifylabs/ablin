@@ -1,5 +1,4 @@
 import { expect, test, type Browser, type Page } from '@playwright/test';
-import { HERO_BACKGROUND } from '@/components/hero-signal/config';
 
 // The hero is reviewed on a staging route first; once applied it lives on the home page.
 const PATH = process.env.HERO_PATH ?? '/';
@@ -26,8 +25,8 @@ test.describe('hero content and structure (matches the reference)', () => {
     await expect(hero.locator('[data-hero="lead"]')).toContainText(
       'Ablin Limited helps organisations navigate',
     );
-    const primary = hero.getByRole('link', { name: /Explore Our Services/i });
-    const secondary = hero.getByRole('link', { name: /Speak to Our Consultants/i });
+    const primary = hero.getByRole('link', { name: 'Explore our services' });
+    const secondary = hero.getByRole('link', { name: 'Speak to our consultants' });
     await expect(primary).toHaveAttribute('href', '/services');
     await expect(secondary).toHaveAttribute('href', '/contact');
 
@@ -53,38 +52,27 @@ test.describe('hero content and structure (matches the reference)', () => {
 
   test('background layers exist and are all decorative (aria-hidden)', async ({ page }) => {
     await page.goto(PATH);
-    if (HERO_BACKGROUND.mode === 'signal') {
-      const layers = await page.evaluate((hero) => {
-        const layer = document.querySelector(`${hero} [data-lattice]`)!.parentElement!;
-        const has = (s: string) => layer.querySelector(s) !== null;
-        const exposed = [layer, ...layer.querySelectorAll('*')].filter(
-          (el) => !el.closest('[aria-hidden="true"]'),
-        ).length;
-        return {
-          canvas: has('canvas'),
-          contours: has('svg'),
-          children: layer.children.length,
-          exposed,
-        };
-      }, HERO);
-      expect(layers.canvas).toBe(true);
-      expect(layers.contours).toBe(true);
-      expect(layers.children).toBe(4); // canvas, contours, glow, scrim
-      expect(layers.exposed).toBe(0);
-      return;
-    }
-    if (HERO_BACKGROUND.mode === 'static') {
-      const backdrop = page.locator(`${HERO} [aria-hidden="true"] svg`);
-      await expect(backdrop).toBeVisible();
-      return;
-    }
-    await expect(page.locator(`${HERO} canvas`)).toHaveCount(0);
+    const layers = await page.evaluate((hero) => {
+      const layer = document.querySelector(`${hero} [data-lattice]`)!.parentElement!;
+      const has = (s: string) => layer.querySelector(s) !== null;
+      const exposed = [layer, ...layer.querySelectorAll('*')].filter(
+        (el) => !el.closest('[aria-hidden="true"]'),
+      ).length;
+      return {
+        canvas: has('canvas'),
+        contours: has('svg'),
+        children: layer.children.length,
+        exposed,
+      };
+    }, HERO);
+    expect(layers.canvas).toBe(true);
+    expect(layers.contours).toBe(true);
+    expect(layers.children).toBe(4); // canvas, contours, glow, scrim
+    expect(layers.exposed).toBe(0);
   });
 });
 
-const describeSignal = HERO_BACKGROUND.mode === 'signal' ? test.describe : test.describe.skip;
-
-describeSignal('hero lattice behaviour', () => {
+test.describe('hero lattice behaviour', () => {
   test('runs when motion is allowed', async ({ browser }) => {
     const { page, context } = await open(browser, { reducedMotion: 'no-preference' });
     await expect(canvas(page)).toHaveAttribute('data-lattice', 'running', { timeout: 6000 });
@@ -224,8 +212,7 @@ const cases: Case[] = (['light', 'dark'] as const).flatMap((theme) =>
 );
 
 for (const c of cases) {
-  const contrastTest = HERO_BACKGROUND.mode === 'signal' ? test : test.skip;
-  contrastTest(`hero copy is AA over a worst-case lattice — ${c.theme}, ${c.width}px`, async ({
+  test(`hero copy is AA over a worst-case lattice — ${c.theme}, ${c.width}px`, async ({
     browser,
   }) => {
     const { page, context } = await open(browser, {
@@ -287,7 +274,7 @@ test.describe('calm hero buttons', () => {
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(PATH);
-    for (const name of [/Explore Our Services/i, /Speak to Our Consultants/i]) {
+    for (const name of ['Explore our services', 'Speak to our consultants']) {
       const button = page.locator(HERO).getByRole('link', { name });
       await page.mouse.move(0, 0);
       const before = await button.boundingBox();
@@ -330,7 +317,7 @@ test.describe('calm hero buttons', () => {
   }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(PATH);
-    const button = page.locator(HERO).getByRole('link', { name: /Explore Our Services/i });
+    const button = page.locator(HERO).getByRole('link', { name: 'Explore our services' });
     const box = (await button.boundingBox())!;
     await page.mouse.move(box.x + 4, box.y + 4);
     const start = await button.boundingBox();
@@ -344,7 +331,7 @@ test.describe('calm hero buttons', () => {
 
   test('keeps a visible keyboard focus indicator', async ({ page }) => {
     await page.goto(PATH);
-    const button = page.locator(HERO).getByRole('link', { name: /Explore Our Services/i });
+    const button = page.locator(HERO).getByRole('link', { name: 'Explore our services' });
     await button.focus();
     await page.keyboard.press('Shift+Tab');
     await page.keyboard.press('Tab');

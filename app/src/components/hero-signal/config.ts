@@ -2,11 +2,11 @@
  * Hero "signal structure": switches and tuning. Values marked (sample) are ported one-to-one from the approved
  * reference hero (ablin-signal-structure.html).
  *
- * `static` — brand arch lattice only (premium, calm). `signal` — animated node lattice (reference hero).
- * `off` — plain surface.
+ * OFF SWITCH: set `HERO_BACKGROUND.enabled` to `false` and the hero keeps its content and layout but drops the whole
+ * animated background (canvas, contours, glow, scrim). Nothing else depends on it.
  */
 export const HERO_BACKGROUND = {
-  mode: 'static',
+  enabled: true,
 } as const;
 
 export const LATTICE = {
