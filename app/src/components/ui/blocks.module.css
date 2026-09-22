@@ -84,7 +84,8 @@
 }
 
 .howNumber {
-  font-family: var(--font-serif), Georgia, serif;
+  font-family: var(--font-brand), system-ui, sans-serif;
+  font-weight: 600;
   font-size: 2rem;
   line-height: 1;
   color: var(--accent);

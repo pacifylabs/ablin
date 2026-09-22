@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Hanken_Grotesk, Source_Serif_4 } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import { config } from '@/lib/config';
 import { site } from '@/lib/site';
 import { themeInitScript } from '@/lib/theme';
@@ -8,17 +8,12 @@ import '@/styles/patterns.css';
 import '@/styles/texture.css';
 import '@/styles/motion.css';
 
-const serif = Source_Serif_4({
+/** Geometric sans aligned with the ABLIN wordmark (see public/image/logo-wordmark-*.png). */
+const brand = Montserrat({
   subsets: ['latin'],
-  axes: ['opsz'],
-  variable: '--font-serif',
+  variable: '--font-brand',
   display: 'swap',
-});
-
-const sans = Hanken_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
+  weight: ['300', '400', '500', '600', '700', '800'],
 });
 
 export const metadata: Metadata = {
@@ -47,7 +42,7 @@ export const viewport: Viewport = {
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
+    <html lang="en-GB" className={brand.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>

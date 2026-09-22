@@ -9,7 +9,8 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
 import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
-import { getApproach, getAudiences, getService, getServices, serviceHref } from '@/lib/content';
+import { getApproach, getAudiences, getImage, getService, getServices, serviceHref } from '@/lib/content';
+import { serviceHeroImageId } from '@/lib/service-hero-image';
 import { site } from '@/lib/site';
 
 type Params = Promise<{ service: string }>;
@@ -34,10 +35,11 @@ export default async function ServicePage({ params }: { params: Params }) {
   const service = await getService((await params).service);
   if (!service) notFound();
 
-  const [approach, allAudiences, allServices] = await Promise.all([
+  const [approach, allAudiences, allServices, heroImage] = await Promise.all([
     getApproach(),
     getAudiences(),
     getServices(),
+    getImage(serviceHeroImageId(service.slug)),
   ]);
   const audiences = allAudiences.filter((a) => service.whoFor.includes(a.slug));
   const related = allServices.filter((s) => service.related.includes(s.slug));
@@ -74,6 +76,7 @@ export default async function ServicePage({ params }: { params: Params }) {
         title={service.title}
         lead={service.definition}
         scene={service.illustration}
+        image={heroImage}
         kicker="Services"
       >
         <Button href="/contact">Request a consultation</Button>

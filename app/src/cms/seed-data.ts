@@ -251,6 +251,7 @@ const about = published(
       title: 'About Ablin',
       lead: 'A UK governance, risk, compliance and technology advisory firm.',
       illustration: 'structure',
+      image: stockImage('colleagues-desk'),
     }),
     block('textRich', {
       variant: 'split',
@@ -362,6 +363,7 @@ const whoWeServe = published(
       title: 'Who we serve',
       lead: 'We advise organisations that need to show they manage risk, protect information and adopt technology responsibly.',
       illustration: 'structure',
+      image: stockImage('zigzag-stairs'),
     }),
     block('audienceGrid', {
       variant: 'rows',

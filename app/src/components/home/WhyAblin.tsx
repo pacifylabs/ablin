@@ -13,18 +13,22 @@ export function WhyAblin({ data }: { data: Why }) {
         <div className={styles.whyIntro}>
           <h2 id="why-title">{data.title}</h2>
           <p className="lead">{data.lead}</p>
-          <Illustration scene={data.illustration} />
+          <div className={styles.whyIllustration}>
+            <Illustration scene={data.illustration} />
+          </div>
         </div>
-        <ul className={`card-grid cols-2 ${styles.whyList}`}>
-          {data.points.map((point) => (
-            <li key={point.title}>
-              <article className="card">
-                <h3>{point.title}</h3>
-                <p className="muted">{point.description}</p>
-              </article>
-            </li>
-          ))}
-        </ul>
+        <div className={styles.whyList}>
+          <ul>
+            {data.points.map((point) => (
+              <li key={point.title} className={styles.whyRow}>
+                <article>
+                  <h3>{point.title}</h3>
+                  <p className="muted">{point.description}</p>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

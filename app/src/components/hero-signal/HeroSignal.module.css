@@ -1,150 +1,119 @@
 /*
- * Hero "signal structure": layout and type ported from the reference hero. Colours are theme tokens (--signal,
- * --heading, --text, --text-muted, --border-strong); nothing here is a raw colour.
+ * Home hero — calm, editorial layout. Typography matches the geometric ABLIN wordmark (Montserrat).
  */
 .hero {
   position: relative;
   z-index: 0;
   display: flex;
-  align-items: center;
-  /* The site header is sticky (not overlaid as in the reference), so subtract its height. */
-  min-height: calc(100svh - 4.5rem);
+  flex-direction: column;
+  justify-content: center;
+  min-height: min(92svh, 52rem);
   overflow: hidden;
-  /* Room below the copy for the frameworks strip, which is positioned at the bottom. */
-  padding-block: 3rem 8rem;
+  padding-block: clamp(4rem, 10vw, 6.5rem) 0;
   background: var(--bg);
 }
 
-.inner {
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: var(--bg);
+}
+
+.motif {
+  position: absolute;
+  right: -12%;
+  top: 50%;
+  width: min(52rem, 95vw);
+  height: auto;
+  translate: 0 -42%;
+  opacity: 0.22;
+  color: var(--brand);
+}
+
+.grid {
   position: relative;
-  z-index: 2;
+  z-index: 1;
   width: 100%;
 }
 
-/* (sample) eyebrow with a glowing signal node. */
+.inner {
+  max-width: 38rem;
+  display: grid;
+  gap: 0;
+}
+
 .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 0 0 1.1rem;
-  font-size: 0.8rem;
+  margin: 0 0 1.25rem;
+  font-family: var(--font-brand), system-ui, sans-serif;
+  font-size: 0.8125rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--brand);
 }
 
 .eyebrow::before {
-  content: '';
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--signal);
-  box-shadow: 0 0 12px var(--signal);
+  content: none;
 }
 
-/* (sample) headline. */
 .title {
-  max-width: 16ch;
-  margin: 1.4rem 0 1.6rem;
-  font-size: clamp(2.7rem, 6.4vw, 5.6rem);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  /* (sample) plain wrapping; the site-wide balance rule would re-break the headline. */
-  text-wrap: wrap;
+  margin: 0 0 1.5rem;
+  font-family: var(--font-brand), system-ui, sans-serif;
+  font-size: clamp(2.35rem, 4.2vw + 1rem, 3.65rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.032em;
+  color: var(--heading);
+  text-wrap: balance;
+  max-width: 18ch;
 }
 
 .lead {
-  max-width: 44ch;
-  margin: 0 0 2.4rem;
-  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
-  line-height: 1.65;
-  color: var(--text);
+  max-width: 46ch;
+  margin: 0 0 2.5rem;
+  font-family: var(--font-brand), system-ui, sans-serif;
+  font-size: clamp(1.0625rem, 1.2vw + 0.85rem, 1.1875rem);
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--text-muted);
 }
 
 .cta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.3rem;
+  gap: 0.85rem 1rem;
 }
 
-/*
- * Buttons. Calm by construction: no transform, no translate, no positional script. Only colour, border and
- * box-shadow are transitioned, so a button never moves toward, away from or with the cursor.
- */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 2.75rem;
-  padding: 0.85rem 1.5rem;
-  border: 1px solid transparent;
-  border-radius: var(--r-md);
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s,
-    color 0.2s,
-    box-shadow 0.3s;
+.btnPrimary,
+.btnGhost {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.9375rem;
 }
 
-.primary {
-  background: var(--signal);
-  color: var(--on-accent);
-  box-shadow: 0 0 0 transparent;
-}
-
-.primary:hover {
-  color: var(--on-accent);
-  box-shadow:
-    0 8px 30px color-mix(in srgb, var(--signal) 30%, transparent),
-    0 0 0 1px var(--signal);
-}
-
-.ghost {
-  background: transparent;
-  border-color: var(--border-strong);
-  color: var(--heading);
-}
-
-.ghost:hover {
-  border-color: var(--signal);
-  color: var(--signal);
-}
-
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 10px currentColor;
-}
-
-/* (sample) frameworks strip, pinned to the bottom of the hero and aligned to the site container. */
 .fwWrap {
-  position: absolute;
-  inset: auto 0 2.2rem 0;
-  z-index: 2;
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(3.5rem, 8vw, 5.5rem);
+  padding-bottom: clamp(2rem, 4vw, 2.75rem);
 }
 
 .fw {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1.4rem;
-  padding-top: 1.2rem;
-  border-top: 1px solid var(--border-strong);
+  display: grid;
+  gap: var(--space-4);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
 }
 
 .fwLabel {
   margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  font-family: var(--font-brand), system-ui, sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
@@ -152,29 +121,43 @@
 .fwList {
   display: flex;
   flex-wrap: wrap;
-  gap: 1.6rem;
+  gap: 0.5rem 1.75rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .fwList li {
-  font-size: 0.82rem;
+  font-family: var(--font-brand), system-ui, sans-serif;
+  font-size: 0.875rem;
   font-weight: 500;
   color: var(--text);
-  opacity: 0.85;
 }
 
-/* (sample) on phones the strip flows under the copy instead of pinning to the bottom. */
-@media (max-width: 560px) {
-  .hero {
-    display: block;
-    min-height: auto;
-    padding-block: clamp(3rem, 12vw, 5rem) 3rem;
+@media (min-width: 900px) {
+  .inner {
+    max-width: 42rem;
+    padding-inline-start: clamp(0rem, 2vw, 1rem);
   }
 
-  .fwWrap {
-    position: static;
-    margin-top: 2.5rem;
+  .motif {
+    right: -6%;
+    opacity: 0.26;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero {
+    min-height: auto;
+    padding-block: clamp(2.75rem, 10vw, 4rem) 0;
+  }
+
+  .motif {
+    right: -35%;
+    opacity: 0.14;
+  }
+
+  .title {
+    max-width: none;
   }
 }
