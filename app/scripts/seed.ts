@@ -1,16 +1,19 @@
 /**
  * One-time (and re-runnable) seed: creates the admin user, sets the site to "live" if it has no availability
- * setting yet, and writes a page:{slug} document for each of the 10 known routes from src/cms/seed-data.ts.
+ * setting yet, seeds the frameworks list if it has never been saved, and writes a page:{slug} document for each
+ * of the 10 known routes from src/cms/seed-data.ts.
  *
  * Run with: pnpm seed   (needs UPSTASH_REDIS_REST_URL/TOKEN, ADMIN_EMAIL, ADMIN_PASSWORD in the environment —
  * see .env.example). Re-running is safe: it overwrites admin:user and every page:{slug}, but never touches
- * insights:*, submission:* or settings:availability once settings:availability already has a value.
+ * insights:*, submission:*, settings:availability or settings:frameworks once each already has a value.
  */
-import { seedPages } from '../src/cms/seed-data';
+import { seedFrameworks, seedPages } from '../src/cms/seed-data';
 import {
   getAdminUser,
   getAvailability,
+  getFrameworks,
   putAdminUser,
+  putFrameworks,
   putPage,
   setAvailability,
 } from '../src/cms/store';
@@ -44,6 +47,16 @@ async function main() {
     console.log('Set settings:availability to "live".');
   } else {
     console.log(`settings:availability already set (mode: ${availability.mode}) — left unchanged.`);
+  }
+
+  const frameworks = await getFrameworks();
+  if (!frameworks) {
+    await putFrameworks(seedFrameworks);
+    console.log(`Seeded settings:frameworks (${seedFrameworks.length} frameworks).`);
+  } else {
+    console.log(
+      `settings:frameworks already set (${frameworks.length} frameworks) — left unchanged.`,
+    );
   }
 
   for (const page of seedPages) {

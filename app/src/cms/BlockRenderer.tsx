@@ -13,7 +13,8 @@ import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
-import { getAudiences, getFrameworks, getServices, serviceHref } from '@/lib/content';
+import { getAudiences, getServices, serviceHref } from '@/lib/content';
+import { getFrameworksWithFallback } from './store';
 import type { Block } from './schema';
 import { toImageAsset } from './image';
 import { RichText, splitLegalSections } from './richtext';
@@ -164,7 +165,7 @@ async function renderOne(block: Block): Promise<React.ReactNode> {
     }
 
     case 'frameworkIndex': {
-      const all = await getFrameworks();
+      const all = await getFrameworksWithFallback();
       const frameworks =
         block.data.frameworkIds.length === 0
           ? all

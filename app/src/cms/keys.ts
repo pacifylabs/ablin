@@ -9,6 +9,9 @@ export const keys = {
   reset: (token: string) => `reset:${token}`,
 
   availability: 'settings:availability',
+  /** Not in the original build brief's schema — added so the footer slider and frameworkIndex blocks' list of
+   *  frameworks (previously fixed content/frameworks.json) can be edited from /admin/frameworks. */
+  frameworks: 'settings:frameworks',
 
   page: (slug: string) => `page:${slug}`,
   pagesIndex: 'pages:index',

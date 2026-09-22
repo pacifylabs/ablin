@@ -54,6 +54,20 @@ allow-list of node/mark types (`cms/richtext.tsx`), enforced both by the Tiptap 
 independently, server-side at save time — so a saved document can never contain anything the renderer doesn't
 already know how to turn into existing, styled markup.
 
+## Frameworks
+
+Not in the original build brief's key schema — added afterwards on request, so the footer slider (previously
+fixed `content/frameworks.json`) is admin-editable too, at `/admin/frameworks`. Stored as one document,
+`settings:frameworks` (a JSON array), read with the same fail-open fallback pattern as pages
+(`getFrameworksWithFallback` in `cms/store.ts`) by three things: the footer (`FrameworkSlider`), the public
+`frameworkIndex` block, and the frameworkIndex block editor's picker — all three now show the same admin-edited
+list, in the same order.
+
+The five framework **ids** stay fixed (`content/schema.ts`'s `FRAMEWORK_IDS`) rather than becoming an open list:
+each has its own hand-drawn abstract glyph in `ui/FrameworkBadge.tsx` (deliberately not an official mark — see
+that file), and there is no generic fallback glyph for an id that isn't one of the five. The editor can reorder,
+edit the text of, or show/hide each of the five; it can't add a sixth.
+
 ## Pinned sections
 
 The closed block palette doesn't cover a handful of sections that existed before the migration and have no

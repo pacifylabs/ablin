@@ -3,7 +3,6 @@ import aboutJson from '@/content/about.json';
 import approachJson from '@/content/approach.json';
 import audiencesJson from '@/content/audiences.json';
 import contactJson from '@/content/contact.json';
-import frameworksJson from '@/content/frameworks.json';
 import homeJson from '@/content/home.json';
 import imagesJson from '@/content/images.json';
 import insightsJson from '@/content/insights.json';
@@ -13,7 +12,6 @@ import {
   approachSchema,
   audienceSchema,
   contactPageSchema,
-  frameworkSchema,
   homeSchema,
   imagesSchema,
   insightsPageSchema,
@@ -24,8 +22,10 @@ import {
  * The seam between the site and the copy the admin block editor does NOT cover. Home, About, Services, Who We
  * Serve and Insights are now mostly built from page:{slug}/insights:article:{slug} documents in Redis (see
  * cms/store.ts and cms/BlockRenderer.tsx) — this file now only serves:
- *   - "master data" the block editor references by slug/id rather than owns: services, audiences, frameworks,
- *     the five approach steps, and the stock-photo manifest.
+ *   - "master data" the block editor references by slug/id rather than owns: services, audiences, the five
+ *     approach steps, and the stock-photo manifest. (Frameworks moved fully to Redis — see
+ *     cms/store.ts's getFrameworksWithFallback and /admin/frameworks — so content/frameworks.json is now only
+ *     read by cms/seed-data.ts, as the starting content, not from here.)
  *   - the handful of pinned, non-block sections the closed block palette has no block for (see
  *     admin/README.md §Pinned sections): the Home Insights teaser, the About mission/vision cards, and the
  *     Insights page's topic/empty-state copy.
@@ -37,7 +37,6 @@ const about = aboutSchema.parse(aboutJson);
 const approach = approachSchema.parse(approachJson);
 const services = z.array(serviceSchema).parse(servicesJson);
 const audiences = z.array(audienceSchema).parse(audiencesJson);
-const frameworks = z.array(frameworkSchema).parse(frameworksJson);
 const insightsPage = insightsPageSchema.parse(insightsJson);
 const contactPage = contactPageSchema.parse(contactJson);
 const images = imagesSchema.parse(imagesJson);
@@ -90,9 +89,6 @@ export async function getImage(id: string) {
 }
 export async function getImages() {
   return images;
-}
-export async function getFrameworks() {
-  return frameworks;
 }
 export async function getInsightsPage() {
   return insightsPage;

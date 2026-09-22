@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
-import { getFrameworks, getServices, serviceHref } from '@/lib/content';
+import { getServices, serviceHref } from '@/lib/content';
+import { getFooterFrameworks } from '@/cms/frameworks-cache';
 import { companyNav, legalNav, site } from '@/lib/site';
 import { FrameworkSlider } from './FrameworkSlider';
 import styles from './shell.module.css';
@@ -14,7 +15,7 @@ import styles from './shell.module.css';
  *   4. Region and copyright.
  */
 export async function Footer() {
-  const [services, frameworks] = await Promise.all([getServices(), getFrameworks()]);
+  const [services, frameworks] = await Promise.all([getServices(), getFooterFrameworks()]);
 
   return (
     <footer className={`${styles.footer} on-navy`}>

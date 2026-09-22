@@ -5,9 +5,16 @@
  * page (see admin/README.md §Seed fallback: a page reads Redis first, and only falls back to this when
  * page:{slug} doesn't exist yet, so a fresh, unseeded Redis never serves a blank site).
  */
+import { z } from 'zod';
 import imagesJson from '@/content/images.json';
 import servicesJson from '@/content/services.json';
+import frameworksJson from '@/content/frameworks.json';
+import { frameworkSchema, type Framework } from '@/content/schema';
 import type { Block, BlockImage, PageDoc, PageSlug, RichDoc, RichNode } from './schema';
+
+/** The starting frameworks list (see /admin/frameworks) — parsed here so malformed seed content still fails
+ *  loudly, the same guarantee lib/content.ts's loaders give the rest of the master data. */
+export const seedFrameworks: readonly Framework[] = z.array(frameworkSchema).parse(frameworksJson);
 
 // --- small helpers ------------------------------------------------------------------------------------------
 

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
+import { PasswordField } from './fields/shared';
 import styles from './admin.module.css';
 
 /**
@@ -70,6 +71,7 @@ function RequestStep() {
           required
           className={styles.input}
           value={email}
+          placeholder="you@example.com"
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
@@ -142,32 +144,21 @@ function ConfirmStep({ token }: { token: string }) {
           {error}
         </p>
       ) : null}
-      <div className={styles.field}>
-        <label htmlFor="newPassword">New password</label>
-        <input
-          id="newPassword"
-          type="password"
-          autoComplete="new-password"
-          minLength={12}
-          required
-          className={styles.input}
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-        <p className={styles.hint}>At least 12 characters.</p>
-      </div>
-      <div className={styles.field}>
-        <label htmlFor="confirmPassword">Confirm new password</label>
-        <input
-          id="confirmPassword"
-          type="password"
-          autoComplete="new-password"
-          required
-          className={styles.input}
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
+      <PasswordField
+        label="New password"
+        value={newPassword}
+        onChange={setNewPassword}
+        autoComplete="new-password"
+        hint="At least 12 characters."
+        required
+      />
+      <PasswordField
+        label="Confirm new password"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+        autoComplete="new-password"
+        required
+      />
       <div className={styles.formActions}>
         <button type="submit" className="btn btn-primary" disabled={pending}>
           {pending ? 'Saving…' : 'Set new password'}

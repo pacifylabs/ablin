@@ -153,6 +153,7 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
             name="fullName"
             type="text"
             autoComplete="name"
+            placeholder="e.g. Jane Doe"
             value={values.fullName}
             onChange={(e) => update('fullName', e.target.value)}
             aria-invalid={Boolean(errors.fullName)}
@@ -166,6 +167,7 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
             name="email"
             type="email"
             autoComplete="email"
+            placeholder="you@company.com"
             value={values.email}
             onChange={(e) => update('email', e.target.value)}
             aria-invalid={Boolean(errors.email)}
@@ -182,6 +184,7 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
             name="organisation"
             type="text"
             autoComplete="organization"
+            placeholder="e.g. Acme Ltd"
             value={values.organisation}
             onChange={(e) => update('organisation', e.target.value)}
             aria-invalid={Boolean(errors.organisation)}
@@ -213,6 +216,7 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
           id="message"
           name="message"
           rows={6}
+          placeholder="Tell us about your organisation and what you need."
           value={values.message}
           onChange={(e) => update('message', e.target.value)}
           aria-invalid={Boolean(errors.message)}

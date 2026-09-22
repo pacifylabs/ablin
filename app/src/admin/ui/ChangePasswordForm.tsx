@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { PasswordField } from './fields/shared';
 import styles from './admin.module.css';
 
 export function ChangePasswordForm() {
@@ -61,44 +62,28 @@ export function ChangePasswordForm() {
           Password changed. Every other session has been signed out.
         </p>
       ) : null}
-      <div className={styles.field}>
-        <label htmlFor="current-password">Current password</label>
-        <input
-          id="current-password"
-          type="password"
-          autoComplete="current-password"
-          required
-          className={styles.input}
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-        />
-      </div>
-      <div className={styles.field}>
-        <label htmlFor="new-password">New password</label>
-        <input
-          id="new-password"
-          type="password"
-          autoComplete="new-password"
-          minLength={12}
-          required
-          className={styles.input}
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-        <p className={styles.hint}>At least 12 characters.</p>
-      </div>
-      <div className={styles.field}>
-        <label htmlFor="confirm-password">Confirm new password</label>
-        <input
-          id="confirm-password"
-          type="password"
-          autoComplete="new-password"
-          required
-          className={styles.input}
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
+      <PasswordField
+        label="Current password"
+        value={currentPassword}
+        onChange={setCurrentPassword}
+        autoComplete="current-password"
+        required
+      />
+      <PasswordField
+        label="New password"
+        value={newPassword}
+        onChange={setNewPassword}
+        autoComplete="new-password"
+        hint="At least 12 characters."
+        required
+      />
+      <PasswordField
+        label="Confirm new password"
+        value={confirmPassword}
+        onChange={setConfirmPassword}
+        autoComplete="new-password"
+        required
+      />
       <div className={styles.formActions}>
         <button type="submit" className="btn btn-primary" disabled={status === 'saving'}>
           {status === 'saving' ? 'Saving…' : 'Change password'}

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArticle, listTopics } from '@/cms/store';
-import { getAudiences, getFrameworks, getServices } from '@/lib/content';
+import { getArticle, getFrameworksWithFallback, listTopics } from '@/cms/store';
+import { getAudiences, getServices } from '@/lib/content';
 import { ArticleEditor } from '@/admin/ui/ArticleEditor';
 import { DeleteArticleButton } from '@/admin/ui/DeleteArticleButton';
 import styles from '@/admin/ui/admin.module.css';
@@ -19,7 +19,7 @@ export default async function EditInsightPage({ params }: { params: Params }) {
     getArticle(slug),
     getServices(),
     getAudiences(),
-    getFrameworks(),
+    getFrameworksWithFallback(),
     listTopics(),
   ]);
   if (!article) notFound();

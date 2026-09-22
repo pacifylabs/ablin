@@ -73,18 +73,19 @@ describe('createNodes and stepNodes', () => {
 });
 
 describe('edgeAlpha and nearness (sample formulas)', () => {
-  it('fades linearly from 0.16 at contact to nothing at the 150px link distance', () => {
-    expect(edgeAlpha(0)).toBeCloseTo(0.16);
-    expect(edgeAlpha(75)).toBeCloseTo(0.08);
+  it('fades linearly from edgeBase at contact to nothing at the 150px link distance', () => {
+    expect(edgeAlpha(0)).toBeCloseTo(LATTICE.edgeBase);
+    expect(edgeAlpha(75)).toBeCloseTo(LATTICE.edgeBase / 2);
     expect(edgeAlpha(150)).toBe(0);
     expect(edgeAlpha(400)).toBe(0);
   });
 
-  it('is 1 at the cursor and falls linearly to 0 at 180px', () => {
+  it('is 1 at the cursor and falls linearly to 0 at the pointer radius', () => {
+    const half = LATTICE.pointerRadius / 2;
     expect(nearness(10, 10, 10, 10)).toBe(1);
-    expect(nearness(0, 0, 90, 0)).toBeCloseTo(0.5);
-    expect(nearness(0, 0, 180, 0)).toBe(0);
-    expect(nearness(0, 0, 500, 0)).toBe(0);
+    expect(nearness(0, 0, half, 0)).toBeCloseTo(0.5);
+    expect(nearness(0, 0, LATTICE.pointerRadius, 0)).toBe(0);
+    expect(nearness(0, 0, LATTICE.pointerRadius + 320, 0)).toBe(0);
   });
 });
 

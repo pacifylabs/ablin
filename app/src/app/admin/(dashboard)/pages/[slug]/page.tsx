@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PAGE_SLUGS, type PageSlug } from '@/cms/schema';
-import { getPageWithFallback } from '@/cms/store';
-import { getAudiences, getFrameworks, getServices } from '@/lib/content';
+import { getFrameworksWithFallback, getPageWithFallback } from '@/cms/store';
+import { getAudiences, getServices } from '@/lib/content';
 import { PageEditor } from '@/admin/ui/PageEditor';
 import styles from '@/admin/ui/admin.module.css';
 
@@ -25,7 +25,7 @@ export default async function EditPagePage({ params }: { params: Params }) {
     getPageWithFallback(slug),
     getServices(),
     getAudiences(),
-    getFrameworks(),
+    getFrameworksWithFallback(),
   ]);
 
   return (

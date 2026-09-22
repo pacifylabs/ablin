@@ -1,5 +1,7 @@
+import { z } from 'zod';
 import { redis } from './redis';
 import { keys } from './keys';
+import { frameworkSchema, type Framework } from '@/content/schema';
 import {
   type AdminUser,
   type Availability,
@@ -18,7 +20,7 @@ import {
   sessionSchema,
   submissionSchema,
 } from './schema';
-import { seedPage } from './seed-data';
+import { seedFrameworks, seedPage } from './seed-data';
 
 /**
  * The data-access layer over Redis. Every read parses with the matching zod schema — a value written by an
@@ -40,6 +42,34 @@ export async function getAvailability(): Promise<Availability | null> {
 
 export async function setAvailability(value: Availability): Promise<void> {
   await redis().set(keys.availability, value);
+}
+
+// --- Frameworks (footer slider + frameworkIndex blocks' picker) ------------------------------------------------
+
+export async function getFrameworks(): Promise<Framework[] | null> {
+  const raw = await redis().get(keys.frameworks);
+  if (!raw) return null;
+  return z.array(frameworkSchema).parse(raw);
+}
+
+export async function putFrameworks(frameworks: readonly Framework[]): Promise<void> {
+  await redis().set(keys.frameworks, frameworks);
+}
+
+/** What the footer slider, the frameworkIndex block picker and the public FrameworkBand all read: the
+ *  admin-edited list, or — before it's ever been saved, or if Redis is briefly unreachable — the bundled
+ *  starting content (content/frameworks.json via cms/seed-data.ts), the same fail-open pattern as
+ *  getPageWithFallback below. */
+export async function getFrameworksWithFallback(): Promise<readonly Framework[]> {
+  try {
+    return (await getFrameworks()) ?? seedFrameworks;
+  } catch (error) {
+    console.error(
+      'Failed to read settings:frameworks from Redis; serving the bundled starting content instead.',
+      error,
+    );
+    return seedFrameworks;
+  }
 }
 
 // --- Admin user ------------------------------------------------------------------------------------------------

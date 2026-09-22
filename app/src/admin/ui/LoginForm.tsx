@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
+import { PasswordField } from './fields/shared';
 import styles from './admin.module.css';
 
 export function LoginForm() {
@@ -57,22 +58,17 @@ export function LoginForm() {
           required
           className={styles.input}
           value={email}
+          placeholder="you@example.com"
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
-      <div className={styles.field}>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          className={styles.input}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
+      <PasswordField
+        label="Password"
+        value={password}
+        onChange={setPassword}
+        autoComplete="current-password"
+        required
+      />
       <div className={styles.formActions}>
         <button type="submit" className="btn btn-primary" disabled={pending}>
           {pending ? 'Signing in…' : 'Sign in'}

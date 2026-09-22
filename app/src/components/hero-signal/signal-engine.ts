@@ -127,8 +127,8 @@ export function drawLattice(
         ? nearness(pointer.x, pointer.y, (a.x + b.x) / 2, (a.y + b.y) / 2)
         : 0;
       if (near > 0) {
-        ctx.strokeStyle = rgba(palette.hot, base + near * 0.5);
-        ctx.lineWidth = LATTICE.edgeWidth + near;
+        ctx.strokeStyle = rgba(palette.hot, base + near * 0.65);
+        ctx.lineWidth = LATTICE.edgeWidth + near * 1.4;
       } else {
         ctx.strokeStyle = rgba(palette.edge, base);
         ctx.lineWidth = LATTICE.edgeWidth;
@@ -147,10 +147,10 @@ export function drawLattice(
     ctx.fillStyle =
       near > 0 ? rgba(palette.hot, 0.5 + near * 0.5) : rgba(palette.node, LATTICE.nodeAlpha);
     ctx.fill();
-    if (near > 0.4) {
+    if (near > 0.25) {
       ctx.beginPath();
-      ctx.arc(node.x, node.y, 6 + near * 8, 0, Math.PI * 2);
-      ctx.fillStyle = rgba(palette.hot, near * 0.08);
+      ctx.arc(node.x, node.y, 9 + near * 14, 0, Math.PI * 2);
+      ctx.fillStyle = rgba(palette.hot, near * 0.22);
       ctx.fill();
     }
   }

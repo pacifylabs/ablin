@@ -68,6 +68,7 @@ export function AvailabilityForm({ initial }: { initial: Availability }) {
           id="availability-message"
           className={styles.textarea}
           value={message}
+          placeholder="e.g. We're rebuilding the site. Please check back soon."
           onChange={(e) => setMessage(e.target.value)}
         />
       </div>

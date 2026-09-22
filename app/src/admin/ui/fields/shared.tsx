@@ -1,10 +1,18 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, useState } from 'react';
+import { Icon } from '@/components/ui/Icon';
 import { illustrationScene, type IllustrationScene } from '@/content/schema';
 import styles from '../admin.module.css';
 
 export const ILLUSTRATION_SCENES = illustrationScene.options;
+
+/** A label like "Framework names shown" becomes the placeholder "Enter framework names shown" when none is
+ *  given explicitly — every text input gets a placeholder one way or another. */
+function autoPlaceholder(label: string): string {
+  const trimmed = label.replace(/\s*\([^)]*\)\s*$/, '').trim();
+  return `Enter ${trimmed.charAt(0).toLowerCase()}${trimmed.slice(1)}`;
+}
 
 export function TextField({
   label,
@@ -12,14 +20,17 @@ export function TextField({
   onChange,
   hint,
   multiline,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   hint?: string;
   multiline?: boolean;
+  placeholder?: string;
 }) {
   const id = useId();
+  const ph = placeholder ?? autoPlaceholder(label);
   return (
     <div className={styles.field}>
       <label htmlFor={id}>{label}</label>
@@ -28,6 +39,7 @@ export function TextField({
           id={id}
           className={styles.textarea}
           value={value}
+          placeholder={ph}
           onChange={(e) => onChange(e.target.value)}
         />
       ) : (
@@ -35,9 +47,60 @@ export function TextField({
           id={id}
           className={styles.input}
           value={value}
+          placeholder={ph}
           onChange={(e) => onChange(e.target.value)}
         />
       )}
+      {hint ? <p className={styles.hint}>{hint}</p> : null}
+    </div>
+  );
+}
+
+/** A password input with a show/hide toggle (eye icon) — used by every admin password field. */
+export function PasswordField({
+  label,
+  value,
+  onChange,
+  autoComplete,
+  hint,
+  placeholder,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete: 'current-password' | 'new-password';
+  hint?: string;
+  placeholder?: string;
+  required?: boolean;
+}) {
+  const id = useId();
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className={styles.field}>
+      <label htmlFor={id}>{label}</label>
+      <div className={styles.passwordRow}>
+        <input
+          id={id}
+          type={visible ? 'text' : 'password'}
+          autoComplete={autoComplete}
+          required={required}
+          minLength={autoComplete === 'new-password' ? 12 : undefined}
+          className={styles.input}
+          value={value}
+          placeholder={placeholder ?? 'Enter your password'}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        <button
+          type="button"
+          className={styles.passwordToggle}
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? 'Hide password' : 'Show password'}
+          aria-pressed={visible}
+        >
+          <Icon name={visible ? 'eyeOff' : 'eye'} size={20} />
+        </button>
+      </div>
       {hint ? <p className={styles.hint}>{hint}</p> : null}
     </div>
   );
@@ -143,11 +206,13 @@ export function CtaField({
       <TextField
         label="Button label"
         value={value.label}
+        placeholder="e.g. Speak to our consultants"
         onChange={(v) => onChange({ ...value, label: v })}
       />
       <TextField
-        label="Link (e.g. /contact)"
+        label="Link"
         value={value.href}
+        placeholder="e.g. /contact"
         onChange={(v) => onChange({ ...value, href: v })}
       />
     </fieldset>
@@ -172,6 +237,7 @@ export function StringListEditor({
           <input
             className={styles.input}
             value={item}
+            placeholder={`Enter ${label.toLowerCase()}`}
             onChange={(e) => onChange(items.map((it, j) => (j === i ? e.target.value : it)))}
           />
           <MoveDeleteButtons

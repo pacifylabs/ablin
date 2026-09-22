@@ -69,6 +69,7 @@ export function NewArticleForm() {
           id="new-article-title"
           className={styles.input}
           required
+          placeholder="e.g. How to prepare for an ISO 27001 readiness review"
           value={title}
           onChange={(e) => {
             setTitle(e.target.value);
@@ -83,6 +84,7 @@ export function NewArticleForm() {
           className={styles.input}
           required
           pattern="[a-z0-9-]+"
+          placeholder="e.g. how-to-prepare-for-an-iso-27001-readiness-review"
           value={slug}
           onChange={(e) => {
             setSlug(e.target.value);

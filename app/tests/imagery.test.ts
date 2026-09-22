@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { frameworkSchema, imagesSchema } from '@/content/schema';
-import { getFrameworks, getImages } from '@/lib/content';
+import { seedFrameworks } from '@/cms/seed-data';
+import { getImages } from '@/lib/content';
 
 const base = {
   id: 'soc-2',
@@ -11,8 +12,8 @@ const base = {
 } as const;
 
 describe('framework references', () => {
-  it('names each framework precisely and links to an authoritative https source', async () => {
-    for (const framework of await getFrameworks()) {
+  it('names each framework precisely and links to an authoritative https source', () => {
+    for (const framework of seedFrameworks) {
       expect(framework.publisher.length, framework.id).toBeGreaterThan(1);
       expect(framework.sources.length, framework.id).toBeGreaterThan(0);
       for (const source of framework.sources)
@@ -32,9 +33,8 @@ describe('framework references', () => {
 });
 
 describe('framework logo slot', () => {
-  it('ships with no official logos: custom badges only, until the client approves some', async () => {
-    for (const framework of await getFrameworks())
-      expect(framework.logo, framework.id).toBeUndefined();
+  it('ships with no official logos: custom badges only, until the client approves some', () => {
+    for (const framework of seedFrameworks) expect(framework.logo, framework.id).toBeUndefined();
   });
 
   it('accepts a logo only when approval and licence reference are both recorded', () => {

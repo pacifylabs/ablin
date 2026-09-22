@@ -62,8 +62,12 @@ export const frameworkLogoSchema = z.object({
   licenceRef: z.string().min(1),
 });
 
+/** The only five framework ids that exist — each has its own hand-drawn glyph in ui/FrameworkBadge.tsx with no
+ *  generic fallback, so this list is closed rather than an open string (see admin/README.md §Frameworks). */
+export const FRAMEWORK_IDS = ['iso-27001', 'iso-42001', 'uk-gdpr', 'soc-2', 'nist-ai-rmf'] as const;
+
 export const frameworkSchema = z.object({
-  id: z.enum(['iso-27001', 'iso-42001', 'uk-gdpr', 'soc-2', 'nist-ai-rmf']),
+  id: z.enum(FRAMEWORK_IDS),
   name: z.string(),
   scope: z.string(),
   /** Who publishes or owns the framework. Named as a fact; never as an endorsement of Ablin. */

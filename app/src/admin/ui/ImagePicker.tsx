@@ -120,6 +120,7 @@ export function ImagePicker({
             id={altId}
             className={styles.input}
             value={value.alt}
+            placeholder="Describe what the image shows"
             onChange={(e) => onChange({ ...value, alt: e.target.value })}
           />
           <label htmlFor={captionId}>Caption (optional)</label>
@@ -127,6 +128,7 @@ export function ImagePicker({
             id={captionId}
             className={styles.input}
             value={value.caption ?? ''}
+            placeholder="Enter a caption"
             onChange={(e) => onChange({ ...value, caption: e.target.value || undefined })}
           />
         </>

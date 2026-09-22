@@ -205,6 +205,40 @@
   resize: vertical;
 }
 
+.passwordRow {
+  position: relative;
+  display: flex;
+}
+
+.passwordRow .input {
+  padding-right: 2.75rem;
+}
+
+.passwordToggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.passwordToggle:hover {
+  color: var(--heading);
+}
+
+.passwordToggle:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+  border-radius: var(--r-sm);
+}
+
 .hint {
   font-size: 0.8125rem;
   color: var(--text-muted);
