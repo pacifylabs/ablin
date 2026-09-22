@@ -137,8 +137,8 @@ const home = published(
       eyebrow: 'Governance, risk & compliance advisory',
       title: 'Governance, Risk & Compliance for a Secure Digital Future',
       lead: 'Ablin Limited helps organisations navigate regulatory complexity, manage technology and information risk, strengthen compliance, protect data and adopt emerging technologies responsibly.',
-      primary: cta('Explore our services', '/services'),
-      secondary: cta('Speak to our consultants', '/contact'),
+      primary: cta('Explore Our Services', '/services'),
+      secondary: cta('Speak to Our Consultants', '/contact'),
       frameworksLabel: 'Frameworks we advise on',
       frameworkNames: ['ISO 27001', 'ISO/IEC 42001', 'UK GDPR & DPA 2018', 'SOC 2', 'NIST AI RMF'],
     }),
@@ -155,21 +155,21 @@ const home = published(
         {
           title: 'Governance, Risk & Compliance',
           description:
-            'Governance structures, risk management and compliance programmes that show leadership what is required and how it is being met.',
+            'We help organisations establish effective governance frameworks, identify and manage risk, strengthen internal controls and prepare for regulatory and assurance requirements.',
           serviceSlug: 'governance-risk-compliance',
           illustration: 'governance',
         },
         {
           title: 'Cybersecurity & Technology Risk',
           description:
-            'Cybersecurity governance, vulnerability management and IT controls, set against the frameworks and regulations that apply to you.',
+            'We help organisations understand and manage cyber and technology risks through security governance, IT controls, vulnerability management, security assessments and recognised compliance frameworks.',
           serviceSlug: 'cybersecurity-governance',
           illustration: 'cyber',
         },
         {
           title: 'Data Protection & AI Governance',
           description:
-            'Data protection and privacy obligations, and governance over how emerging technologies are adopted and used.',
+            'We help organisations protect personal and organisational data, meet privacy obligations and establish appropriate governance for the responsible adoption and use of artificial intelligence.',
           serviceSlug: 'data-protection-privacy',
           illustration: 'data',
         },
@@ -204,21 +204,28 @@ const home = published(
       points: [
         {
           title: 'Governance first',
-          description: 'We start from your obligations and risks, not from a product or a toolset.',
-        },
-        {
-          title: 'Practical delivery',
           description:
-            'Controls and documents sized to your organisation, and usable by your team.',
+            'We approach technology and transformation from a foundation of governance, risk and accountability.',
         },
         {
-          title: 'Technology-aware',
-          description: 'We understand the systems behind the risks, including cloud, data and AI.',
-        },
-        {
-          title: 'Advisory, not certification',
+          title: 'Practical, not just advisory',
           description:
-            'We prepare you for assessments such as ISO 27001 and SOC 2. Independent bodies carry out the assessments and issue certificates.',
+            'We go beyond identifying gaps. We help organisations develop and implement the controls, policies, processes and frameworks needed to address them.',
+        },
+        {
+          title: 'Business focused',
+          description:
+            "Our recommendations are proportionate and designed around the organisation's objectives, operational realities and risk profile.",
+        },
+        {
+          title: 'Technology aware',
+          description:
+            'Our approach brings together governance, regulatory compliance, cybersecurity, data protection and emerging technology risk.',
+        },
+        {
+          title: 'Scalable support',
+          description:
+            'Our services can range from individual assessments and remediation projects to ongoing governance and compliance advisory support.',
         },
       ],
     }),
@@ -250,10 +257,10 @@ const about = published(
       heading: 'Who we are',
       doc: doc(
         p(
-          'Ablin Limited helps organisations understand their obligations, manage information and technology risk, and put controls in place that people can operate.',
+          'Ablin Limited is a UK-based governance, risk, compliance and technology advisory firm. We help organisations navigate regulatory complexity, strengthen internal controls, manage technology and information risks, protect data and establish responsible governance around emerging technologies.',
         ),
         p(
-          'We work across governance, risk and compliance, cybersecurity governance, data protection, AI governance and technology assurance. Technology is part of the picture, but our starting point is always the organisation: what it must do, what could go wrong and who is accountable.',
+          'Our consultants combine governance principles with practical implementation, helping organisations move from identifying risks and compliance gaps to developing workable controls, policies, processes and improvement programmes.',
         ),
       ),
     }),
@@ -486,11 +493,11 @@ const cookiePolicy = published(
       doc: doc(
         h2('What we use now'),
         p(
-          "This website currently sets no analytics or advertising cookies. It stores one item in your browser's local storage: your light or dark theme choice. It stays on your device and is not sent to us.",
+          "Essential storage on your device remembers your light or dark theme choice and your cookie preference. These stay on your device and are not used to track you across other websites.",
         ),
         h2('Analytics'),
         p(
-          'If we introduce analytics, we will load it only after you accept it in a cookie banner, and we will update this policy to describe what it collects.',
+          'If you choose Accept analytics in the cookie banner, we load Google Analytics 4 to understand how visitors use this website (pages viewed, approximate location and device type). We do not load analytics unless you accept. You can change your mind by clearing site data in your browser and choosing again.',
         ),
         h2('Controlling storage'),
         p(

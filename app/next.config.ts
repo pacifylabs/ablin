@@ -4,11 +4,11 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https://res.cloudinary.com data:",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://api.resend.com https://api.cloudinary.com https://*.blob.vercel-storage.com",
+  "connect-src 'self' https://api.resend.com https://api.cloudinary.com https://*.blob.vercel-storage.com https://www.google-analytics.com https://region1.google-analytics.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

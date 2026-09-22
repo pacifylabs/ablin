@@ -1,3 +1,6 @@
+import { config } from '@/lib/config';
+import { Analytics } from './Analytics';
+import { CookieConsent } from './CookieConsent';
 import { Footer } from './Footer';
 import { Header } from './Header';
 import { SkipLink } from './SkipLink';
@@ -17,6 +20,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
         {children}
       </main>
       <Footer />
+      <CookieConsent />
+      <Analytics measurementId={config.analytics.gaMeasurementId} />
     </>
   );
 }

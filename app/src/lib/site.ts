@@ -24,7 +24,7 @@ export const primaryNav: readonly NavItem[] = [
   { label: 'Contact', href: '/contact' },
 ];
 
-export const headerCta: NavItem = { label: 'Speak to our consultants', href: '/contact' };
+export const headerCta: NavItem = { label: 'Speak to Our Consultants', href: '/contact' };
 
 export const companyNav: readonly NavItem[] = [
   { label: 'About Us', href: '/about' },
