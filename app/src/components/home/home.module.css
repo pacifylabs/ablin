@@ -325,3 +325,28 @@
     gap: var(--space-16);
   }
 }
+
+@media (max-width: 899px) {
+  .serveGrid,
+  .whyGrid,
+  .insightsGrid,
+  .statementGrid {
+    gap: var(--space-8);
+  }
+
+  .servePhoto,
+  .whyIllustration,
+  .insightsPhoto,
+  .statementPhoto {
+    max-width: none;
+    width: 100%;
+  }
+
+  .statement {
+    padding-top: clamp(3.5rem, 10vw, 6rem);
+  }
+
+  .statementText p {
+    font-size: clamp(1.5rem, 6.5vw, 2rem);
+  }
+}

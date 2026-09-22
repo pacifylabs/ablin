@@ -165,16 +165,45 @@
   opacity: 0.85;
 }
 
-/* (sample) on phones the strip flows under the copy instead of pinning to the bottom. */
-@media (max-width: 560px) {
+/* On narrow viewports the strip flows under the copy instead of pinning to the bottom. */
+@media (max-width: 768px) {
   .hero {
     display: block;
     min-height: auto;
-    padding-block: clamp(3rem, 12vw, 5rem) 3rem;
+    padding-block: clamp(2.5rem, 10vw, 4.5rem) 2.5rem;
+  }
+
+  .title {
+    max-width: none;
+    font-size: clamp(2.15rem, 9vw, 3.25rem);
+  }
+
+  .lead {
+    max-width: none;
+  }
+
+  .cta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta .btn {
+    justify-content: center;
+    width: 100%;
   }
 
   .fwWrap {
     position: static;
-    margin-top: 2.5rem;
+    margin-top: 2rem;
+  }
+
+  .fw {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .fwList {
+    gap: var(--space-3);
   }
 }

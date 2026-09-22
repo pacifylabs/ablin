@@ -164,6 +164,19 @@
   }
 }
 
+/* Contact and other pinned page intros (no CMS hero block). */
+.pageIntro {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 42rem;
+}
+
+.pageIntro h1 {
+  font-size: clamp(1.875rem, 5vw, 2.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
 /* Contact layout. */
 .contactGrid {
   display: grid;
@@ -200,6 +213,16 @@
 .contactSteps li:first-child {
   padding-top: 0;
   border-top: 0;
+}
+
+@media (max-width: 899px) {
+  .contactGrid {
+    gap: var(--space-6);
+  }
+
+  .row {
+    padding: var(--space-5);
+  }
 }
 
 @media (min-width: 900px) {

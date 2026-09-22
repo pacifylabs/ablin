@@ -51,6 +51,12 @@
   }
 }
 
+@media (max-width: 639px) {
+  .head {
+    margin-bottom: var(--space-6);
+  }
+}
+
 @media (min-width: 900px) {
   .head {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);

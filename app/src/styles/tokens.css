@@ -78,7 +78,7 @@
   --container: 1200px;
   --container-narrow: 760px;
   --gutter: clamp(1.25rem, 5vw, 3rem);
-  --section-y: clamp(5rem, 9vw, 8.5rem);
+  --section-y: clamp(3.25rem, 7vw, 8.5rem);
   --header-h: 4.5rem;
   --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 }

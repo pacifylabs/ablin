@@ -212,7 +212,7 @@ h3 {
 .section-header {
   display: grid;
   gap: var(--space-4);
-  margin-bottom: clamp(2.5rem, 5vw, 3.75rem);
+  margin-bottom: clamp(1.75rem, 4vw, 3.75rem);
 }
 
 .section-header .lead {

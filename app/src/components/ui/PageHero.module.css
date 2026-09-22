@@ -96,6 +96,14 @@
 }
 
 @media (max-width: 899px) {
+  .grid {
+    gap: var(--space-6);
+  }
+
+  .text h1 {
+    font-size: clamp(1.875rem, 7vw, 2.375rem);
+  }
+
   .motif {
     right: -20%;
     width: 100%;
@@ -103,8 +111,19 @@
   }
 
   .photo {
+    width: 100%;
+    max-width: none;
     margin-inline: auto;
     margin-bottom: 0;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions :global(.btn) {
+    width: 100%;
   }
 
   .media:not(.mediaIllustrationOnly) .mediaDiagram {

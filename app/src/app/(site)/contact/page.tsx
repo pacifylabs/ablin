@@ -29,19 +29,15 @@ export default async function ContactPage() {
       <section
         className="section section-surface"
         aria-labelledby="page-title"
-        style={{ paddingBottom: 'var(--space-12)' }}
+        style={{ paddingBottom: 'var(--space-8)' }}
       >
-        <div className="container" style={{ display: 'grid', gap: 'var(--space-5)' }}>
+        <div className={`container ${blocks.pageIntro}`}>
           <h1 id="page-title">{page.title}</h1>
           <p className="lead">{page.lead}</p>
         </div>
       </section>
 
-      <section
-        className="section section-surface"
-        style={{ paddingTop: 0 }}
-        aria-label="Contact form"
-      >
+      <section className="section section-surface" style={{ paddingTop: 0 }} aria-label="Contact form">
         <div className={`container ${blocks.contactGrid}`}>
           <div className="card" style={{ padding: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
             <ContactForm enquiryTypes={page.enquiryTypes} />
