@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
 import { Approach } from '@/components/home/Approach';
 import { Capabilities } from '@/components/home/Capabilities';
-import { Hero } from '@/components/home/Hero';
-import { Statement } from '@/components/home/Statement';
 import { InsightsTeaser } from '@/components/home/InsightsTeaser';
 import { ServicesOverview } from '@/components/home/ServicesOverview';
 import { TaglineStrip } from '@/components/home/TaglineStrip';
 import { WhoWeServe } from '@/components/home/WhoWeServe';
 import { WhyAblin } from '@/components/home/WhyAblin';
+import { HeroSignal } from '@/components/hero-signal/HeroSignal';
 import { CtaBand } from '@/components/shell/CtaBand';
 import { FrameworkBand } from '@/components/ui/FrameworkBand';
 import { config } from '@/lib/config';
@@ -45,8 +44,6 @@ export default async function HomePage() {
     audiences,
     frameworks,
     insights,
-    heroImage,
-    statementImage,
     audienceImage,
     insightsImage,
     ctaImage,
@@ -56,8 +53,6 @@ export default async function HomePage() {
     getAudiences(),
     getFrameworks(),
     getInsightsPage(),
-    getImage(home.hero.image),
-    getImage(home.statement.image),
     getImage(home.audiences.image),
     getImage(home.insights.image),
     getImage(home.cta.image),
@@ -69,9 +64,8 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organisationJsonLd) }}
       />
-      <Hero hero={home.hero} image={heroImage} />
+      <HeroSignal hero={home.hero} />
       <TaglineStrip />
-      <Statement text={home.statement.text} image={statementImage} />
       <FrameworkBand
         id="frameworks-title"
         title={home.frameworks.title}

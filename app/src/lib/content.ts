@@ -47,7 +47,6 @@ const images = imagesSchema.parse(imagesJson);
 
 // Every image id used by a page must exist in the manifest.
 const imageRefs = [
-  home.hero.image,
   home.statement.image,
   home.audiences.image,
   home.insights.image,

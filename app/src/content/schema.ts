@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Content schemas. Every page's copy is data validated against these, so the source can move from
- * JSON files to the API/admin without touching a component (see lib/content.ts).
+ * JSON files to a database and admin without touching a component (see lib/content.ts).
  */
 export const illustrationScene = z.enum([
   'structure',
@@ -103,8 +103,11 @@ export const homeSchema = z.object({
     lead: z.string(),
     primary: cta,
     secondary: cta,
-    illustration: illustrationScene,
-    image: z.string(),
+    /** Line above the headline. */
+    eyebrow: z.string().min(1),
+    /** Strip at the foot of the hero: names of frameworks Ablin advises on. Never certifications held. */
+    frameworksLabel: z.string().min(1),
+    frameworkNames: z.array(z.string().min(1)).min(1),
   }),
   statement: z.object({ text: z.string(), image: z.string() }),
   frameworks: z.object({ title: z.string(), lead: z.string(), note: z.string() }),

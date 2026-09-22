@@ -159,10 +159,12 @@ h3 {
   text-align: center;
   text-decoration: none;
   cursor: pointer;
+  /* Calm hover: colour, border and a soft glow only. Buttons never move (no transform, no positional effects). */
   transition:
     background-color 0.18s,
     border-color 0.18s,
-    color 0.18s;
+    color 0.18s,
+    box-shadow 0.22s;
 }
 
 .btn-primary {
@@ -173,6 +175,7 @@ h3 {
 .btn-primary:hover {
   background: var(--accent-hover);
   color: var(--on-accent);
+  box-shadow: 0 0 0 4px var(--signal-soft);
 }
 
 .btn-ghost {
@@ -184,6 +187,7 @@ h3 {
 .btn-ghost:hover {
   border-color: var(--accent);
   color: var(--accent);
+  box-shadow: 0 0 0 3px var(--signal-soft);
 }
 
 .link-quiet {

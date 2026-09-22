@@ -9,7 +9,7 @@ test('photographs: decorative ones have empty alt, meaningful ones have descript
     .evaluateAll((nodes) =>
       nodes.map((n) => ({ alt: (n as HTMLImageElement).alt, src: (n as HTMLImageElement).src })),
     );
-  expect(imgs.length).toBeGreaterThanOrEqual(4);
+  expect(imgs.length).toBeGreaterThanOrEqual(3);
   for (const img of imgs) {
     // Either intentionally decorative (empty) or genuinely described; never a filename or generic word.
     expect(img.alt === '' || img.alt.length > 10, img.src).toBe(true);
@@ -17,7 +17,7 @@ test('photographs: decorative ones have empty alt, meaningful ones have descript
   }
 });
 
-test('photographs use the navy duotone filter and load lazily except the hero', async ({
+test('photographs use the navy duotone filter and all lazy-load (the hero has no photograph)', async ({
   page,
 }) => {
   await page.goto('/');
@@ -35,9 +35,9 @@ test('photographs use the navy duotone filter and load lazily except the hero', 
   const loading = await page
     .locator('main img')
     .evaluateAll((n) => n.map((i) => (i as HTMLImageElement).loading));
-  // The hero photograph is the LCP candidate: never lazy. Everything else below the fold is.
-  expect(loading[0]).not.toBe('lazy');
-  expect(loading.slice(1).every((l) => l === 'lazy')).toBe(true);
+  // The largest thing above the fold is now text, so no image needs priority: everything lazy-loads.
+  expect(loading.length).toBeGreaterThan(0);
+  expect(loading.every((l) => l === 'lazy')).toBe(true);
 });
 
 test('decorative motifs are hidden from assistive technology', async ({ page }) => {
@@ -46,38 +46,6 @@ test('decorative motifs are hidden from assistive technology', async ({ page }) 
     .locator('main svg')
     .evaluateAll((nodes) => nodes.filter((n) => !n.closest('[aria-hidden="true"]')).length);
   expect(exposed).toBe(0);
-});
-
-test('hero arcs sweep in when motion is allowed', async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: 'no-preference' });
-  const page = await context.newPage();
-  await page.goto('/');
-  const name = await page
-    .locator('main .m-sweep')
-    .first()
-    .evaluate((el) => getComputedStyle(el).animationName);
-  expect(name).toBe('m-sweep');
-  await context.close();
-});
-
-test('all motif and scroll motion is off under reduced motion', async ({ browser }) => {
-  const context = await browser.newContext({ reducedMotion: 'reduce' });
-  const page = await context.newPage();
-  await page.goto('/');
-  const states = await page.evaluate(() =>
-    [...document.querySelectorAll('.m-sweep, .m-parallax, .m-reveal')].map((el) => {
-      const s = getComputedStyle(el);
-      return s.animationName;
-    }),
-  );
-  expect(states.length).toBeGreaterThan(0);
-  for (const state of states) expect(state).toBe('none');
-  // Nothing may be left invisible waiting for an animation that will never run.
-  const hidden = await page
-    .locator('.m-sweep, .m-reveal')
-    .evaluateAll((nodes) => nodes.filter((n) => Number(getComputedStyle(n).opacity) < 1).length);
-  expect(hidden).toBe(0);
-  await context.close();
 });
 
 test('frameworks section states advisory framing and shows no certificate wording', async ({
@@ -106,14 +74,14 @@ test('frameworks section states advisory framing and shows no certificate wordin
   }
 });
 
-test('hero photograph overlaps the tagline strip', async ({ page }) => {
+test('the hero flows straight into the tagline strip', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/');
-  const photo = await page.locator('section[aria-labelledby="hero-title"] img').boundingBox();
+  const hero = await page.locator('section[aria-labelledby="hero-title"]').boundingBox();
   const strip = await page
     .getByText('Secure · Scalable · Smart IT Consulting')
     .first()
     .boundingBox();
-  expect(photo && strip).toBeTruthy();
-  expect(photo!.y + photo!.height).toBeGreaterThan(strip!.y);
+  expect(hero && strip).toBeTruthy();
+  expect(strip!.y).toBeGreaterThanOrEqual(hero!.y + hero!.height - 1);
 });

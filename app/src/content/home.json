@@ -10,8 +10,9 @@
       "label": "Speak to our consultants",
       "href": "/contact"
     },
-    "illustration": "structure",
-    "image": "hero-stairs"
+    "eyebrow": "Governance, risk & compliance advisory",
+    "frameworksLabel": "Frameworks we advise on",
+    "frameworkNames": ["ISO 27001", "ISO/IEC 42001", "UK GDPR & DPA 2018", "SOC 2", "NIST AI RMF"]
   },
   "frameworks": {
     "title": "Frameworks we advise on",

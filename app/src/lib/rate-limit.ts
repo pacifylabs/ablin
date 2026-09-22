@@ -1,10 +1,12 @@
 /**
- * Fixed-window, in-memory rate limiter. It is per server instance, which is enough to blunt abuse of the form
- * until the Redis-backed limiter in the API phase (PRD §13) replaces it. State is bounded by pruning expired keys.
+ * Fixed-window, in-memory rate limiter. State lives in one server instance, and on Vercel each serverless instance
+ * has its own, so this only blunts casual repeat submissions. Before launch, back this interface with a shared store
+ * (for example Upstash Redis through the Vercel Marketplace) so limits hold across instances. State is bounded by
+ * pruning expired keys.
  */
 export interface RateLimiter {
   /** Returns 0 when allowed, otherwise the seconds until the caller may retry. */
-  check(key: string, now?: number): number;
+  check(key: string, now?: number): number | Promise<number>;
 }
 
 export function createRateLimiter(limit: number, windowMs: number): RateLimiter {

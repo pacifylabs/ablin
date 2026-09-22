@@ -1,12 +1,13 @@
 import { createHash } from 'node:crypto';
-import { config } from '@/lib/config';
 import { buildContactSchema, MIN_FILL_MS, toFieldErrors } from '@/lib/contact';
+import { deliverContact, type ContactMessage, type DeliveryResult } from '@/lib/contact-delivery';
 import { getContactPage } from '@/lib/content';
 import type { RateLimiter } from '@/lib/rate-limit';
 
 export interface ContactDeps {
   limiter: RateLimiter;
-  fetchImpl?: typeof fetch;
+  /** Swappable in tests; defaults to emailing the enquiry from this Next.js server. */
+  deliver?: (message: ContactMessage) => Promise<DeliveryResult>;
   now?: () => number;
 }
 
@@ -20,12 +21,12 @@ function clientIp(request: Request): string {
 }
 
 /**
- * Validates an enquiry, applies spam controls, then hands it to the API that stores it and notifies the firm.
- * It never reports success unless that API accepted the enquiry: a silent failure would lose a lead.
+ * Validates an enquiry, applies spam controls, then emails it to the firm from this server.
+ * It never reports success unless delivery succeeded: a silent failure would lose a lead.
  */
 export async function handleContact(request: Request, deps: ContactDeps): Promise<Response> {
   const now = deps.now ?? Date.now;
-  const fetchImpl = deps.fetchImpl ?? fetch;
+  const deliver = deps.deliver ?? ((message: ContactMessage) => deliverContact(message));
 
   let payload: unknown;
   try {
@@ -47,47 +48,27 @@ export async function handleContact(request: Request, deps: ContactDeps): Promis
   const input = parsed.data;
   if (now() - input.startedAt < MIN_FILL_MS) return json({ ok: true }, 200);
 
-  const ip = clientIp(request);
-  const ipHash = createHash('sha256').update(ip).digest('hex');
-  const retryAfter = deps.limiter.check(ipHash, now());
+  const ipHash = createHash('sha256').update(clientIp(request)).digest('hex');
+  const retryAfter = await deps.limiter.check(ipHash, now());
   if (retryAfter > 0)
     return json({ error: 'rate_limited' }, 429, { 'Retry-After': String(retryAfter) });
 
-  if (!config.contactApiUrl) {
-    console.error('Contact enquiry not delivered: CONTACT_API_URL is not configured.');
+  const enquiryLabel =
+    enquiryTypes.find((t) => t.value === input.enquiryType)?.label ?? input.enquiryType;
+  const result = await deliver({
+    fullName: input.fullName,
+    email: input.email,
+    organisation: input.organisation,
+    enquiryLabel,
+    message: input.message,
+  });
+
+  if (result.ok) return json({ ok: true }, 200);
+  if (result.reason === 'not_configured') {
+    console.error(
+      'Contact enquiry not delivered: RESEND_API_KEY, CONTACT_TO_EMAIL and CONTACT_FROM_EMAIL must all be set.',
+    );
     return json({ error: 'unavailable' }, 503);
   }
-
-  try {
-    const upstream = await fetchImpl(config.contactApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(config.contactApiToken ? { Authorization: `Bearer ${config.contactApiToken}` } : {}),
-      },
-      body: JSON.stringify({
-        fullName: input.fullName,
-        email: input.email,
-        organisation: input.organisation,
-        enquiryType: input.enquiryType,
-        message: input.message,
-        consent: input.consent,
-        sourcePath: '/contact',
-        ipHash,
-        userAgent: request.headers.get('user-agent')?.slice(0, 300) ?? null,
-      }),
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!upstream.ok) {
-      console.error(`Contact API rejected an enquiry with status ${upstream.status}.`);
-      return json({ error: 'upstream' }, 502);
-    }
-    return json({ ok: true }, 200);
-  } catch (error) {
-    console.error(
-      'Contact API unreachable:',
-      error instanceof Error ? error.message : 'unknown error',
-    );
-    return json({ error: 'upstream' }, 502);
-  }
+  return json({ error: 'upstream' }, 502);
 }

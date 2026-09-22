@@ -1,0 +1,180 @@
+/*
+ * Hero "signal structure": layout and type ported from the reference hero. Colours are theme tokens (--signal,
+ * --heading, --text, --text-muted, --border-strong); nothing here is a raw colour.
+ */
+.hero {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  /* The site header is sticky (not overlaid as in the reference), so subtract its height. */
+  min-height: calc(100svh - 4.5rem);
+  overflow: hidden;
+  /* Room below the copy for the frameworks strip, which is positioned at the bottom. */
+  padding-block: 3rem 8rem;
+  background: var(--bg);
+}
+
+.inner {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+
+/* (sample) eyebrow with a glowing signal node. */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.eyebrow::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 12px var(--signal);
+}
+
+/* (sample) headline. */
+.title {
+  max-width: 16ch;
+  margin: 1.4rem 0 1.6rem;
+  font-size: clamp(2.7rem, 6.4vw, 5.6rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  /* (sample) plain wrapping; the site-wide balance rule would re-break the headline. */
+  text-wrap: wrap;
+}
+
+.lead {
+  max-width: 44ch;
+  margin: 0 0 2.4rem;
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.3rem;
+}
+
+/*
+ * Buttons. Calm by construction: no transform, no translate, no positional script. Only colour, border and
+ * box-shadow are transitioned, so a button never moves toward, away from or with the cursor.
+ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.75rem;
+  padding: 0.85rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    box-shadow 0.3s;
+}
+
+.primary {
+  background: var(--signal);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 transparent;
+}
+
+.primary:hover {
+  color: var(--on-accent);
+  box-shadow:
+    0 8px 30px color-mix(in srgb, var(--signal) 30%, transparent),
+    0 0 0 1px var(--signal);
+}
+
+.ghost {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--heading);
+}
+
+.ghost:hover {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* (sample) frameworks strip, pinned to the bottom of the hero and aligned to the site container. */
+.fwWrap {
+  position: absolute;
+  inset: auto 0 2.2rem 0;
+  z-index: 2;
+}
+
+.fw {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border-strong);
+}
+
+.fwLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.fwList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fwList li {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  opacity: 0.85;
+}
+
+/* (sample) on phones the strip flows under the copy instead of pinning to the bottom. */
+@media (max-width: 560px) {
+  .hero {
+    display: block;
+    min-height: auto;
+    padding-block: clamp(3rem, 12vw, 5rem) 3rem;
+  }
+
+  .fwWrap {
+    position: static;
+    margin-top: 2.5rem;
+  }
+}

@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ContactMessage } from '@/lib/contact-delivery';
+import { deliverContact } from '@/lib/contact-delivery';
 import { createRateLimiter } from '@/lib/rate-limit';
 
 const NOW = 1_800_000_000_000;
@@ -27,25 +29,23 @@ function post(body: unknown, headers: Record<string, string> = {}) {
 
 describe('contact handler', () => {
   beforeEach(() => {
-    vi.resetModules();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
   afterEach(() => {
-    vi.unstubAllEnvs();
     vi.restoreAllMocks();
   });
 
-  async function load(env: Record<string, string> = {}) {
-    for (const [k, v] of Object.entries(env)) vi.stubEnv(k, v);
-    const mod = await import('@/lib/contact-handler');
-    const limiter = (await import('@/lib/rate-limit')).createRateLimiter(3, 60_000);
-    return { handle: mod.handleContact, limiter };
+  async function load(limit = 3) {
+    const { handleContact } = await import('@/lib/contact-handler');
+    return { handle: handleContact, limiter: createRateLimiter(limit, 60_000) };
   }
+
+  const ok = () =>
+    vi.fn<(m: ContactMessage) => Promise<{ ok: true }>>().mockResolvedValue({ ok: true });
 
   it('rejects malformed JSON', async () => {
     const { handle, limiter } = await load();
-    const res = await handle(post('{not json'), { limiter, now: () => NOW });
-    expect(res.status).toBe(400);
+    expect((await handle(post('{not json'), { limiter, now: () => NOW })).status).toBe(400);
   });
 
   it('returns field errors for invalid input', async () => {
@@ -67,74 +67,144 @@ describe('contact handler', () => {
     ]);
   });
 
-  it('answers a filled honeypot with success but forwards nothing', async () => {
-    const { handle, limiter } = await load({ CONTACT_API_URL: 'http://api.test/contact' });
-    const fetchImpl = vi.fn();
+  it('answers a filled honeypot with success but delivers nothing', async () => {
+    const { handle, limiter } = await load();
+    const deliver = ok();
     const res = await handle(post(valid({ website: 'http://spam.example' })), {
       limiter,
-      fetchImpl,
+      deliver,
       now: () => NOW,
     });
     expect(res.status).toBe(200);
-    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(deliver).not.toHaveBeenCalled();
   });
 
   it('drops submissions made faster than a person could type', async () => {
-    const { handle, limiter } = await load({ CONTACT_API_URL: 'http://api.test/contact' });
-    const fetchImpl = vi.fn();
+    const { handle, limiter } = await load();
+    const deliver = ok();
     const res = await handle(post(valid({ startedAt: NOW - 500 })), {
       limiter,
-      fetchImpl,
+      deliver,
       now: () => NOW,
     });
     expect(res.status).toBe(200);
-    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(deliver).not.toHaveBeenCalled();
   });
 
-  it('fails loudly, not silently, when no delivery API is configured', async () => {
-    const { handle, limiter } = await load({ CONTACT_API_URL: '' });
-    const res = await handle(post(valid()), { limiter, now: () => NOW });
-    expect(res.status).toBe(503);
-  });
-
-  it('forwards a valid enquiry and reports success only when the API accepts it', async () => {
-    const { handle, limiter } = await load({
-      CONTACT_API_URL: 'http://api.test/contact',
-      CONTACT_API_TOKEN: 't0ken',
-    });
-    const fetchImpl = vi.fn().mockResolvedValue(new Response(null, { status: 201 }));
-    const res = await handle(post(valid()), { limiter, fetchImpl, now: () => NOW });
+  it('delivers a valid enquiry with the human enquiry label, and reports success', async () => {
+    const { handle, limiter } = await load();
+    const deliver = ok();
+    const res = await handle(post(valid()), { limiter, deliver, now: () => NOW });
     expect(res.status).toBe(200);
-    const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe('http://api.test/contact');
-    expect((init.headers as Record<string, string>).Authorization).toBe('Bearer t0ken');
-    const sent = JSON.parse(init.body as string) as Record<string, unknown>;
+    expect(deliver).toHaveBeenCalledOnce();
+    const sent = deliver.mock.calls[0]![0];
+    expect(sent.enquiryLabel).toBe('Governance, risk and compliance');
     expect(sent.email).toBe('amina@example.com');
-    // The raw address is never forwarded, only its hash.
+    // Nothing about the visitor's network identity is passed to delivery.
     expect(JSON.stringify(sent)).not.toContain('203.0.113.9');
-    expect(sent.ipHash).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  it('returns 502 when the API rejects or is unreachable', async () => {
-    const { handle, limiter } = await load({ CONTACT_API_URL: 'http://api.test/contact' });
-    const rejected = vi.fn().mockResolvedValue(new Response(null, { status: 500 }));
-    expect(
-      (await handle(post(valid()), { limiter, fetchImpl: rejected, now: () => NOW })).status,
-    ).toBe(502);
-    const down = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'));
-    expect((await handle(post(valid()), { limiter, fetchImpl: down, now: () => NOW })).status).toBe(
-      502,
-    );
+  it('fails loudly, not silently, when email delivery is not configured', async () => {
+    const { handle, limiter } = await load();
+    const deliver = vi.fn().mockResolvedValue({ ok: false, reason: 'not_configured' });
+    expect((await handle(post(valid()), { limiter, deliver, now: () => NOW })).status).toBe(503);
+  });
+
+  it('returns 502 when the provider rejects or is unreachable, never success', async () => {
+    const { handle, limiter } = await load();
+    for (const reason of ['rejected', 'unreachable'] as const) {
+      const deliver = vi.fn().mockResolvedValue({ ok: false, reason });
+      expect((await handle(post(valid()), { limiter, deliver, now: () => NOW })).status).toBe(502);
+    }
   });
 
   it('rate limits repeat submissions from one address', async () => {
-    const { handle, limiter } = await load({ CONTACT_API_URL: 'http://api.test/contact' });
-    const fetchImpl = vi.fn().mockResolvedValue(new Response(null, { status: 201 }));
+    const { handle, limiter } = await load(3);
+    const deliver = ok();
     const statuses: number[] = [];
     for (let i = 0; i < 4; i += 1) {
-      statuses.push((await handle(post(valid()), { limiter, fetchImpl, now: () => NOW })).status);
+      statuses.push((await handle(post(valid()), { limiter, deliver, now: () => NOW })).status);
     }
     expect(statuses).toEqual([200, 200, 200, 429]);
+  });
+});
+
+describe('email delivery', () => {
+  const contact = {
+    resendApiKey: 're_test_key',
+    toEmail: 'firm@example.com',
+    fromEmail: 'Ablin <enquiries@example.com>',
+  };
+  const message: ContactMessage = {
+    fullName: 'Amina Yusuf',
+    email: 'amina@example.com',
+    organisation: 'Example Ltd',
+    enquiryLabel: 'SOC 2',
+    message: 'Line one.\nLine two.',
+  };
+
+  beforeEach(() => {
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('is not_configured unless key, recipient and sender are all set', async () => {
+    const fetchImpl = vi.fn();
+    for (const missing of ['resendApiKey', 'toEmail', 'fromEmail'] as const) {
+      const result = await deliverContact(message, {
+        contact: { ...contact, [missing]: '' },
+        fetchImpl,
+      });
+      expect(result, missing).toEqual({ ok: false, reason: 'not_configured' });
+    }
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('posts one email to Resend with reply-to set to the enquirer', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }));
+    expect(await deliverContact(message, { contact, fetchImpl })).toEqual({ ok: true });
+    const [url, init] = fetchImpl.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('https://api.resend.com/emails');
+    expect((init.headers as Record<string, string>).Authorization).toBe('Bearer re_test_key');
+    const body = JSON.parse(init.body as string) as Record<string, unknown>;
+    expect(body).toMatchObject({
+      from: contact.fromEmail,
+      to: [contact.toEmail],
+      reply_to: 'amina@example.com',
+      subject: 'Website enquiry: SOC 2',
+    });
+    expect(body.text).toContain('Name: Amina Yusuf');
+    expect(body.text).toContain('Line one.\nLine two.');
+  });
+
+  it('cannot be used to inject headers or extra subject lines through visitor-typed fields', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }));
+    await deliverContact(
+      { ...message, fullName: 'Eve\r\nBcc: victim@example.com', organisation: 'X\nSubject: spoof' },
+      { contact, fetchImpl },
+    );
+    const body = JSON.parse(
+      (fetchImpl.mock.calls[0] as [string, RequestInit])[1].body as string,
+    ) as Record<string, string>;
+    expect(body.subject).toBe('Website enquiry: SOC 2');
+    expect(body.text).toContain('Name: Eve Bcc: victim@example.com');
+    expect(body.text).toContain('Organisation: X Subject: spoof');
+    expect(Object.keys(body).sort()).toEqual(['from', 'reply_to', 'subject', 'text', 'to']);
+  });
+
+  it('reports rejection and unreachable providers as failures', async () => {
+    const rejected = vi.fn().mockResolvedValue(new Response('{}', { status: 403 }));
+    expect(await deliverContact(message, { contact, fetchImpl: rejected })).toEqual({
+      ok: false,
+      reason: 'rejected',
+    });
+    const down = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+    expect(await deliverContact(message, { contact, fetchImpl: down })).toEqual({
+      ok: false,
+      reason: 'unreachable',
+    });
   });
 });
 

@@ -47,6 +47,12 @@
   --wash: color-mix(in srgb, var(--brand) 7%, transparent);
   --motif-stroke: var(--brand);
   --motif-soft: var(--border-strong);
+  /*
+   * --signal: the accent for the hero lattice, glows and interactive highlights ONLY. Not a global recolour.
+   * ONE-LINE SWITCH to add no new hue: set it to var(--accent) here and in the two dark blocks below.
+   */
+  --signal: #1e6fdb;
+  --signal-soft: color-mix(in srgb, var(--signal) 22%, transparent);
 
   /* Scale (theme-independent) */
   --space-1: 0.25rem;
@@ -119,6 +125,8 @@
   --grain-opacity: 0.09;
   --wash: color-mix(in srgb, var(--accent) 9%, transparent);
   --motif-stroke: var(--accent);
+  --signal: #4da3ff;
+  --signal-soft: color-mix(in srgb, var(--signal) 22%, transparent);
 }
 
 /* System preference for visitors who haven't toggled — mirrors the dark block. */
@@ -164,5 +172,7 @@
     --grain-opacity: 0.09;
     --wash: color-mix(in srgb, var(--accent) 9%, transparent);
     --motif-stroke: var(--accent);
+    --signal: #4da3ff;
+    --signal-soft: color-mix(in srgb, var(--signal) 22%, transparent);
   }
 }
