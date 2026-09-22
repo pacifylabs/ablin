@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import type { z } from 'zod';
-import type { homeSchema } from '@/content/schema';
+import type { HeroData as BlockHeroData } from '@/cms/schema';
 import { HERO_BACKGROUND } from './config';
 import { HeroSignalBackground } from './HeroSignalBackground';
 import styles from './HeroSignal.module.css';
 
-type HeroData = z.infer<typeof homeSchema>['hero'];
+// This component renders only the "home" hero variant — the "page" variant (an ordinary page's kicker/title/
+// lead/illustration) is rendered by ui/PageHero instead. See cms/BlockRenderer.tsx.
+type HeroData = Extract<BlockHeroData, { variant: 'home' }>;
 
 /**
  * The approved "signal structure" hero: eyebrow, headline, lead, two calls to action, and the frameworks strip, over

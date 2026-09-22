@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { getAudiences, getLegalPage, getServices } from '@/lib/content';
+import { getLegalReviewStatus } from '@/cms/BlockRenderer';
+import { seedPage, seedPages } from '@/cms/seed-data';
+import { getAudiences, getServices } from '@/lib/content';
 
-// Copy the admin will edit is validated at import time (lib/content.ts). These tests guard the rules
-// that schema validation cannot express.
+// Copy the admin will edit is validated at import time (lib/content.ts) or, for pages/articles, by cms/schema.ts
+// at save time. These tests guard the rules that schema validation cannot express.
 
 const HYPE = [
   'cutting-edge',
@@ -19,19 +21,15 @@ const HYPE = [
 ];
 
 async function allText(): Promise<string> {
+  // Most page copy now lives in cms/seed-data.ts (Home, About, Services, Who We Serve, Insights and the four
+  // legal pages) rather than these JSON files, which now only hold the "master data" and the pinned, non-block
+  // sections (see admin/README.md). Both are scanned, so this test still covers everything the site says.
   const modules = await Promise.all(
-    [
-      'home',
-      'about',
-      'services',
-      'services-page',
-      'who-we-serve',
-      'insights',
-      'contact',
-      'audiences',
-      'legal',
-    ].map(async (name) => JSON.stringify((await import(`@/content/${name}.json`)).default)),
+    ['home', 'about', 'services', 'insights', 'contact', 'audiences'].map(async (name) =>
+      JSON.stringify((await import(`@/content/${name}.json`)).default),
+    ),
   );
+  modules.push(JSON.stringify(seedPages));
   return modules.join(' ').toLowerCase();
 }
 
@@ -74,14 +72,14 @@ describe('content integrity', () => {
     }
   });
 
-  it('keeps unreviewed legal pages flagged as draft', async () => {
+  it('keeps unreviewed legal pages flagged as draft', () => {
     for (const slug of [
       'privacy-policy',
       'cookie-policy',
       'terms-of-use',
       'accessibility',
     ] as const) {
-      expect((await getLegalPage(slug)).reviewStatus).toBe('draft');
+      expect(getLegalReviewStatus(seedPage(slug).blocks)).toBe('draft');
     }
   });
 });

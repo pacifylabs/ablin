@@ -47,4 +47,14 @@ export const config = {
     /** Verified sender, e.g. "Ablin website <enquiries@your-domain>". */
     fromEmail: process.env.CONTACT_FROM_EMAIL?.trim() ?? '',
   },
+  /**
+   * Admin dashboard. Redis, Cloudinary and Blob credentials are read directly from process.env at their call
+   * sites (src/cms/redis.ts, src/admin/upload/*), not here — Redis because the edge middleware bundle must stay
+   * free of this Node-oriented module, and the others because they are only ever read where they are used.
+   */
+  admin: {
+    /** Sender for password-reset emails; falls back to the contact-form sender if unset. */
+    resetFromEmail:
+      (process.env.ADMIN_RESET_FROM_EMAIL?.trim() || process.env.CONTACT_FROM_EMAIL?.trim()) ?? '',
+  },
 } as const;

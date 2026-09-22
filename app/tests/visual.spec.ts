@@ -52,7 +52,11 @@ test('frameworks section states advisory framing and shows no certificate wordin
   page,
 }) => {
   await page.goto('/');
-  const section = page.locator('section[aria-labelledby="frameworks-title"]');
+  // The section's id is generated per-block (see cms/BlockRenderer.tsx) rather than fixed, so it's found by its
+  // heading instead.
+  const section = page.locator('section', {
+    has: page.getByRole('heading', { name: 'Frameworks we advise on' }),
+  });
   await expect(section).toContainText('do not issue certificates');
   const text = (await section.innerText()).toLowerCase();
   for (const banned of ['certified', 'accredited', 'approved by', 'partner']) {

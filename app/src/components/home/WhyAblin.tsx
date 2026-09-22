@@ -1,9 +1,10 @@
 import { Illustration } from '@/components/ui/Illustration';
-import type { z } from 'zod';
-import type { homeSchema } from '@/content/schema';
+import type { WhyListData } from '@/cms/schema';
 import styles from './home.module.css';
 
-type Why = z.infer<typeof homeSchema>['why'];
+// This component renders only the "cards" whyList variant (Home). The "cells" variant (About's values grid)
+// is rendered inline by cms/BlockRenderer.tsx.
+type Why = Extract<WhyListData, { variant: 'cards' }>;
 
 export function WhyAblin({ data }: { data: Why }) {
   return (

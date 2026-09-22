@@ -42,6 +42,10 @@ describe('contact handler', () => {
 
   const ok = () =>
     vi.fn<(m: ContactMessage) => Promise<{ ok: true }>>().mockResolvedValue({ ok: true });
+  // Storage defaults to succeeding in every test below unless a test overrides it, matching the real submissions
+  // store being reachable; store() resolving to undefined is success (see lib/contact-handler.ts).
+  const storeOk = () => vi.fn().mockResolvedValue(undefined);
+  const storeFails = () => vi.fn().mockRejectedValue(new Error('Redis unreachable'));
 
   it('rejects malformed JSON', async () => {
     const { handle, limiter } = await load();
@@ -94,7 +98,8 @@ describe('contact handler', () => {
   it('delivers a valid enquiry with the human enquiry label, and reports success', async () => {
     const { handle, limiter } = await load();
     const deliver = ok();
-    const res = await handle(post(valid()), { limiter, deliver, now: () => NOW });
+    const store = storeOk();
+    const res = await handle(post(valid()), { limiter, deliver, store, now: () => NOW });
     expect(res.status).toBe(200);
     expect(deliver).toHaveBeenCalledOnce();
     const sent = deliver.mock.calls[0]![0];
@@ -104,26 +109,78 @@ describe('contact handler', () => {
     expect(JSON.stringify(sent)).not.toContain('203.0.113.9');
   });
 
-  it('fails loudly, not silently, when email delivery is not configured', async () => {
+  it('also records the enquiry in the admin submissions inbox, unread, from /contact', async () => {
     const { handle, limiter } = await load();
-    const deliver = vi.fn().mockResolvedValue({ ok: false, reason: 'not_configured' });
-    expect((await handle(post(valid()), { limiter, deliver, now: () => NOW })).status).toBe(503);
+    const store = storeOk();
+    await handle(post(valid()), { limiter, deliver: ok(), store, now: () => NOW });
+    expect(store).toHaveBeenCalledOnce();
+    const submission = store.mock.calls[0]![0];
+    expect(submission).toMatchObject({
+      fullName: 'Amina Yusuf',
+      email: 'amina@example.com',
+      enquiryType: 'grc',
+      status: 'unread',
+      sourcePath: '/contact',
+    });
+    expect(typeof submission.id).toBe('string');
+    expect(submission.id.length).toBeGreaterThan(0);
   });
 
-  it('returns 502 when the provider rejects or is unreachable, never success', async () => {
+  it('still reports success when email delivery fails but the enquiry was stored', async () => {
+    const { handle, limiter } = await load();
+    const deliver = vi.fn().mockResolvedValue({ ok: false, reason: 'not_configured' });
+    const store = storeOk();
+    const res = await handle(post(valid()), { limiter, deliver, store, now: () => NOW });
+    expect(res.status).toBe(200);
+    expect(store).toHaveBeenCalledOnce();
+  });
+
+  it('still reports success when storage fails but email delivery succeeded', async () => {
+    const { handle, limiter } = await load();
+    const res = await handle(post(valid()), {
+      limiter,
+      deliver: ok(),
+      store: storeFails(),
+      now: () => NOW,
+    });
+    expect(res.status).toBe(200);
+  });
+
+  it('fails loudly, not silently, only when neither storage nor delivery captured the enquiry', async () => {
+    const { handle, limiter } = await load();
+    const deliver = vi.fn().mockResolvedValue({ ok: false, reason: 'not_configured' });
+    const res = await handle(post(valid()), {
+      limiter,
+      deliver,
+      store: storeFails(),
+      now: () => NOW,
+    });
+    expect(res.status).toBe(503);
+  });
+
+  it('returns 502 when the provider rejects or is unreachable and storage also failed, never success', async () => {
     const { handle, limiter } = await load();
     for (const reason of ['rejected', 'unreachable'] as const) {
       const deliver = vi.fn().mockResolvedValue({ ok: false, reason });
-      expect((await handle(post(valid()), { limiter, deliver, now: () => NOW })).status).toBe(502);
+      const res = await handle(post(valid()), {
+        limiter,
+        deliver,
+        store: storeFails(),
+        now: () => NOW,
+      });
+      expect(res.status).toBe(502);
     }
   });
 
   it('rate limits repeat submissions from one address', async () => {
     const { handle, limiter } = await load(3);
     const deliver = ok();
+    const store = storeOk();
     const statuses: number[] = [];
     for (let i = 0; i < 4; i += 1) {
-      statuses.push((await handle(post(valid()), { limiter, deliver, now: () => NOW })).status);
+      statuses.push(
+        (await handle(post(valid()), { limiter, deliver, store, now: () => NOW })).status,
+      );
     }
     expect(statuses).toEqual([200, 200, 200, 429]);
   });

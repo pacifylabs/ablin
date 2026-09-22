@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { ImageSlot } from '@/components/ui/ImageSlot';
-import type { z } from 'zod';
-import type { Audience, ImageAsset, homeSchema } from '@/content/schema';
+import type { Audience, ImageAsset } from '@/content/schema';
+import type { AudienceGridData } from '@/cms/schema';
 import styles from './home.module.css';
 
-type Section = z.infer<typeof homeSchema>['audiences'];
+// This component renders only the "teaser" audienceGrid variant (Home). The "rows" variant (the Who We Serve
+// page itself) is rendered inline by cms/BlockRenderer.tsx.
+type Section = Extract<AudienceGridData, { variant: 'teaser' }>;
 
 /** Asymmetric: heading and a tall photograph on the left, the five groups as hairline rows on the right. */
 export function WhoWeServe({

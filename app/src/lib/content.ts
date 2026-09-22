@@ -7,10 +7,7 @@ import frameworksJson from '@/content/frameworks.json';
 import homeJson from '@/content/home.json';
 import imagesJson from '@/content/images.json';
 import insightsJson from '@/content/insights.json';
-import legalJson from '@/content/legal.json';
 import servicesJson from '@/content/services.json';
-import servicesPageJson from '@/content/services-page.json';
-import whoWeServeJson from '@/content/who-we-serve.json';
 import {
   aboutSchema,
   approachSchema,
@@ -20,17 +17,20 @@ import {
   homeSchema,
   imagesSchema,
   insightsPageSchema,
-  legalPageSchema,
-  servicesPageSchema,
   serviceSchema,
-  whoWeServePageSchema,
-  type LegalPage,
 } from '@/content/schema';
 
 /**
- * The single seam between the site and its copy. Today each loader reads a validated JSON file; the admin
- * phase replaces the bodies with API calls returning the same shapes, and no component changes. Loaders are
- * async for that reason. Parsing at module load means malformed content fails the build, not a page view.
+ * The seam between the site and the copy the admin block editor does NOT cover. Home, About, Services, Who We
+ * Serve and Insights are now mostly built from page:{slug}/insights:article:{slug} documents in Redis (see
+ * cms/store.ts and cms/BlockRenderer.tsx) — this file now only serves:
+ *   - "master data" the block editor references by slug/id rather than owns: services, audiences, frameworks,
+ *     the five approach steps, and the stock-photo manifest.
+ *   - the handful of pinned, non-block sections the closed block palette has no block for (see
+ *     admin/README.md §Pinned sections): the Home Insights teaser, the About mission/vision cards, and the
+ *     Insights page's topic/empty-state copy.
+ *   - the Contact page, which carries no blocks at all (admin only edits its SEO fields — see PageDoc).
+ * Parsing at module load means malformed content fails the build, not a page view.
  */
 const home = homeSchema.parse(homeJson);
 const about = aboutSchema.parse(aboutJson);
@@ -38,24 +38,12 @@ const approach = approachSchema.parse(approachJson);
 const services = z.array(serviceSchema).parse(servicesJson);
 const audiences = z.array(audienceSchema).parse(audiencesJson);
 const frameworks = z.array(frameworkSchema).parse(frameworksJson);
-const servicesPage = servicesPageSchema.parse(servicesPageJson);
-const whoWeServePage = whoWeServePageSchema.parse(whoWeServeJson);
 const insightsPage = insightsPageSchema.parse(insightsJson);
 const contactPage = contactPageSchema.parse(contactJson);
-const legal = z.array(legalPageSchema).parse(legalJson);
 const images = imagesSchema.parse(imagesJson);
 
-// Every image id used by a page must exist in the manifest.
-const imageRefs = [
-  home.statement.image,
-  home.audiences.image,
-  home.insights.image,
-  home.cta.image,
-  about.image,
-  servicesPage.image,
-  whoWeServePage.image,
-  insightsPage.image,
-];
+// Every image id used by pinned content must exist in the manifest.
+const imageRefs = [home.insights.image];
 for (const ref of imageRefs) {
   if (ref && !images[ref]) throw new Error(`Unknown image "${ref}" referenced by page content`);
 }
@@ -75,10 +63,6 @@ for (const a of audiences) {
   for (const ref of a.services) {
     if (!serviceSlugs.has(ref)) throw new Error(`Unknown service "${ref}" in ${a.slug}`);
   }
-}
-for (const c of home.capabilities.items) {
-  if (!serviceSlugs.has(c.serviceSlug))
-    throw new Error(`Unknown service "${c.serviceSlug}" in home capabilities`);
 }
 
 export async function getHome() {
@@ -110,22 +94,11 @@ export async function getImages() {
 export async function getFrameworks() {
   return frameworks;
 }
-export async function getServicesPage() {
-  return servicesPage;
-}
-export async function getWhoWeServePage() {
-  return whoWeServePage;
-}
 export async function getInsightsPage() {
   return insightsPage;
 }
 export async function getContactPage() {
   return contactPage;
-}
-export async function getLegalPage(slug: LegalPage['slug']) {
-  const page = legal.find((p) => p.slug === slug);
-  if (!page) throw new Error(`Missing legal page: ${slug}`);
-  return page;
 }
 
 export function serviceHref(slug: string): string {

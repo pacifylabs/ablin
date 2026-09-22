@@ -1,11 +1,10 @@
 import Link from 'next/link';
 import { Illustration } from '@/components/ui/Illustration';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import type { z } from 'zod';
-import type { homeSchema } from '@/content/schema';
+import type { CapabilityGridData } from '@/cms/schema';
 import { serviceHref } from '@/lib/content';
 
-type CapabilitiesData = z.infer<typeof homeSchema>['capabilities'];
+type CapabilitiesData = CapabilityGridData;
 
 export function Capabilities({ data }: { data: CapabilitiesData }) {
   return (

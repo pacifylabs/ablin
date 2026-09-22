@@ -17,8 +17,6 @@ export const illustrationScene = z.enum([
 ]);
 export type IllustrationScene = z.infer<typeof illustrationScene>;
 
-const cta = z.object({ label: z.string().min(1), href: z.string().startsWith('/') });
-
 export const step = z.object({ title: z.string().min(1), description: z.string().min(1) });
 export const approachSchema = z.object({
   kicker: z.string(),
@@ -95,104 +93,37 @@ export const imageSchema = z.object({
 export type ImageAsset = z.infer<typeof imageSchema>;
 export const imagesSchema = z.record(z.string(), imageSchema);
 
-const ctaBlock = z.object({ title: z.string(), body: z.string(), primary: cta });
-
+/**
+ * Home, About, Services, Who We Serve and Insights are now built from admin-edited blocks (see cms/schema.ts and
+ * page:{slug} in Redis) rather than these JSON files, so most of what used to live here has moved. What's left
+ * below is content the admin block editor deliberately does NOT cover — the closed palette has no block for it
+ * — and so it stays static JSON, read the same way it always was (see admin/README.md §Pinned sections):
+ *   - home.insights: the "no articles yet" teaser on the Home page.
+ *   - about.mission / about.vision: the two fixed cards on the About page.
+ *   - insightsPageSchema's topic/empty-state fields: the placeholder shown on /insights and reused by
+ *     home.insights above, and servicesPageSchema/whoWeServePageSchema/legalPageSchema, which had nothing left
+ *     to pin once their pages became fully block-driven, were removed outright rather than kept as dead code.
+ */
 export const homeSchema = z.object({
-  hero: z.object({
-    title: z.string(),
-    lead: z.string(),
-    primary: cta,
-    secondary: cta,
-    /** Line above the headline. */
-    eyebrow: z.string().min(1),
-    /** Strip at the foot of the hero: names of frameworks Ablin advises on. Never certifications held. */
-    frameworksLabel: z.string().min(1),
-    frameworkNames: z.array(z.string().min(1)).min(1),
-  }),
-  statement: z.object({ text: z.string(), image: z.string() }),
-  frameworks: z.object({ title: z.string(), lead: z.string(), note: z.string() }),
-  capabilities: z.object({
-    title: z.string(),
-    lead: z.string(),
-    items: z
-      .array(
-        z.object({
-          title: z.string(),
-          description: z.string(),
-          serviceSlug: z.string(),
-          illustration: illustrationScene,
-        }),
-      )
-      .length(3),
-  }),
-  services: z.object({ kicker: z.string(), title: z.string(), lead: z.string() }),
-  audiences: z.object({
-    kicker: z.string(),
-    title: z.string(),
-    lead: z.string(),
-    image: z.string(),
-  }),
-  why: z.object({
-    title: z.string(),
-    lead: z.string(),
-    illustration: illustrationScene,
-    points: z.array(z.object({ title: z.string(), description: z.string() })).min(3),
-  }),
   insights: z.object({
     kicker: z.string(),
     title: z.string(),
     lead: z.string(),
     image: z.string(),
   }),
-  cta: ctaBlock.extend({ image: z.string() }),
 });
 
 export const aboutSchema = z.object({
-  title: z.string(),
-  lead: z.string(),
-  illustration: illustrationScene,
-  image: z.string().optional(),
-  introTitle: z.string(),
-  intro: z.array(z.string()).min(1),
   mission: z.object({ title: z.string(), body: z.string() }),
   vision: z.object({ title: z.string(), body: z.string() }),
-  values: z.object({
-    title: z.string(),
-    lead: z.string(),
-    items: z.array(z.object({ title: z.string(), description: z.string() })).length(5),
-  }),
-  cta: ctaBlock,
-});
-
-export const servicesPageSchema = z.object({
-  title: z.string(),
-  lead: z.string(),
-  illustration: illustrationScene,
-  image: z.string().optional(),
-  catalogue: z.object({ title: z.string(), lead: z.string() }),
-  cta: ctaBlock,
-});
-
-export const whoWeServePageSchema = z.object({
-  title: z.string(),
-  lead: z.string(),
-  illustration: illustrationScene,
-  image: z.string().optional(),
-  groups: z.object({ title: z.string(), lead: z.string() }),
-  cta: ctaBlock,
 });
 
 export const insightsPageSchema = z.object({
-  title: z.string(),
-  lead: z.string(),
-  illustration: illustrationScene,
-  image: z.string().optional(),
   topicsTitle: z.string(),
   topicsLead: z.string(),
   topics: z.array(z.string()).min(1),
   emptyTitle: z.string(),
   emptyBody: z.string(),
-  cta: ctaBlock,
 });
 
 export const contactPageSchema = z.object({
@@ -206,21 +137,3 @@ export const contactPageSchema = z.object({
   privacyNote: z.string(),
 });
 export type EnquiryType = z.infer<typeof contactPageSchema>['enquiryTypes'][number];
-
-export const legalPageSchema = z.object({
-  slug: z.enum(['privacy-policy', 'cookie-policy', 'terms-of-use', 'accessibility']),
-  title: z.string(),
-  description: z.string(),
-  lead: z.string(),
-  /** Legal text stays flagged until the client has reviewed it (PRD §8.8). */
-  reviewStatus: z.enum(['draft', 'approved']),
-  updated: z.string(),
-  sections: z.array(
-    z.object({
-      heading: z.string(),
-      paragraphs: z.array(z.string()).default([]),
-      list: z.array(z.string()).default([]),
-    }),
-  ),
-});
-export type LegalPage = z.infer<typeof legalPageSchema>;

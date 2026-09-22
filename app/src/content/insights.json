@@ -1,7 +1,4 @@
 {
-  "title": "Insights",
-  "lead": "Practical guidance on governance, risk, compliance, data protection and AI governance.",
-  "illustration": "audit",
   "topicsTitle": "What we publish here",
   "topicsLead": "Articles will be organised under these topics.",
   "topics": [
@@ -16,14 +13,5 @@
     "Regulatory developments"
   ],
   "emptyTitle": "Articles are on the way",
-  "emptyBody": "Our first articles will appear here. If there is a topic you would like us to cover, tell us and we will consider it.",
-  "cta": {
-    "title": "Suggest a topic or ask a question",
-    "body": "Tell us what you would like guidance on.",
-    "primary": {
-      "label": "Speak to our consultants",
-      "href": "/contact"
-    }
-  },
-  "image": "geometric-facade"
+  "emptyBody": "Our first articles will appear here. If there is a topic you would like us to cover, tell us and we will consider it."
 }

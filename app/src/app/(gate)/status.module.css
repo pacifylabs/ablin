@@ -1,0 +1,31 @@
+/* Availability gate: full-viewport, centred, no site chrome. Tokens only — no new colours. */
+.screen {
+  display: flex;
+  min-height: 100svh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.card {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 34rem;
+  text-align: center;
+}
+
+.logo {
+  justify-self: center;
+  height: 2.25rem;
+  width: auto;
+}
+
+.message {
+  white-space: pre-line;
+}
+
+.toggle {
+  justify-self: center;
+}

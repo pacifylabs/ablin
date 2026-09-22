@@ -120,9 +120,15 @@ test('footer: bands stack full-width on desktop, with link columns of similar he
   expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(110);
 });
 
-test('unbuilt article and admin URLs still 404', async ({ request }) => {
-  expect((await request.get('/admin')).status()).toBe(404);
+test('an unbuilt article 404s, and an unauthenticated admin visit reaches the login page', async ({
+  request,
+}) => {
   expect((await request.get('/insights/anything')).status()).toBe(404);
+  // Middleware redirects to /admin/login (see src/middleware.ts); Playwright's request API follows redirects,
+  // so the final response is the login page itself, not a 404 — /admin is a real route now, not unbuilt.
+  const res = await request.get('/admin');
+  expect(res.status()).toBe(200);
+  expect(res.url()).toContain('/admin/login');
 });
 
 test('draft legal pages are noindex and carry a visible draft notice', async ({ page }) => {

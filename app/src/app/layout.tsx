@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Hanken_Grotesk, Source_Serif_4 } from 'next/font/google';
-import { Footer } from '@/components/shell/Footer';
-import { Header } from '@/components/shell/Header';
-import { SkipLink } from '@/components/shell/SkipLink';
 import { config } from '@/lib/config';
 import { site } from '@/lib/site';
 import { themeInitScript } from '@/lib/theme';
@@ -43,20 +40,18 @@ export const viewport: Viewport = {
   ],
 };
 
+/**
+ * `<html>`, fonts and the theme script only — no header/footer/nav. Those are added by each top-level route
+ * group's own layout (see `(site)/layout.tsx`, `(admin)/layout.tsx`, `(gate)/layout.tsx`) so the admin
+ * dashboard and the availability-gate pages don't inherit the public site's chrome.
+ */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB" className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body>
-        <SkipLink />
-        <Header />
-        <main id="main" tabIndex={-1}>
-          {children}
-        </main>
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

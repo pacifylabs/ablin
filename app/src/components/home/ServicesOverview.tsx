@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
-import type { z } from 'zod';
-import type { homeSchema, Service } from '@/content/schema';
+import type { Service } from '@/content/schema';
+import type { ServiceListData } from '@/cms/schema';
 import styles from './home.module.css';
 
-type Section = z.infer<typeof homeSchema>['services'];
+// This component renders only the "overview" serviceList variant (all services, unnumbered, "view all" link).
+// The "catalogue" variant (used on the Services page itself) is rendered inline by cms/BlockRenderer.tsx.
+type Section = Extract<ServiceListData, { variant: 'overview' }>;
 
 /** A catalogue, not a sequence: deliberately unnumbered (Design System v2 §10.7). */
 export function ServicesOverview({
