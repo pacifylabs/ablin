@@ -4,6 +4,7 @@ import { BlockRenderer } from '@/cms/BlockRenderer';
 import { getPublishedArticle } from '@/cms/store';
 import { toImageAsset } from '@/cms/image';
 import { ImageSlot } from '@/components/ui/ImageSlot';
+import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
 import { site } from '@/lib/site';
 
@@ -41,7 +42,7 @@ export default async function ArticlePage({ params }: { params: Params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptContent(jsonLd) }}
       />
       <section className="section" aria-labelledby="page-title">
         <div

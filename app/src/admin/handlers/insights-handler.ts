@@ -104,14 +104,16 @@ export async function handleUpdateInsight(request: Request, slug: string): Promi
   return json(doc, 200);
 }
 
-export async function handleDeleteInsight(slug: string): Promise<Response> {
+export async function handleDeleteInsight(request: Request, slug: string): Promise<Response> {
+  if (!isSameOrigin(request)) return json({ error: 'bad_origin' }, 403);
   const existing = await getArticle(slug);
   if (!existing) return json({ error: 'not_found' }, 404);
   await deleteArticle(slug);
   return json({ ok: true }, 200);
 }
 
-export async function handlePublishInsight(slug: string): Promise<Response> {
+export async function handlePublishInsight(request: Request, slug: string): Promise<Response> {
+  if (!isSameOrigin(request)) return json({ error: 'bad_origin' }, 403);
   const existing = await getArticle(slug);
   if (!existing) return json({ error: 'not_found' }, 404);
 
@@ -129,7 +131,8 @@ export async function handlePublishInsight(slug: string): Promise<Response> {
   return json(doc, 200);
 }
 
-export async function handleUnpublishInsight(slug: string): Promise<Response> {
+export async function handleUnpublishInsight(request: Request, slug: string): Promise<Response> {
+  if (!isSameOrigin(request)) return json({ error: 'bad_origin' }, 403);
   const existing = await getArticle(slug);
   if (!existing) return json({ error: 'not_found' }, 404);
   const doc: ArticleDoc = {

@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from 'react';
+import { isSafeHref } from '@/lib/safe-href';
 import type { RichDoc, RichNode } from './schema';
 
 /**
@@ -9,15 +10,6 @@ import type { RichDoc, RichNode } from './schema';
  * admin's Tiptap editor (admin/ui/RichTextEditor.tsx) is configured to be able to produce only this same set, so
  * in practice nothing is ever dropped — this is the server-side half of that guarantee, not a formatting choice.
  */
-
-function isSafeHref(href: string): boolean {
-  return (
-    /^https:\/\//.test(href) ||
-    /^mailto:/.test(href) ||
-    href.startsWith('/') ||
-    href.startsWith('#')
-  );
-}
 
 function renderMarks(text: string, marks: RichNode['marks'], key: string): ReactNode {
   return (marks ?? []).reduce<ReactNode>((node, mark, index) => {

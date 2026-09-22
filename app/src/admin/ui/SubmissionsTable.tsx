@@ -9,6 +9,17 @@ export function SubmissionsTable({ initial }: { initial: readonly Submission[] }
   const [expanded, setExpanded] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
 
+  async function remove(id: string) {
+    if (!window.confirm('Delete this enquiry permanently? This cannot be undone.')) return;
+    setPending(id);
+    try {
+      const response = await fetch(`/api/admin/submissions/${id}`, { method: 'DELETE' });
+      if (response.ok) setSubmissions((current) => current.filter((s) => s.id !== id));
+    } finally {
+      setPending(null);
+    }
+  }
+
   async function setStatus(id: string, status: SubmissionStatus) {
     setPending(id);
     try {
@@ -95,6 +106,15 @@ export function SubmissionsTable({ initial }: { initial: readonly Submission[] }
                       Unarchive
                     </button>
                   )}
+                  <button
+                    type="button"
+                    className={styles.iconBtn}
+                    style={{ width: 'auto', padding: '0 0.5rem' }}
+                    disabled={pending === s.id}
+                    onClick={() => remove(s.id)}
+                  >
+                    Delete
+                  </button>
                 </div>
               </td>
             </tr>

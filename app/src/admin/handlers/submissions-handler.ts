@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { getSubmission, listSubmissions, setSubmissionStatus } from '@/cms/store';
+import { deleteSubmission, getSubmission, listSubmissions, setSubmissionStatus } from '@/cms/store';
 import { isSameOrigin, json } from '@/admin/http';
 
 /** Not itself one of the brief's listed endpoints — the read-only inbox list is fetched directly in the admin
@@ -31,4 +31,11 @@ export async function handlePatchSubmission(request: Request, id: string): Promi
   const updated = await setSubmissionStatus(id, parsed.data.status);
   if (!updated) return json({ error: 'not_found' }, 404);
   return json(updated, 200);
+}
+
+export async function handleDeleteSubmission(request: Request, id: string): Promise<Response> {
+  if (!isSameOrigin(request)) return json({ error: 'bad_origin' }, 403);
+  const removed = await deleteSubmission(id);
+  if (!removed) return json({ error: 'not_found' }, 404);
+  return json({ ok: true }, 200);
 }

@@ -7,8 +7,10 @@ export function json(body: unknown, status: number, headers?: Record<string, str
 }
 
 export function clientIp(request: Request): string {
+  const real = request.headers.get('x-real-ip')?.trim();
+  if (real) return real;
   const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded || request.headers.get('x-real-ip') || 'unknown';
+  return forwarded || 'unknown';
 }
 
 export function hashIp(request: Request): string {
@@ -34,7 +36,11 @@ export async function rateLimited(
  */
 export function isSameOrigin(request: Request): boolean {
   const origin = request.headers.get('origin');
-  if (!origin) return true;
+  if (!origin) {
+    const fetchSite = request.headers.get('sec-fetch-site');
+    if (fetchSite === 'cross-site') return false;
+    return true;
+  }
   try {
     return new URL(origin).host === new URL(request.url).host;
   } catch {

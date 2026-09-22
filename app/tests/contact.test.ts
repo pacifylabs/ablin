@@ -35,9 +35,18 @@ describe('contact handler', () => {
     vi.restoreAllMocks();
   });
 
+  function makeRateLimit(limit: number) {
+    const hits = new Map<string, number>();
+    return async (key: string) => {
+      const count = (hits.get(key) ?? 0) + 1;
+      hits.set(key, count);
+      return count > limit ? 60 : 0;
+    };
+  }
+
   async function load(limit = 3) {
     const { handleContact } = await import('@/lib/contact-handler');
-    return { handle: handleContact, limiter: createRateLimiter(limit, 60_000) };
+    return { handle: handleContact, rateLimit: makeRateLimit(limit) };
   }
 
   const ok = () =>
@@ -48,16 +57,16 @@ describe('contact handler', () => {
   const storeFails = () => vi.fn().mockRejectedValue(new Error('Redis unreachable'));
 
   it('rejects malformed JSON', async () => {
-    const { handle, limiter } = await load();
-    expect((await handle(post('{not json'), { limiter, now: () => NOW })).status).toBe(400);
+    const { handle, rateLimit } = await load();
+    expect((await handle(post('{not json'), { rateLimit, now: () => NOW })).status).toBe(400);
   });
 
   it('returns field errors for invalid input', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const res = await handle(
       post(valid({ email: 'nope', message: 'short', consent: false, enquiryType: 'x' })),
       {
-        limiter,
+        rateLimit,
         now: () => NOW,
       },
     );
@@ -72,10 +81,10 @@ describe('contact handler', () => {
   });
 
   it('answers a filled honeypot with success but delivers nothing', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const deliver = ok();
     const res = await handle(post(valid({ website: 'http://spam.example' })), {
-      limiter,
+      rateLimit,
       deliver,
       now: () => NOW,
     });
@@ -84,10 +93,10 @@ describe('contact handler', () => {
   });
 
   it('drops submissions made faster than a person could type', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const deliver = ok();
     const res = await handle(post(valid({ startedAt: NOW - 500 })), {
-      limiter,
+      rateLimit,
       deliver,
       now: () => NOW,
     });
@@ -96,10 +105,10 @@ describe('contact handler', () => {
   });
 
   it('delivers a valid enquiry with the human enquiry label, and reports success', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const deliver = ok();
     const store = storeOk();
-    const res = await handle(post(valid()), { limiter, deliver, store, now: () => NOW });
+    const res = await handle(post(valid()), { rateLimit, deliver, store, now: () => NOW });
     expect(res.status).toBe(200);
     expect(deliver).toHaveBeenCalledOnce();
     const sent = deliver.mock.calls[0]![0];
@@ -110,9 +119,9 @@ describe('contact handler', () => {
   });
 
   it('also records the enquiry in the admin submissions inbox, unread, from /contact', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const store = storeOk();
-    await handle(post(valid()), { limiter, deliver: ok(), store, now: () => NOW });
+    await handle(post(valid()), { rateLimit, deliver: ok(), store, now: () => NOW });
     expect(store).toHaveBeenCalledOnce();
     const submission = store.mock.calls[0]![0];
     expect(submission).toMatchObject({
@@ -127,18 +136,18 @@ describe('contact handler', () => {
   });
 
   it('still reports success when email delivery fails but the enquiry was stored', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const deliver = vi.fn().mockResolvedValue({ ok: false, reason: 'not_configured' });
     const store = storeOk();
-    const res = await handle(post(valid()), { limiter, deliver, store, now: () => NOW });
+    const res = await handle(post(valid()), { rateLimit, deliver, store, now: () => NOW });
     expect(res.status).toBe(200);
     expect(store).toHaveBeenCalledOnce();
   });
 
   it('still reports success when storage fails but email delivery succeeded', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const res = await handle(post(valid()), {
-      limiter,
+      rateLimit,
       deliver: ok(),
       store: storeFails(),
       now: () => NOW,
@@ -147,10 +156,10 @@ describe('contact handler', () => {
   });
 
   it('fails loudly, not silently, only when neither storage nor delivery captured the enquiry', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     const deliver = vi.fn().mockResolvedValue({ ok: false, reason: 'not_configured' });
     const res = await handle(post(valid()), {
-      limiter,
+      rateLimit,
       deliver,
       store: storeFails(),
       now: () => NOW,
@@ -159,11 +168,11 @@ describe('contact handler', () => {
   });
 
   it('returns 502 when the provider rejects or is unreachable and storage also failed, never success', async () => {
-    const { handle, limiter } = await load();
+    const { handle, rateLimit } = await load();
     for (const reason of ['rejected', 'unreachable'] as const) {
       const deliver = vi.fn().mockResolvedValue({ ok: false, reason });
       const res = await handle(post(valid()), {
-        limiter,
+        rateLimit,
         deliver,
         store: storeFails(),
         now: () => NOW,
@@ -173,13 +182,13 @@ describe('contact handler', () => {
   });
 
   it('rate limits repeat submissions from one address', async () => {
-    const { handle, limiter } = await load(3);
+    const { handle, rateLimit } = await load(3);
     const deliver = ok();
     const store = storeOk();
     const statuses: number[] = [];
     for (let i = 0; i < 4; i += 1) {
       statuses.push(
-        (await handle(post(valid()), { limiter, deliver, store, now: () => NOW })).status,
+        (await handle(post(valid()), { rateLimit, deliver, store, now: () => NOW })).status,
       );
     }
     expect(statuses).toEqual([200, 200, 200, 429]);
@@ -267,15 +276,15 @@ describe('email delivery', () => {
 
 describe('rate limiter', () => {
   it('allows again after the window passes', () => {
-    const limiter = createRateLimiter(1, 1000);
-    expect(limiter.check('a', 0)).toBe(0);
-    expect(limiter.check('a', 500)).toBeGreaterThan(0);
-    expect(limiter.check('a', 1001)).toBe(0);
+    const rateLimit = createRateLimiter(1, 1000);
+    expect(rateLimit.check('a', 0)).toBe(0);
+    expect(rateLimit.check('a', 500)).toBeGreaterThan(0);
+    expect(rateLimit.check('a', 1001)).toBe(0);
   });
 
   it('tracks keys independently', () => {
-    const limiter = createRateLimiter(1, 1000);
-    expect(limiter.check('a', 0)).toBe(0);
-    expect(limiter.check('b', 0)).toBe(0);
+    const rateLimit = createRateLimiter(1, 1000);
+    expect(rateLimit.check('a', 0)).toBe(0);
+    expect(rateLimit.check('b', 0)).toBe(0);
   });
 });

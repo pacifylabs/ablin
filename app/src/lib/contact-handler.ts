@@ -2,12 +2,12 @@ import { createHash, randomUUID } from 'node:crypto';
 import { buildContactSchema, MIN_FILL_MS, toFieldErrors } from '@/lib/contact';
 import { deliverContact, type ContactMessage, type DeliveryResult } from '@/lib/contact-delivery';
 import { getContactPage } from '@/lib/content';
-import type { RateLimiter } from '@/lib/rate-limit';
 import { putSubmission } from '@/cms/store';
 import type { Submission } from '@/cms/schema';
 
 export interface ContactDeps {
-  limiter: RateLimiter;
+  /** Returns seconds until retry when limited, or 0 when allowed. Defaults to Redis (shared across instances). */
+  rateLimit?: (ipHash: string) => Promise<number>;
   /** Swappable in tests; defaults to emailing the enquiry from this Next.js server. */
   deliver?: (message: ContactMessage) => Promise<DeliveryResult>;
   /** Swappable in tests; defaults to writing the enquiry to the admin submissions inbox (Redis). */
@@ -21,8 +21,10 @@ function json(body: unknown, status: number, headers?: Record<string, string>): 
 }
 
 function clientIp(request: Request): string {
+  const real = request.headers.get('x-real-ip')?.trim();
+  if (real) return real;
   const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded || request.headers.get('x-real-ip') || 'unknown';
+  return forwarded || 'unknown';
 }
 
 /**
@@ -58,7 +60,14 @@ export async function handleContact(request: Request, deps: ContactDeps): Promis
   if (now() - input.startedAt < MIN_FILL_MS) return json({ ok: true }, 200);
 
   const ipHash = createHash('sha256').update(clientIp(request)).digest('hex');
-  const retryAfter = await deps.limiter.check(ipHash, now());
+  const rateLimit =
+    deps.rateLimit ??
+    (async (identity: string) => {
+      const { incrementRateLimit } = await import('@/cms/store');
+      const count = await incrementRateLimit('contact', identity, 10 * 60);
+      return count > 5 ? 10 * 60 : 0;
+    });
+  const retryAfter = await rateLimit(ipHash);
   if (retryAfter > 0)
     return json({ error: 'rate_limited' }, 429, { 'Retry-After': String(retryAfter) });
 

@@ -48,6 +48,17 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const isAdminArea = pathname === '/admin' || pathname.startsWith('/admin/');
   const isAdminApi = pathname === '/api/admin' || pathname.startsWith('/api/admin/');
 
+  const PUBLIC_ADMIN_API_PREFIXES = [
+    '/api/admin/auth/login',
+    '/api/admin/auth/logout',
+    '/api/admin/auth/reset/request',
+    '/api/admin/auth/reset/confirm',
+  ] as const;
+
+  function isPublicAdminApi(path: string): boolean {
+    return PUBLIC_ADMIN_API_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+  }
+
   // --- 1 & 2: availability gate --------------------------------------------------------------------------------
   if (!isAdminArea && !isAdminApi) {
     const availability = await readAvailability();
@@ -68,8 +79,12 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
     }
   }
 
-  // --- 3: admin auth check ---------------------------------------------------------------------------------
-  if (isAdminArea && pathname !== '/admin/login' && pathname !== '/admin/reset') {
+  // --- 3: admin auth check (dashboard pages and protected admin API) ---------------------------------------
+  const needsAdminSession =
+    (isAdminArea && pathname !== '/admin/login' && pathname !== '/admin/reset') ||
+    (isAdminApi && !isPublicAdminApi(pathname));
+
+  if (needsAdminSession) {
     const token = request.cookies.get(SESSION_COOKIE)?.value;
     // Fail CLOSED: any error here must deny access, never grant it.
     let session = null;
@@ -81,6 +96,9 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
       }
     }
     if (!session) {
+      if (isAdminApi) {
+        return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+      }
       const url = request.nextUrl.clone();
       url.pathname = '/admin/login';
       url.search = '';

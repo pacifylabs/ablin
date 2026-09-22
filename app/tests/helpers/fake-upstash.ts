@@ -37,6 +37,16 @@ function runCommand(store: Store, cmd: unknown[]): unknown {
       const v = get(store, args[0]!);
       return typeof v === 'string' ? v : null;
     }
+    case 'GETDEL': {
+      const key = args[0]!;
+      const v = get(store, key);
+      if (typeof v === 'string') {
+        store.values.delete(key);
+        store.expiresAt.delete(key);
+        return v;
+      }
+      return null;
+    }
     case 'SET': {
       const [key, value, ...opts] = args;
       store.values.set(key!, value!);
@@ -90,6 +100,17 @@ function runCommand(store: Store, cmd: unknown[]): unknown {
       const next = current + 1;
       store.values.set(key, String(next));
       return next;
+    }
+    case 'DECR': {
+      const key = args[0]!;
+      const current = Number(get(store, key) ?? '0');
+      const next = current - 1;
+      store.values.set(key, String(next));
+      return next;
+    }
+    case 'ZCARD': {
+      const zset = get(store, args[0]!) as Map<string, number> | undefined;
+      return zset instanceof Map ? zset.size : 0;
     }
     case 'EXPIRE': {
       const [key, seconds] = args;

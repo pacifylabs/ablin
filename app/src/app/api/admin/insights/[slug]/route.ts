@@ -18,7 +18,7 @@ export async function PUT(request: Request, { params }: { params: Params }): Pro
   return handleUpdateInsight(request, (await params).slug);
 }
 
-export async function DELETE(_request: Request, { params }: { params: Params }): Promise<Response> {
+export async function DELETE(request: Request, { params }: { params: Params }): Promise<Response> {
   if (!(await requireAdmin())) return json({ error: 'unauthenticated' }, 401);
-  return handleDeleteInsight((await params).slug);
+  return handleDeleteInsight(request, (await params).slug);
 }

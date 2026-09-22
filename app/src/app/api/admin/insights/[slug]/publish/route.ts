@@ -4,7 +4,7 @@ import { json } from '@/admin/http';
 
 type Params = Promise<{ slug: string }>;
 
-export async function POST(_request: Request, { params }: { params: Params }): Promise<Response> {
+export async function POST(request: Request, { params }: { params: Params }): Promise<Response> {
   if (!(await requireAdmin())) return json({ error: 'unauthenticated' }, 401);
-  return handlePublishInsight((await params).slug);
+  return handlePublishInsight(request, (await params).slug);
 }

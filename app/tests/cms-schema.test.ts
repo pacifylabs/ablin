@@ -65,6 +65,16 @@ describe('blockSchema', () => {
     expect(ok('https://res.cloudinary.com/x/image/upload/y.jpg')).toBe(true);
     expect(ok('http://insecure.example/y.jpg')).toBe(false);
     expect(ok('javascript:alert(1)')).toBe(false);
+    expect(ok('//evil.example/x.jpg')).toBe(false);
+    expect(ok('https://other-cdn.example/x.jpg')).toBe(false);
+  });
+
+  it('rejects unsafe CTA hrefs on hero blocks', () => {
+    const bad = {
+      ...heroHome,
+      data: { ...heroHome.data, primary: { label: 'Go', href: 'javascript:alert(1)' } },
+    };
+    expect(blockSchema.safeParse(bad).success).toBe(false);
   });
 
   it('rejects a capabilityGrid with zero items', () => {

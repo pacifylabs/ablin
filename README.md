@@ -24,4 +24,4 @@ Configuration is read only in `app/src/lib/config.ts`; copy `app/.env.example` t
 - Colour, spacing and radius are semantic tokens in `app/src/styles/tokens.css`; components never use raw hex.
 - Page copy is validated JSON in `app/src/content` behind async loaders in `app/src/lib/content.ts`; see `app/src/content/README.md` for how it moves into the admin. Copy is draft until the client brief is supplied.
 - The contact form posts to the Next.js route handler `/api/contact`, which validates, applies spam controls and emails the enquiry through Resend (`RESEND_API_KEY`, `CONTACT_TO_EMAIL`, `CONTACT_FROM_EMAIL`). If any is missing it reports a failure instead of pretending to send.
-- Legal pages are drafts: `noindex` and flagged on the page until approved. `/admin` and article URLs return 404 until their phases ship.
+- Legal pages are drafts: `noindex` and flagged on the page until approved. The admin dashboard lives at `/admin`; published Insights articles are served at `/insights/[slug]`.

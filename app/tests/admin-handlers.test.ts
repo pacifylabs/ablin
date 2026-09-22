@@ -267,12 +267,12 @@ describe('insights handler', () => {
     expect(await listDraftSlugs()).toContain('test-article');
     expect(await listPublishedSlugs()).not.toContain('test-article');
 
-    const publishRes = await handlePublishInsight('test-article');
+    const publishRes = await handlePublishInsight(post({}), 'test-article');
     expect(publishRes.status).toBe(200);
     expect(await listPublishedSlugs()).toContain('test-article');
     expect(await listDraftSlugs()).not.toContain('test-article');
 
-    const unpublishRes = await handleUnpublishInsight('test-article');
+    const unpublishRes = await handleUnpublishInsight(post({}), 'test-article');
     expect(unpublishRes.status).toBe(200);
     expect(await listDraftSlugs()).toContain('test-article');
     expect(await listPublishedSlugs()).not.toContain('test-article');
@@ -307,7 +307,7 @@ describe('insights handler', () => {
         seoDescription: 'd',
       }),
     );
-    await handlePublishInsight('live-article');
+    await handlePublishInsight(post({}), 'live-article');
 
     const editRes = await handleUpdateInsight(
       post({

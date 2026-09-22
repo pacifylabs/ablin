@@ -23,6 +23,7 @@ export const keys = {
 
   submission: (id: string) => `submission:${id}`,
   submissionsIndex: 'submissions:index',
+  submissionsUnreadCount: 'submissions:unread_count',
 
   /** Not in the brief's schema; added for server-side rate limiting that holds across serverless instances
    *  (the existing in-memory limiter cannot). One counter per scope+identity, expired by Redis via its own TTL. */

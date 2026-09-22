@@ -24,6 +24,14 @@ import { randomToken } from '@/admin/auth/tokens';
 
 const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
 
+/** Verified on every failed login so argon2 cost is paid even when the email does not match the admin account. */
+let loginTimingDummyHash: string | undefined;
+
+async function loginTimingHash(): Promise<string> {
+  loginTimingDummyHash ??= await hashPassword('__ablin_login_timing_dummy__');
+  return loginTimingDummyHash;
+}
+
 /**
  * Single admin user, so "login" means: does this email match the one admin, and does the password verify. A
  * wrong email and a wrong password get the identical response and timing-insensitive-enough error, so a caller
@@ -41,16 +49,22 @@ export async function handleLogin(request: Request): Promise<Response> {
   const parsed = loginSchema.safeParse(payload);
   if (!parsed.success) return json({ error: 'validation' }, 422);
 
-  const retryAfter = await rateLimited('login', hashIp(request), 10, 10 * 60);
-  if (retryAfter > 0)
-    return json({ error: 'rate_limited' }, 429, { 'Retry-After': String(retryAfter) });
+  const retryAfterIp = await rateLimited('login', hashIp(request), 10, 10 * 60);
+  if (retryAfterIp > 0)
+    return json({ error: 'rate_limited' }, 429, { 'Retry-After': String(retryAfterIp) });
+
+  const emailKey = parsed.data.email.toLowerCase();
+  const retryAfterEmail = await rateLimited('login-email', emailKey, 10, 10 * 60);
+  if (retryAfterEmail > 0)
+    return json({ error: 'rate_limited' }, 429, { 'Retry-After': String(retryAfterEmail) });
 
   const user = await getAdminUser();
-  const ok =
-    user && user.email.toLowerCase() === parsed.data.email.toLowerCase()
-      ? await verifyPassword(user.passwordHash, parsed.data.password)
-      : false;
-  if (!user || !ok) return json({ error: 'invalid_credentials' }, 401);
+  const emailMatches = Boolean(
+    user && user.email.toLowerCase() === emailKey,
+  );
+  const hashToVerify = emailMatches && user ? user.passwordHash : await loginTimingHash();
+  const passwordOk = await verifyPassword(hashToVerify, parsed.data.password);
+  if (!emailMatches || !passwordOk || !user) return json({ error: 'invalid_credentials' }, 401);
 
   const token = randomToken();
   await createSession(token, { adminId: user.id, createdAt: new Date().toISOString() });

@@ -5,6 +5,20 @@ import { isSameOrigin, json } from '@/admin/http';
 
 const MAX_BYTES = 4 * 1024 * 1024; // Vercel's serverless request body cap is 4.5MB; stay under it with headroom.
 
+const ALLOWED_BLOB_MIME = new Set([
+  'application/pdf',
+  'text/plain',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]);
+
+function isAllowedBlobFile(file: File): boolean {
+  const mime = file.type.toLowerCase().split(';')[0]?.trim() ?? '';
+  if (mime && ALLOWED_BLOB_MIME.has(mime)) return true;
+  const ext = file.name.split('.').pop()?.toLowerCase();
+  return ext === 'pdf' || ext === 'txt' || ext === 'doc' || ext === 'docx';
+}
+
 async function readFile(request: Request): Promise<{ file: File } | { error: Response }> {
   let form: FormData;
   try {
@@ -65,6 +79,10 @@ export async function handleUploadFile(request: Request): Promise<Response> {
   if (!process.env.BLOB_READ_WRITE_TOKEN?.trim()) {
     console.error('File upload failed: BLOB_READ_WRITE_TOKEN must be set.');
     return json({ error: 'unavailable' }, 503);
+  }
+
+  if (!isAllowedBlobFile(read.file)) {
+    return json({ error: 'unsupported_type' }, 422);
   }
 
   try {

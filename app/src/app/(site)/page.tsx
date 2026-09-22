@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { InsightsTeaser } from '@/components/home/InsightsTeaser';
 import { BlockRenderer } from '@/cms/BlockRenderer';
 import { getPageWithFallback } from '@/cms/store';
+import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
 import { getHome, getImage, getInsightsPage } from '@/lib/content';
 import { site } from '@/lib/site';
@@ -49,7 +50,7 @@ export default async function HomePage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organisationJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptContent(organisationJsonLd) }}
       />
       <BlockRenderer blocks={before} />
       <InsightsTeaser data={home.insights} topics={insightsPage.topics} image={insightsImage} />

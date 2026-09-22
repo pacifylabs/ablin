@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { BlockRenderer } from '@/cms/BlockRenderer';
 import { getPageWithFallback } from '@/cms/store';
+import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
 import { getAbout } from '@/lib/content';
 import { site } from '@/lib/site';
@@ -42,7 +43,7 @@ export default async function AboutPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptContent(jsonLd) }}
       />
       <BlockRenderer blocks={before} />
 

@@ -42,6 +42,11 @@ describe('isRichDocSafe', () => {
       expect(isRichDocSafe(doc(p('x', [{ type: 'link', attrs: { href } }])))).toBe(true);
     }
   });
+
+  it('rejects protocol-relative links', () => {
+    const d = doc(p('x', [{ type: 'link', attrs: { href: '//evil.example/phish' } }]));
+    expect(isRichDocSafe(d)).toBe(false);
+  });
 });
 
 describe('RichText', () => {

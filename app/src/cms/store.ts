@@ -3,6 +3,7 @@ import { redis } from './redis';
 import { keys } from './keys';
 import { frameworkSchema, type Framework } from '@/content/schema';
 import {
+  LEGAL_PAGE_SLUGS,
   type AdminUser,
   type Availability,
   type PageDoc,
@@ -20,6 +21,7 @@ import {
   sessionSchema,
   submissionSchema,
 } from './schema';
+import { sha256Hex } from '@/lib/token-hash';
 import { seedFrameworks, seedPage } from './seed-data';
 
 /**
@@ -31,6 +33,21 @@ import { seedFrameworks, seedPage } from './seed-data';
 
 const SEVEN_DAYS = 60 * 60 * 24 * 7;
 const RESET_TTL = 60 * 30;
+
+/** Enquiry records expire automatically; override with SUBMISSION_RETENTION_DAYS (default 365). */
+const SUBMISSION_RETENTION_SECONDS =
+  Math.max(1, Number.parseInt(process.env.SUBMISSION_RETENTION_DAYS ?? '365', 10) || 365) *
+  60 *
+  60 *
+  24;
+
+async function sessionKey(token: string): Promise<string> {
+  return keys.session(await sha256Hex(token));
+}
+
+async function resetKey(token: string): Promise<string> {
+  return keys.reset(await sha256Hex(token));
+}
 
 // --- Availability --------------------------------------------------------------------------------------------
 
@@ -88,27 +105,29 @@ export async function putAdminUser(user: AdminUser): Promise<void> {
 
 export async function createSession(token: string, session: Session): Promise<void> {
   const r = redis();
-  await r.set(keys.session(token), session, { ex: SEVEN_DAYS });
-  await r.sadd(keys.sessionsIndex, token);
+  const digest = await sha256Hex(token);
+  await r.set(keys.session(digest), session, { ex: SEVEN_DAYS });
+  await r.sadd(keys.sessionsIndex, digest);
 }
 
 export async function getSession(token: string): Promise<Session | null> {
-  const raw = await redis().get(keys.session(token));
+  const raw = await redis().get(await sessionKey(token));
   if (!raw) return null;
   return sessionSchema.parse(raw);
 }
 
 export async function deleteSession(token: string): Promise<void> {
   const r = redis();
-  await r.del(keys.session(token));
-  await r.srem(keys.sessionsIndex, token);
+  const digest = await sha256Hex(token);
+  await r.del(keys.session(digest));
+  await r.srem(keys.sessionsIndex, digest);
 }
 
 /** Invalidates every session — used on password change/reset so a stolen cookie stops working immediately. */
 export async function deleteAllSessions(): Promise<void> {
   const r = redis();
-  const tokens = await r.smembers<string[]>(keys.sessionsIndex);
-  if (tokens.length > 0) await r.del(...tokens.map((t) => keys.session(t)));
+  const digests = await r.smembers<string[]>(keys.sessionsIndex);
+  if (digests.length > 0) await r.del(...digests.map((d) => keys.session(d)));
   await r.del(keys.sessionsIndex);
 }
 
@@ -117,16 +136,12 @@ export const SESSION_MAX_AGE_SECONDS = SEVEN_DAYS;
 // --- Password reset --------------------------------------------------------------------------------------------
 
 export async function createResetToken(token: string, value: ResetToken): Promise<void> {
-  await redis().set(keys.reset(token), value, { ex: RESET_TTL });
+  await redis().set(await resetKey(token), value, { ex: RESET_TTL });
 }
 
-/** One-time use: reads and deletes atomically via a pipeline, so a token cannot be replayed. */
+/** One-time use: GETDEL so a token cannot be replayed even under concurrent requests. */
 export async function consumeResetToken(token: string): Promise<ResetToken | null> {
-  const r = redis();
-  const pipeline = r.pipeline();
-  pipeline.get(keys.reset(token));
-  pipeline.del(keys.reset(token));
-  const [raw] = (await pipeline.exec()) as [unknown, unknown];
+  const raw = await redis().getdel(await resetKey(token));
   if (!raw) return null;
   return resetTokenSchema.parse(raw);
 }
@@ -160,6 +175,10 @@ export async function getPageWithFallback(slug: PageSlug): Promise<PageDoc> {
   try {
     return (await getPage(slug)) ?? seedPage(slug);
   } catch (error) {
+    if (LEGAL_PAGE_SLUGS.has(slug)) {
+      console.error(`Failed to read legal page:${slug} from Redis; refusing bundled fallback.`, error);
+      throw error;
+    }
     console.error(
       `Failed to read page:${slug} from Redis; serving the bundled starting content instead.`,
       error,
@@ -266,11 +285,12 @@ export async function listTopics(): Promise<string[]> {
 
 export async function putSubmission(submission: Submission): Promise<void> {
   const r = redis();
-  await r.set(keys.submission(submission.id), submission);
+  await r.set(keys.submission(submission.id), submission, { ex: SUBMISSION_RETENTION_SECONDS });
   await r.zadd(keys.submissionsIndex, {
     score: Date.parse(submission.createdAt),
     member: submission.id,
   });
+  if (submission.status === 'unread') await r.incr(keys.submissionsUnreadCount);
 }
 
 export async function getSubmission(id: string): Promise<Submission | null> {
@@ -286,8 +306,21 @@ export async function setSubmissionStatus(
   const existing = await getSubmission(id);
   if (!existing) return null;
   const updated: Submission = { ...existing, status };
-  await redis().set(keys.submission(id), updated);
+  const r = redis();
+  await r.set(keys.submission(id), updated, { ex: SUBMISSION_RETENTION_SECONDS });
+  if (existing.status === 'unread' && status !== 'unread') await r.decr(keys.submissionsUnreadCount);
+  if (existing.status !== 'unread' && status === 'unread') await r.incr(keys.submissionsUnreadCount);
   return updated;
+}
+
+export async function deleteSubmission(id: string): Promise<boolean> {
+  const existing = await getSubmission(id);
+  if (!existing) return false;
+  const r = redis();
+  await r.del(keys.submission(id));
+  await r.zrem(keys.submissionsIndex, id);
+  if (existing.status === 'unread') await r.decr(keys.submissionsUnreadCount);
+  return true;
 }
 
 /** Most recent first. */
@@ -299,8 +332,13 @@ export async function listSubmissions(limit = 200): Promise<Submission[]> {
 }
 
 export async function countSubmissions(): Promise<{ total: number; unread: number }> {
-  const all = await listSubmissions(1000);
-  return { total: all.length, unread: all.filter((s) => s.status === 'unread').length };
+  const r = redis();
+  const total = await r.zcard(keys.submissionsIndex);
+  const unreadRaw = await r.get<number>(keys.submissionsUnreadCount);
+  if (typeof unreadRaw === 'number' && unreadRaw >= 0) return { total, unread: unreadRaw };
+  if (total === 0) return { total: 0, unread: 0 };
+  const sample = await listSubmissions(Math.min(total, 500));
+  return { total, unread: sample.filter((s) => s.status === 'unread').length };
 }
 
 // --- Rate limiting -----------------------------------------------------------------------------------------

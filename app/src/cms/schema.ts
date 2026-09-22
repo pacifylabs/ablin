@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { illustrationScene } from '@/content/schema';
+import { isSafeBlockImageUrl, isSafeHref } from '@/lib/safe-href';
 
 /**
  * Everything the admin CMS reads and writes in Redis. This is a second, parallel content schema to
@@ -8,7 +9,10 @@ import { illustrationScene } from '@/content/schema';
  * validates the page/article documents the admin DOES edit, and the closed block palette they are built from.
  */
 
-const cta = z.object({ label: z.string().min(1), href: z.string().min(1) });
+const cta = z.object({
+  label: z.string().min(1),
+  href: z.string().min(1).refine(isSafeHref, 'Link must be https, mailto, site-relative, or a fragment'),
+});
 
 /**
  * A Cloudinary (or, pre-upload, freshly-generated) image reference, carrying everything ImageSlot needs so the
@@ -20,10 +24,7 @@ export const blockImageSchema = z.object({
   // site-relative stock photos already in public/image, carried over unchanged until someone uploads a real one.
   url: z
     .string()
-    .refine(
-      (v) => v.startsWith('/') || /^https:\/\//.test(v),
-      'Must be a site-relative path or an https URL',
-    ),
+    .refine(isSafeBlockImageUrl, 'Must be a site-relative stock photo or a Cloudinary https URL'),
   alt: z.string(),
   caption: z.string().optional(),
   width: z.number().int().positive(),
@@ -267,6 +268,14 @@ export const PAGE_SLUGS = [
   'accessibility',
 ] as const;
 export type PageSlug = (typeof PAGE_SLUGS)[number];
+
+/** Legal and accessibility pages must not revert to bundled seed copy when Redis errors (see getPageWithFallback). */
+export const LEGAL_PAGE_SLUGS = new Set<PageSlug>([
+  'privacy-policy',
+  'cookie-policy',
+  'terms-of-use',
+  'accessibility',
+]);
 
 const pageEditableFields = {
   title: z.string().min(1),

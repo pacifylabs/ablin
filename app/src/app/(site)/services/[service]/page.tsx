@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
+import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
 import { getApproach, getAudiences, getService, getServices, serviceHref } from '@/lib/content';
 import { site } from '@/lib/site';
@@ -67,7 +68,7 @@ export default async function ServicePage({ params }: { params: Params }) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptContent(jsonLd) }}
       />
       <PageHero
         title={service.title}
