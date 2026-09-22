@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Montserrat } from 'next/font/google';
 import { config } from '@/lib/config';
+import { defaultSiteDescription, rootOpenGraph, rootTwitter } from '@/lib/seo';
 import { site } from '@/lib/site';
 import { themeInitScript } from '@/lib/theme';
 import './globals.css';
@@ -22,9 +23,18 @@ export const metadata: Metadata = {
     default: `${site.name} — Governance, Risk & Compliance Advisory`,
     template: `%s | ${site.name}`,
   },
-  description:
-    'Ablin Limited is a UK governance, risk, compliance and technology advisory firm helping organisations manage regulatory, information security, data and AI risk.',
-  openGraph: { siteName: site.name, locale: 'en_GB', type: 'website' },
+  description: defaultSiteDescription,
+  openGraph: rootOpenGraph,
+  twitter: rootTwitter,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+  },
+  icons: {
+    icon: [{ url: '/icon.png', type: 'image/png' }],
+    apple: [{ url: '/apple-icon.png', type: 'image/png' }],
+  },
 };
 
 export const viewport: Viewport = {

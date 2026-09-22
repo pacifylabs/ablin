@@ -4,6 +4,7 @@ import { ContactForm } from '@/components/contact/ContactForm';
 import blocks from '@/components/ui/blocks.module.css';
 import { getPageWithFallback } from '@/cms/store';
 import { getContactPage } from '@/lib/content';
+import { buildPageMetadata } from '@/lib/seo';
 
 // Reads content from Redis (see cms/store.ts's getPageWithFallback), so this must render per-request,
 // not once at build time: a save in the admin block editor needs to be live immediately, and the build
@@ -14,11 +15,11 @@ export const dynamic = 'force-dynamic';
 // sections); only its SEO title/description are admin-editable, via page:contact.
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageWithFallback('contact');
-  return {
+  return buildPageMetadata({
     title: page.seoTitle,
     description: page.seoDescription,
-    alternates: { canonical: '/contact' },
-  };
+    path: '/contact',
+  });
 }
 
 export default async function ContactPage() {

@@ -15,7 +15,10 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
 import { getAudiences, getServices, serviceHref } from '@/lib/content';
 import { getFrameworksWithFallback } from './store';
+import { getLegalReviewStatus } from './legal-review';
 import type { Block } from './schema';
+
+export { getLegalReviewStatus };
 import { toImageAsset } from './image';
 import { RichText, splitLegalSections } from './richtext';
 
@@ -28,15 +31,6 @@ import { RichText, splitLegalSections } from './richtext';
 export async function BlockRenderer({ blocks: list }: { blocks: readonly Block[] }) {
   const rendered = await Promise.all(list.map((block) => renderOne(block)));
   return <>{rendered}</>;
-}
-
-/** A legal page's review status lives on its one textRich("document") block, not on the PageDoc itself — used
- *  by the four legal routes' generateMetadata to decide whether the page stays out of search indexes. */
-export function getLegalReviewStatus(list: readonly Block[]): 'draft' | 'approved' {
-  for (const b of list) {
-    if (b.type === 'textRich' && b.data.variant === 'document') return b.data.reviewStatus;
-  }
-  return 'draft';
 }
 
 async function renderOne(block: Block): Promise<React.ReactNode> {

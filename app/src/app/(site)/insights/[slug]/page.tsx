@@ -6,6 +6,7 @@ import { toImageAsset } from '@/cms/image';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
+import { buildPageMetadata } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 // Reads the article from Redis, so this must render per-request, not once at build time (see (site)/page.tsx
@@ -17,11 +18,13 @@ type Params = Promise<{ slug: string }>;
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const article = await getPublishedArticle((await params).slug);
   if (!article) return {};
-  return {
+  return buildPageMetadata({
     title: article.seoTitle,
     description: article.seoDescription,
-    alternates: { canonical: `/insights/${article.slug}` },
-  };
+    path: `/insights/${article.slug}`,
+    openGraphType: 'article',
+    image: article.coverImage,
+  });
 }
 
 export default async function ArticlePage({ params }: { params: Params }) {
@@ -36,6 +39,10 @@ export default async function ArticlePage({ params }: { params: Params }) {
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
     author: { '@type': 'Organization', name: site.name, url: config.siteUrl },
+    mainEntityOfPage: `${config.siteUrl}/insights/${article.slug}`,
+    ...(article.coverImage
+      ? { image: article.coverImage.url.startsWith('http') ? article.coverImage.url : `${config.siteUrl}${article.coverImage.url}` }
+      : {}),
   };
 
   return (

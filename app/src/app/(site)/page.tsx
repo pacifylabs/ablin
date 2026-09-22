@@ -5,6 +5,7 @@ import { getPageWithFallback } from '@/cms/store';
 import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
 import { getHome, getImage, getInsightsPage } from '@/lib/content';
+import { buildPageMetadata } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 // Reads content from Redis (see cms/store.ts's getPageWithFallback), so this must render per-request,
@@ -14,11 +15,12 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageWithFallback('home');
-  return {
-    title: { absolute: page.seoTitle },
+  return buildPageMetadata({
+    title: page.seoTitle,
     description: page.seoDescription,
-    alternates: { canonical: '/' },
-  };
+    path: '/',
+    absoluteTitle: true,
+  });
 }
 
 const organisationJsonLd = {
@@ -46,11 +48,24 @@ export default async function HomePage() {
   const before = ctaIndex === -1 ? page.blocks : page.blocks.slice(0, ctaIndex);
   const after = ctaIndex === -1 ? [] : page.blocks.slice(ctaIndex);
 
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: site.name,
+    url: config.siteUrl,
+    description: page.seoDescription,
+    publisher: { '@type': 'Organization', name: site.name, url: config.siteUrl },
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScriptContent(organisationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptContent(websiteJsonLd) }}
       />
       <BlockRenderer blocks={before} />
       <InsightsTeaser data={home.insights} topics={insightsPage.topics} image={insightsImage} />

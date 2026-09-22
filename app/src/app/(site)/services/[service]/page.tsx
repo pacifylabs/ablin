@@ -11,6 +11,7 @@ import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
 import { getApproach, getAudiences, getImage, getService, getServices, serviceHref } from '@/lib/content';
 import { serviceHeroImageId } from '@/lib/service-hero-image';
+import { buildPageMetadata } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 type Params = Promise<{ service: string }>;
@@ -24,11 +25,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const service = await getService((await params).service);
   if (!service) return {};
-  return {
+  return buildPageMetadata({
     title: service.title,
-    description: `${service.summary} ${service.definition}`.slice(0, 300),
-    alternates: { canonical: serviceHref(service.slug) },
-  };
+    description: `${service.summary} ${service.definition}`,
+    path: serviceHref(service.slug),
+  });
 }
 
 export default async function ServicePage({ params }: { params: Params }) {

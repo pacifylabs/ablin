@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ArticleCard } from '@/components/insights/ArticleCard';
-import { listPublishedArticlesSafe } from '@/cms/store';
+import { getPageWithFallback, listPublishedArticlesSafe } from '@/cms/store';
 import { getInsightsPage } from '@/lib/content';
+import { buildPageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,10 +18,12 @@ async function resolveTopic(encoded: string): Promise<string | null> {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const topic = await resolveTopic((await params).topic);
   if (!topic) return {};
-  return {
+  const insightsPage = await getPageWithFallback('insights');
+  return buildPageMetadata({
     title: `${topic} — Insights`,
-    alternates: { canonical: `/insights/topic/${encodeURIComponent(topic)}` },
-  };
+    description: insightsPage.seoDescription,
+    path: `/insights/topic/${encodeURIComponent(topic)}`,
+  });
 }
 
 export default async function TopicPage({ params }: { params: Params }) {

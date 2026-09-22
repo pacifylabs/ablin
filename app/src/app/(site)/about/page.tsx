@@ -4,6 +4,7 @@ import { getPageWithFallback } from '@/cms/store';
 import { jsonLdScriptContent } from '@/lib/json-ld';
 import { config } from '@/lib/config';
 import { getAbout } from '@/lib/content';
+import { buildPageMetadata } from '@/lib/seo';
 import { site } from '@/lib/site';
 
 // Reads content from Redis (see cms/store.ts's getPageWithFallback), so this must render per-request,
@@ -13,11 +14,11 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageWithFallback('about');
-  return {
+  return buildPageMetadata({
     title: page.seoTitle,
     description: page.seoDescription,
-    alternates: { canonical: '/about' },
-  };
+    path: '/about',
+  });
 }
 
 export default async function AboutPage() {

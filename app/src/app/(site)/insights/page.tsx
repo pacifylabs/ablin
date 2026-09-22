@@ -5,6 +5,7 @@ import blocks from '@/components/ui/blocks.module.css';
 import { Button } from '@/components/ui/Button';
 import { ArticleCard } from '@/components/insights/ArticleCard';
 import { getInsightsPage } from '@/lib/content';
+import { buildPageMetadata } from '@/lib/seo';
 
 // Reads content from Redis (see cms/store.ts's getPageWithFallback), so this must render per-request,
 // not once at build time: a save in the admin block editor needs to be live immediately, and the build
@@ -13,11 +14,11 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPageWithFallback('insights');
-  return {
+  return buildPageMetadata({
     title: page.seoTitle,
     description: page.seoDescription,
-    alternates: { canonical: '/insights' },
-  };
+    path: '/insights',
+  });
 }
 
 /**
