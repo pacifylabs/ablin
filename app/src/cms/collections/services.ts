@@ -78,14 +78,14 @@ function checklistDoc(items: readonly string[]): RichDoc {
 }
 
 /** The DS v3 §7.14 detail template, built from the v2 service JSON. */
-function detailBlocks(s: LegacyService, code: string): Block[] {
+function detailBlocks(s: LegacyService, code: string, image: string | undefined): Block[] {
   const id = (n: string) => `${s.slug}-${n}`;
   const header = newBlock('pageHeader', id('header'));
   header.data = {
     eyebrow: code,
     title: s.title,
     lead: s.definition,
-    image: null,
+    image: image ? { mediaId: image, decorative: true } : null,
     breadcrumb: true,
     cta: null,
   };
@@ -137,7 +137,7 @@ export function fromLegacyService(s: LegacyService, order: number): Service {
     cardImage: card ? { mediaId: card.image, decorative: true } : null,
     seoTitle: s.title,
     seoDescription: `${s.summary} ${s.definition}`.slice(0, 300),
-    blocks: detailBlocks(s, code),
+    blocks: detailBlocks(s, code, card?.image),
   };
 }
 

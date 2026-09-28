@@ -635,7 +635,7 @@ function legal(
       }),
       b('richText', `${slug}-body`, {
         title: '',
-        meta: 'Last updated 19 September 2026',
+        meta: 'Draft for review · Last updated 19 September 2026',
         doc: body,
         layout: 'prose',
       }),

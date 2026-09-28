@@ -9,6 +9,7 @@ const routes = [
   '/services/ai-governance',
   '/who-we-serve',
   '/insights',
+  '/insights/topic/iso-27001',
   '/contact',
   '/privacy-policy',
   '/cookie-policy',
@@ -56,10 +57,8 @@ for (const route of routes.filter((r) => r !== '/does-not-exist')) {
       const rows = new Map<number, Set<number>>();
       const counts = new Map<number, number>();
       document
-        // Cards stacked inside an aside are a column, not a row; the contact spec checks that layout.
-        .querySelectorAll<HTMLElement>(
-          '.card:not(aside .card), [class*="howStep"], [class*="cell"]',
-        )
+        // Card-like cells: service cards, framework cards and why-grid cells.
+        .querySelectorAll<HTMLElement>('li[class*="card"], div[class*="cell"]')
         .forEach((el) => {
           const rect = el.getBoundingClientRect();
           if (!rect.width) return;
@@ -100,24 +99,23 @@ test('footer: strip is static under reduced motion', async ({ browser }) => {
   await context.close();
 });
 
-test('footer: bands stack full-width on desktop, with link columns of similar height', async ({
+test('footer: four columns share a top edge on desktop, frameworks strip below them', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/');
-  const box = async (sel: string) => (await page.locator(sel).first().boundingBox())!;
-  const brand = await box('footer [class*="bandBrand"]');
-  const links = await box('footer [class*="bandLinks"]');
-  const frameworks = await box('footer [class*="bandFrameworks"]');
-  // Bands read top to bottom and share one width, so nothing floats in a pocket beside another column.
-  expect(links.y).toBeGreaterThanOrEqual(brand.y + brand.height - 1);
-  expect(frameworks.y).toBeGreaterThanOrEqual(links.y + links.height - 1);
-  expect(Math.abs(links.width - frameworks.width)).toBeLessThanOrEqual(1);
-  // The three link columns end within one row of each other (no long column leaving empty space beside short ones).
-  const heights = await page
-    .locator('footer nav[aria-labelledby^="footer-"]')
-    .evaluateAll((navs) => navs.map((n) => Math.round(n.getBoundingClientRect().height)));
-  expect(Math.max(...heights) - Math.min(...heights)).toBeLessThanOrEqual(110);
+  const tops = await page
+    .locator('footer > div')
+    .first()
+    .evaluate((grid) => [...grid.children].map((c) => Math.round(c.getBoundingClientRect().top)));
+  expect(tops.length).toBe(4);
+  expect(new Set(tops).size).toBe(1);
+  const columns = (await page.locator('footer > div').first().boundingBox())!;
+  const strip = (await page
+    .locator('footer')
+    .getByRole('group', { name: /Frameworks list/ })
+    .boundingBox())!;
+  expect(strip.y).toBeGreaterThan(columns.y + columns.height - 1);
 });
 
 test('an unbuilt article 404s, and an unauthenticated admin visit reaches the login page', async ({
@@ -132,7 +130,47 @@ test('an unbuilt article 404s, and an unauthenticated admin visit reaches the lo
 });
 
 test('draft legal pages are noindex and carry a visible draft notice', async ({ page }) => {
+  for (const route of ['/privacy-policy', '/cookie-policy', '/terms-of-use', '/accessibility']) {
+    await page.goto(route);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+    await expect(page.locator('#main')).toContainText('Draft for review');
+  }
+});
+
+test('legal pages: plain header, text in a 760px column', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/privacy-policy');
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
-  await expect(page.getByRole('note')).toContainText('draft');
+  await expect(page.locator('#main img')).toHaveCount(0);
+  const width = await page
+    .locator('#main .prose')
+    .first()
+    .evaluate((el) => el.getBoundingClientRect().width);
+  expect(width).toBeLessThanOrEqual(760);
+});
+
+test('service detail follows the DS v3 template', async ({ page }) => {
+  await page.goto('/services/ai-governance');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'AI Governance & Responsible AI',
+  );
+  const h2 = await page.locator('#main h2').allInnerTexts();
+  expect(h2).toEqual(
+    expect.arrayContaining(['What this covers', 'How we work on this', 'Related services']),
+  );
+  await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toBeVisible();
+  await expect(page.locator('#main form')).toHaveCount(1);
+});
+
+test('a topic chip filters the Insights index', async ({ page }) => {
+  await page.goto('/insights');
+  await page.getByRole('link', { name: 'ISO 27001' }).first().click();
+  await expect(page).toHaveURL(/\/insights\/topic\/iso-27001$/);
+  await expect(page.getByRole('link', { name: 'ISO 27001' }).first()).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
+});
+
+test('availability gate 404s while the site is live', async ({ request }) => {
+  expect((await request.get('/status')).status()).toBe(404);
 });

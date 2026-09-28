@@ -1,58 +1,70 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Logo } from '@/components/ui/Logo';
-import { ThemeToggle } from '@/components/shell/ThemeToggle';
-import { getNavigation, getSiteSettings } from '@/cms/globals';
+import { HeroSignalBackground } from '@/components/hero-signal/HeroSignalBackground';
+import { getSiteSettings } from '@/cms/globals';
 import { defaultAvailabilityCopy } from '@/cms/globals/defaults';
-import { getAvailability } from '@/cms/store';
+import { getAvailability, getPage } from '@/cms/store';
 import type { Availability, AvailabilityCopy } from '@/cms/schema';
 import styles from '../status.module.css';
 
-function copyFor(availability: Availability | null): AvailabilityCopy | null {
+type GateMode = 'coming_soon' | 'under_construction';
+
+function copyFor(
+  availability: Availability | null,
+): { mode: GateMode; copy: AvailabilityCopy } | null {
   const mode = availability?.mode ?? 'live';
   if (mode === 'live') return null;
   const key = mode === 'coming_soon' ? 'comingSoon' : 'underConstruction';
   const own = availability?.[key];
-  if (own) return own;
+  if (own) return { mode, copy: own };
   const fallback = defaultAvailabilityCopy[key];
   const legacy = availability?.message?.trim();
-  return legacy ? { ...fallback, message: legacy } : fallback;
+  return { mode, copy: legacy ? { ...fallback, message: legacy } : fallback };
 }
 
+/** SEO title/description come from page:coming-soon / page:under-construction; the gate is never indexed. */
 export async function generateMetadata(): Promise<Metadata> {
-  const copy = copyFor(await getAvailability());
-  return { title: copy?.headline, robots: { index: false } };
+  const gate = copyFor(await getAvailability());
+  if (!gate) return { robots: { index: false } };
+  const page = await getPage(
+    gate.mode === 'coming_soon' ? 'coming-soon' : 'under-construction',
+  ).catch(() => null);
+  return {
+    title: page?.seoTitle ?? gate.copy.headline,
+    description: page?.seoDescription,
+    robots: { index: false },
+  };
 }
 
 /**
  * What middleware rewrites every public path to while settings:availability.mode is not "live" (see
- * src/middleware.ts). Reads the availability doc itself for the mode and copy rather than trusting the URL, so the
- * message is always current. A direct visit while the site is live 404s — this page has no purpose then.
+ * src/middleware.ts). DS v3 §7.14: a full-height navy frame with the lattice, the logo, headline, message and contact
+ * line — all from settings:availability. A direct visit while the site is live 404s.
  */
 export default async function StatusPage() {
-  const [availability, site, nav] = await Promise.all([
-    getAvailability(),
-    getSiteSettings(),
-    getNavigation(),
-  ]);
-  const copy = copyFor(availability);
-  if (!copy) notFound();
+  const [availability, site] = await Promise.all([getAvailability(), getSiteSettings()]);
+  const gate = copyFor(availability);
+  if (!gate) notFound();
+  const { copy } = gate;
 
   return (
-    <div className={styles.screen}>
-      <div className={styles.card}>
-        <Logo
-          logo={{ light: site.logoLight, dark: site.logoDark, alt: site.logoAlt }}
-          priority
-          className={styles.logo}
-        />
-        <h1>{copy.headline}</h1>
-        <p className={`lead ${styles.message}`}>{copy.message}</p>
-        {copy.contactLine ? <p className={styles.contact}>{copy.contactLine}</p> : null}
-        <div className={styles.toggle}>
-          <ThemeToggle labels={nav.labels} />
+    <main className={styles.screen}>
+      <div className={`${styles.frame} on-navy`}>
+        <HeroSignalBackground />
+        <div className={styles.shade} aria-hidden="true" />
+        <div className={styles.card}>
+          <Logo
+            logo={{ light: site.logoLight, dark: site.logoDark, alt: site.logoAlt }}
+            tone="onDark"
+            priority
+            className={styles.logo}
+          />
+          <h1 className={styles.title}>{copy.headline}</h1>
+          <p className={styles.message}>{copy.message}</p>
+          {copy.contactLine ? <p className={styles.contact}>{copy.contactLine}</p> : null}
         </div>
       </div>
-    </div>
+    </main>
   );
 }

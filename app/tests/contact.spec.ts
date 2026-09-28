@@ -4,7 +4,9 @@ async function fillValid(page: Page) {
   await page.getByLabel('Full name').fill('Amina Yusuf');
   await page.getByLabel('Work email').fill('amina@example.com');
   await page.getByLabel('Enquiry type').selectOption('grc');
-  await page.getByLabel('Message').fill('We need help mapping our obligations under UK GDPR.');
+  await page
+    .getByLabel('How can we help?')
+    .fill('We need help mapping our obligations under UK GDPR.');
   await page.getByRole('checkbox', { name: /I agree to Ablin Limited/ }).check();
 }
 
@@ -15,7 +17,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('empty submit shows a message per required field and focuses the first', async ({ page }) => {
-  await page.getByRole('button', { name: 'Send message' }).click();
+  await page.getByRole('button', { name: 'Request a Consultation' }).click();
   await expect(page.getByText('Enter your full name.')).toBeVisible();
   await expect(page.getByText('Enter a valid work email so we can reply.')).toBeVisible();
   await expect(page.getByText('Choose an enquiry type.')).toBeVisible();
@@ -27,7 +29,7 @@ test('empty submit shows a message per required field and focuses the first', as
 });
 
 test('a fixed field clears its own error', async ({ page }) => {
-  await page.getByRole('button', { name: 'Send message' }).click();
+  await page.getByRole('button', { name: 'Request a Consultation' }).click();
   await page.getByLabel('Full name').fill('Amina Yusuf');
   await expect(page.getByText('Enter your full name.')).toBeHidden();
 });
@@ -35,7 +37,7 @@ test('a fixed field clears its own error', async ({ page }) => {
 test('success: shows confirmation and moves focus to it', async ({ page }) => {
   await page.route('**/api/contact', (route) => route.fulfill({ status: 200, json: { ok: true } }));
   await fillValid(page);
-  await page.getByRole('button', { name: 'Send message' }).click();
+  await page.getByRole('button', { name: 'Request a Consultation' }).click();
   const heading = page.getByRole('heading', { name: 'Message sent' });
   await expect(heading).toBeVisible();
   await expect(heading).toBeFocused();
@@ -49,7 +51,7 @@ test('sends the honeypot empty and a submission timestamp', async ({ page }) => 
     await route.fulfill({ status: 200, json: { ok: true } });
   });
   await fillValid(page);
-  await page.getByRole('button', { name: 'Send message' }).click();
+  await page.getByRole('button', { name: 'Request a Consultation' }).click();
   await expect(page.getByRole('heading', { name: 'Message sent' })).toBeVisible();
   expect(body.website).toBe('');
   expect(typeof body.startedAt).toBe('number');
@@ -60,7 +62,7 @@ test('delivery failure is reported, never shown as success', async ({ page }) =>
     route.fulfill({ status: 503, json: { error: 'unavailable' } }),
   );
   await fillValid(page);
-  await page.getByRole('button', { name: 'Send message' }).click();
+  await page.getByRole('button', { name: 'Request a Consultation' }).click();
   await expect(page.locator('#form-summary')).toContainText('We could not send your message');
   await expect(page.getByRole('heading', { name: 'Message sent' })).toHaveCount(0);
   // The visitor's input is kept so they can retry.
@@ -72,19 +74,15 @@ test('rate limiting is reported in plain words', async ({ page }) => {
     route.fulfill({ status: 429, json: { error: 'rate_limited' } }),
   );
   await fillValid(page);
-  await page.getByRole('button', { name: 'Send message' }).click();
+  await page.getByRole('button', { name: 'Request a Consultation' }).click();
   await expect(page.locator('#form-summary')).toContainText('Wait a few minutes');
 });
 
-test('desktop: form and aside columns end on the same line', async ({ page }) => {
+test('desktop: heading and form sit side by side in the contact band', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  const form = await page
-    .locator('main form')
-    .locator('xpath=ancestor::div[contains(@class,"card")]')
-    .boundingBox();
-  const aside = await page.locator('main aside').boundingBox();
-  expect(form && aside).toBeTruthy();
-  expect(Math.abs(form!.y + form!.height - (aside!.y + aside!.height))).toBeLessThanOrEqual(1);
+  const heading = (await page.getByRole('heading', { level: 2 }).first().boundingBox())!;
+  const form = (await page.locator('main form').boundingBox())!;
+  expect(form.x).toBeGreaterThan(heading.x + heading.width - 1);
 });
 
 test('honeypot field is not reachable by keyboard or assistive technology', async ({ page }) => {
