@@ -99,23 +99,21 @@ test('footer: strip is static under reduced motion', async ({ browser }) => {
   await context.close();
 });
 
-test('footer: four columns share a top edge on desktop, frameworks strip below them', async ({
+test('footer: brand row above, link columns share a top edge, services split in two', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('/');
-  const tops = await page
-    .locator('footer > div')
-    .first()
-    .evaluate((grid) => [...grid.children].map((c) => Math.round(c.getBoundingClientRect().top)));
-  expect(tops.length).toBe(4);
+  const brand = (await page.locator('footer > div').first().boundingBox())!;
+  const grid = page.locator('footer > div').nth(1);
+  const tops = await grid.evaluate((g) =>
+    [...g.children].map((c) => Math.round(c.getBoundingClientRect().top)),
+  );
+  expect(tops.length).toBe(3);
   expect(new Set(tops).size).toBe(1);
-  const columns = (await page.locator('footer > div').first().boundingBox())!;
-  const strip = (await page
-    .locator('footer')
-    .getByRole('group', { name: /Frameworks list/ })
-    .boundingBox())!;
-  expect(strip.y).toBeGreaterThan(columns.y + columns.height - 1);
+  expect(tops[0]!).toBeGreaterThan(brand.y + brand.height - 1);
+  const services = page.locator('footer nav').filter({ hasText: 'Services' }).locator('ul');
+  expect(await services.evaluate((ul) => getComputedStyle(ul).columnCount)).toBe('2');
 });
 
 test('an unbuilt article 404s, and an unauthenticated admin visit reaches the login page', async ({

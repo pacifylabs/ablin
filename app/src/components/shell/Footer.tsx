@@ -14,7 +14,8 @@ interface FooterProps {
 }
 
 /**
- * DS v3 §7.13: brand column, up to three link columns, a Legal column, then copyright and region. The frameworks
+ * DS v3 §7.13 in two bands: the brand row, then the link columns (the services column is double width with its
+ * links in two columns), a Legal column, then copyright and region. The frameworks
  * strip (client request) sits between the columns and the base row when enabled in `settings:footer` and the list
  * is not empty.
  */
@@ -24,10 +25,7 @@ export function Footer({ footer, site, services, frameworks }: FooterProps) {
 
   return (
     <footer className={styles.footer}>
-      <div
-        className={`wrap ${styles.foot}`}
-        style={{ '--cols': columnCount } as React.CSSProperties}
-      >
+      <div className={`wrap ${styles.footBrandRow}`}>
         <div className={styles.footBrand}>
           <Link href="/" aria-label={site.siteName}>
             <Logo logo={{ light: site.logoLight, dark: site.logoDark, alt: '' }} />
@@ -35,16 +33,27 @@ export function Footer({ footer, site, services, frameworks }: FooterProps) {
           <p className={styles.footTagline}>{site.tagline}</p>
           <p>{footer.description}</p>
         </div>
+      </div>
 
+      <div
+        className={`wrap ${styles.foot}`}
+        style={{ '--cols': columnCount } as React.CSSProperties}
+      >
         {footer.columns.map((column, index) => {
           const links = column.source === 'services' ? services : column.links;
           const id = `footer-col-${index}`;
           return (
-            <nav key={id} aria-labelledby={id}>
+            <nav
+              key={id}
+              aria-labelledby={id}
+              className={column.source === 'services' ? styles.footWide : undefined}
+            >
               <h2 id={id} className={styles.footHeading}>
                 {column.title}
               </h2>
-              <ul className={styles.footList}>
+              <ul
+                className={`${styles.footList}${column.source === 'services' ? ` ${styles.footListTwo}` : ''}`}
+              >
                 {links.map((link) => (
                   <li key={`${link.href}-${link.label}`}>
                     <Link href={link.href}>{link.label}</Link>

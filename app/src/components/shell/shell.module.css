@@ -180,18 +180,35 @@
   background: var(--bg);
 }
 
+/* Band 1: brand. Band 2: link columns, all top-aligned, each about four rows tall. */
+.footBrandRow {
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--line);
+}
+
 .foot {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 40px;
-  padding-bottom: 56px;
+  gap: 32px 40px;
+  padding-block: 40px 56px;
 }
 
 .footBrand p {
   margin-top: 18px;
-  max-width: 34ch;
+  max-width: 60ch;
   font-size: 0.9rem;
   color: var(--muted);
+}
+
+.footBrandRow .footBrand {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 40px;
+  align-items: center;
+}
+
+.footBrandRow .footBrand > p:last-child {
+  grid-column: 1 / -1;
 }
 
 .footTagline {
@@ -243,14 +260,37 @@
   color: var(--muted);
 }
 
+/* The services list is long, so it sits in two columns and its column takes double width. */
+.footListTwo {
+  column-gap: 40px;
+}
+
 @media (min-width: 601px) {
   .foot {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .footWide {
+    grid-column: 1 / -1;
+  }
+
+  .footListTwo {
+    display: block;
+    columns: 2;
+  }
+
+  .footListTwo li {
+    break-inside: avoid;
+    margin-bottom: 10px;
   }
 }
 
 @media (min-width: 1001px) {
   .foot {
-    grid-template-columns: 1.5fr repeat(var(--cols, 3), minmax(0, 1fr));
+    grid-template-columns: 1fr 2fr 1fr;
+  }
+
+  .footWide {
+    grid-column: auto;
   }
 }
