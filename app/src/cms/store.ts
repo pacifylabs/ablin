@@ -1,7 +1,6 @@
 import { redis } from './redis';
 import { keys } from './keys';
 import {
-  LEGAL_PAGE_SLUGS,
   type AdminUser,
   type Availability,
   type PageDoc,
@@ -20,8 +19,6 @@ import {
   submissionSchema,
 } from './schema';
 import { sha256Hex } from '@/lib/token-hash';
-import { seedPage } from './seed-data';
-import { cachedQuery } from './cached';
 
 /**
  * The data-access layer over Redis. Every read parses with the matching zod schema — a value written by an
@@ -136,64 +133,6 @@ export async function listPageSlugs(): Promise<PageSlug[]> {
   return slugs as PageSlug[];
 }
 
-/**
- * What every public page.tsx reads (see cms/seed-data.ts): the live page:{slug} document, or — when Redis has
- * never been seeded (page:{slug} doesn't exist yet) or is briefly unreachable — the bundled starting content,
- * so neither a fresh deployment nor a transient Redis outage ever takes the public site down. A page that DOES
- * exist in Redis is always used as-is, even mid-edit; only a missing key or a genuine error falls back.
- */
-export async function getPageWithFallback(slug: PageSlug): Promise<PageDoc> {
-  try {
-    return (await getPage(slug)) ?? seedPage(slug);
-  } catch (error) {
-    if (LEGAL_PAGE_SLUGS.has(slug)) {
-      console.error(
-        `Failed to read legal page:${slug} from Redis; refusing bundled fallback.`,
-        error,
-      );
-      throw error;
-    }
-    console.error(
-      `Failed to read page:${slug} from Redis; serving the bundled starting content instead.`,
-      error,
-    );
-    return seedPage(slug);
-  }
-}
-
-/**
- * The public read of a page: cached under the tag `page:{slug}` (expired by every admin save), so pages render
- * statically. A missing key, or a stored document from an older schema, serves the bundled page; a Redis error does
- * too, except for legal pages, which fail loudly rather than show unreviewed bundled copy.
- */
-export async function getPublicPage(slug: PageSlug): Promise<PageDoc> {
-  let raw: unknown;
-  try {
-    raw = await cachedQuery(
-      [keys.page(slug)],
-      ['page', slug],
-      async () => (await redis().get(keys.page(slug))) ?? null,
-    );
-  } catch (error) {
-    if (LEGAL_PAGE_SLUGS.has(slug)) {
-      console.error(
-        `Failed to read legal page:${slug} from Redis; refusing bundled fallback.`,
-        error,
-      );
-      throw error;
-    }
-    console.error(`Failed to read page:${slug} from Redis; serving the bundled page.`, error);
-    return seedPage(slug);
-  }
-  if (raw === null) return seedPage(slug);
-  const parsed = pageDocSchema.safeParse(raw);
-  if (parsed.success) return parsed.data;
-  console.error(
-    `Stored page:${slug} does not match the current page schema; serving the bundled page.`,
-  );
-  return seedPage(slug);
-}
-
 export async function listPages(): Promise<PageDoc[]> {
   const slugs = await listPageSlugs();
   if (slugs.length === 0) return [];
@@ -246,56 +185,6 @@ export async function listPublishedArticles(limit = 100): Promise<ArticleDoc[]> 
   if (slugs.length === 0) return [];
   const docs = await redis().mget<unknown[]>(...slugs.map((s) => keys.article(s)));
   return docs.filter((d): d is object => d != null).map((d) => articleDocSchema.parse(d));
-}
-
-/** Public-read equivalents of getArticle/listPublishedArticles: degrade to "nothing published" rather than a
- *  500 if Redis is briefly unreachable, the same fail-open reasoning as getPageWithFallback above. Only for the
- *  public /insights routes — the admin editor uses getArticle/listAllArticles directly and should fail loudly. */
-export async function getPublishedArticle(slug: string): Promise<ArticleDoc | null> {
-  try {
-    const article = await getArticle(slug);
-    return article && article.status === 'published' ? article : null;
-  } catch (error) {
-    console.error(`Failed to read insights:article:${slug} from Redis.`, error);
-    return null;
-  }
-}
-
-export async function listPublishedArticlesSafe(limit = 100): Promise<ArticleDoc[]> {
-  try {
-    return await listPublishedArticles(limit);
-  } catch (error) {
-    console.error('Failed to list published articles from Redis.', error);
-    return [];
-  }
-}
-
-/** Cached public reads, tagged `insights:index` / `insights:article:{slug}`; every article write expires both. */
-export async function listPublishedArticlesCached(limit = 100): Promise<ArticleDoc[]> {
-  try {
-    return await cachedQuery([keys.articlesIndex], ['articles', String(limit)], () =>
-      listPublishedArticles(limit),
-    );
-  } catch (error) {
-    console.error('Failed to list published articles from Redis.', error);
-    return [];
-  }
-}
-
-export async function getPublishedArticleCached(slug: string): Promise<ArticleDoc | null> {
-  try {
-    return await cachedQuery(
-      [keys.article(slug), keys.articlesIndex],
-      ['article', slug],
-      async () => {
-        const article = await getArticle(slug);
-        return article && article.status === 'published' ? article : null;
-      },
-    );
-  } catch (error) {
-    console.error(`Failed to read insights:article:${slug} from Redis.`, error);
-    return null;
-  }
 }
 
 export async function listAllArticles(): Promise<ArticleDoc[]> {

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { resolveImage } from '@/cms/collections/media';
 import { getTopics, slugify } from '@/cms/collections/topics';
 import { getSiteSettings } from '@/cms/globals';
-import { listPublishedArticlesCached } from '@/cms/store';
+import { listPublishedArticlesCached } from '@/cms/public-reads';
 import { Heading } from '../Heading';
 import { Photo } from '../Photo';
 import { Section } from '../Section';

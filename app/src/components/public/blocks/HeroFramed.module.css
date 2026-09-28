@@ -85,6 +85,19 @@
   gap: 14px;
 }
 
+/*
+ * On narrow screens the copy spans the full frame, so the left-to-right shade would leave the right half of the text
+ * over bright photo. The shade evens out to hold AA across the whole width (checked on real pixels in
+ * tests/hero-signal.spec.ts).
+ */
+@media (max-width: 1000px) {
+  .shade {
+    background:
+      linear-gradient(95deg, rgba(10, 26, 50, 0.92) 0%, rgba(14, 39, 71, 0.86) 100%),
+      linear-gradient(0deg, rgba(10, 26, 50, 0.55) 0%, rgba(10, 26, 50, 0) 45%);
+  }
+}
+
 @media (max-width: 600px) {
   .tag {
     display: none;

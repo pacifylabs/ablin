@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { blockSchema } from './blocks';
-import { mediaRefSchema } from './collections/media';
+import { mediaRefSchema } from './collections/media-schema';
 
 /**
  * Page and article documents, availability, the admin user, sessions and submissions. The closed block palette lives

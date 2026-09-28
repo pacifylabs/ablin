@@ -8,7 +8,7 @@ import servicesJson from '@/content/services.json';
 import { blockSchema, newBlock, type Block } from '../blocks';
 import type { RichDoc } from '../richdoc';
 import approachJson from '@/content/approach.json';
-import { mediaRefSchema } from './media';
+import { mediaRefSchema } from './media-schema';
 
 /**
  * Services (DS v3 §9): one `services:{slug}` document each, ordered by `services:index` (a sorted set scored by

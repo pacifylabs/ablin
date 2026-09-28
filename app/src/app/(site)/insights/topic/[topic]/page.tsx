@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTopics } from '@/cms/collections/topics';
-import { getPublicPage } from '@/cms/store';
+import { getPublicPage } from '@/cms/public-reads';
 import { PageView } from '@/components/public/PageView';
 
 type Params = Promise<{ topic: string }>;

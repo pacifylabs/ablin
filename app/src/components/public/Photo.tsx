@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import type { ResolvedImage } from '@/cms/collections/media';
+import type { ResolvedImage } from '@/cms/collections/media-schema';
 
 interface PhotoProps {
   image: ResolvedImage;

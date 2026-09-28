@@ -1,7 +1,3 @@
-.section {
-  padding-block: var(--sec);
-}
-
 .band {
   position: relative;
   display: grid;

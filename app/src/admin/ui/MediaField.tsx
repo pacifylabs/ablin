@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import type { Media, MediaRef } from '@/cms/collections/media';
+import type { Media, MediaRef } from '@/cms/collections/media-schema';
 import { CheckboxField } from './fields/more';
 import styles from './admin.module.css';
 

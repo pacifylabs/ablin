@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { resolveImage } from '@/cms/collections/media';
 import type { PageSlug } from '@/cms/schema';
 import { absoluteUrl, getSiteUrl } from '@/cms/site-meta';
-import { getPublicPage } from '@/cms/store';
+import { getPublicPage } from '@/cms/public-reads';
 import { BlockRenderer } from './BlockRenderer';
 import type { RenderContext } from './blocks/types';
 

@@ -23,7 +23,6 @@ export async function FrameworkStrip({ block }: BlockProps<'frameworkStrip'>) {
         background={block.background}
         labelledBy={data.title ? titleId : undefined}
         label={data.title ? undefined : frameworks.map((f) => f.name).join(', ')}
-        pad="tight"
       >
         <div className="wrap">
           {data.title ? <Heading id={titleId} eyebrow={data.eyebrow} title={data.title} /> : null}

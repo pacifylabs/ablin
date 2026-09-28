@@ -1,13 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PAGE_SLUGS } from '@/cms/schema';
-import { getPageWithFallback } from '@/cms/store';
+import { seedPage } from '@/cms/seed-data';
+import { getPage } from '@/cms/store';
 import styles from '@/admin/ui/admin.module.css';
 
 export const metadata: Metadata = { title: 'Pages' };
 
 export default async function PagesListPage() {
-  const pages = await Promise.all(PAGE_SLUGS.map((slug) => getPageWithFallback(slug)));
+  // A page not yet saved in the current layout lists as its bundled version.
+  const pages = await Promise.all(
+    PAGE_SLUGS.map(async (slug) => (await getPage(slug).catch(() => null)) ?? seedPage(slug)),
+  );
 
   return (
     <div className={styles.page}>
@@ -15,7 +19,7 @@ export default async function PagesListPage() {
         <div>
           <h1>Pages</h1>
           <p className={styles.pageLead}>
-            The site&rsquo;s ten pages. Each one is edited as a set of blocks.
+            The site&rsquo;s pages. Each one is edited as a set of blocks.
           </p>
         </div>
       </header>

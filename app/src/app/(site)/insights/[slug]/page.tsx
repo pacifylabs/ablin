@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { resolveImage } from '@/cms/collections/media';
 import { getSeoSettings, getSiteSettings } from '@/cms/globals';
 import { absoluteUrl, getSiteUrl } from '@/cms/site-meta';
-import { getPublishedArticleCached } from '@/cms/store';
+import { getPublishedArticleCached } from '@/cms/public-reads';
 import { BlockRenderer } from '@/components/public/BlockRenderer';
 import { Photo } from '@/components/public/Photo';
 import { jsonLdScriptContent } from '@/lib/json-ld';

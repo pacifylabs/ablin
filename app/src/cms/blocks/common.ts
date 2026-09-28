@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { hrefSchema, linkSchema, optionalTextSchema, textSchema } from '../fields';
 import { ICON_NAMES } from '../collections/icons';
-import { mediaRefSchema } from '../collections/media';
+import { mediaRefSchema } from '../collections/media-schema';
 
 export { hrefSchema, linkSchema, optionalTextSchema, textSchema, mediaRefSchema };
 

@@ -73,7 +73,8 @@
   gap: 10px;
 }
 
-.cta {
+/* Doubled class so the rule outranks the global .btn display regardless of stylesheet order. */
+.actions .cta {
   display: none;
 }
 
@@ -160,7 +161,7 @@
     display: block;
   }
 
-  .cta {
+  .actions .cta {
     display: inline-flex;
   }
 
