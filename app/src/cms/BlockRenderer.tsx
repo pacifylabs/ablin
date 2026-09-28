@@ -5,6 +5,7 @@ import { WhoWeServe } from '@/components/home/WhoWeServe';
 import { WhyAblin } from '@/components/home/WhyAblin';
 import { ServicesOverview } from '@/components/home/ServicesOverview';
 import { TaglineStrip } from '@/components/home/TaglineStrip';
+import { getSiteSettings } from '@/cms/globals';
 import { HeroSignal } from '@/components/hero-signal/HeroSignal';
 import { CtaBand } from '@/components/shell/CtaBand';
 import blocks from '@/components/ui/blocks.module.css';
@@ -46,7 +47,7 @@ async function renderOne(block: Block): Promise<React.ReactNode> {
         return (
           <div key={block.id}>
             <HeroSignal hero={block.data} />
-            <TaglineStrip />
+            <TaglineStrip tagline={(await getSiteSettings()).tagline} />
           </div>
         );
       }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Logo } from '@/components/ui/Logo';
+import { getSiteSettings } from '@/cms/globals';
 import { ResetForm } from '@/admin/ui/ResetForm';
 import styles from '@/admin/ui/admin.module.css';
 
@@ -13,12 +14,14 @@ export const metadata: Metadata = {
 type SearchParams = Promise<{ token?: string }>;
 
 export default async function AdminResetPage({ searchParams }: { searchParams: SearchParams }) {
+  const site = await getSiteSettings();
+  const logo = { light: site.logoLight, dark: site.logoDark, alt: site.logoAlt };
   const { token } = await searchParams;
 
   return (
     <div className={styles.authScreen}>
       <div className={styles.authCard}>
-        <Logo priority className={styles.authLogo} />
+        <Logo logo={logo} priority className={styles.authLogo} />
         <h1 style={{ textAlign: 'center' }}>{token ? 'Set a new password' : 'Reset password'}</h1>
         <ResetForm token={token} />
       </div>

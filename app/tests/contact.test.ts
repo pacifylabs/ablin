@@ -46,7 +46,10 @@ describe('contact handler', () => {
 
   async function load(limit = 3) {
     const { handleContact } = await import('@/lib/contact-handler');
-    return { handle: handleContact, rateLimit: makeRateLimit(limit) };
+    const { defaultContact } = await import('@/cms/globals/defaults');
+    const handle: typeof handleContact = (request, deps) =>
+      handleContact(request, { settings: async () => defaultContact, ...deps });
+    return { handle, rateLimit: makeRateLimit(limit) };
   }
 
   const ok = () =>
@@ -181,6 +184,56 @@ describe('contact handler', () => {
     }
   });
 
+  it('sends the admin auto-reply only when enabled, and never fails the enquiry if it fails', async () => {
+    const { handleContact } = await import('@/lib/contact-handler');
+    const { defaultContact } = await import('@/cms/globals/defaults');
+    const autoReply = vi.fn().mockResolvedValue({ ok: false, reason: 'rejected' });
+    const settings = async () => ({
+      ...defaultContact,
+      autoReply: { enabled: true, subject: 'Thanks', body: 'We received your enquiry.' },
+    });
+    const res = await handleContact(post(valid()), {
+      rateLimit: makeRateLimit(5),
+      deliver: ok(),
+      store: storeOk(),
+      settings,
+      autoReply,
+      now: () => NOW,
+    });
+    expect(res.status).toBe(200);
+    expect(autoReply).toHaveBeenCalledWith('amina@example.com', {
+      subject: 'Thanks',
+      body: 'We received your enquiry.',
+    });
+
+    const off = vi.fn();
+    await handleContact(post(valid()), {
+      rateLimit: makeRateLimit(5),
+      deliver: ok(),
+      store: storeOk(),
+      settings: async () => defaultContact,
+      autoReply: off,
+      now: () => NOW,
+    });
+    expect(off).not.toHaveBeenCalled();
+  });
+
+  it('uses the admin validation messages', async () => {
+    const { handleContact } = await import('@/lib/contact-handler');
+    const { defaultContact } = await import('@/cms/globals/defaults');
+    const settings = async () => ({
+      ...defaultContact,
+      errors: { ...defaultContact.errors, email: 'Custom email message' },
+    });
+    const res = await handleContact(post(valid({ email: 'nope' })), {
+      rateLimit: makeRateLimit(5),
+      settings,
+      now: () => NOW,
+    });
+    const body = (await res.json()) as { fieldErrors: Record<string, string> };
+    expect(body.fieldErrors.email).toBe('Custom email message');
+  });
+
   it('rate limits repeat submissions from one address', async () => {
     const { handle, rateLimit } = await load(3);
     const deliver = ok();
@@ -258,6 +311,19 @@ describe('email delivery', () => {
     expect(body.text).toContain('Name: Eve Bcc: victim@example.com');
     expect(body.text).toContain('Organisation: X Subject: spoof');
     expect(Object.keys(body).sort()).toEqual(['from', 'reply_to', 'subject', 'text', 'to']);
+  });
+
+  it('sends to the admin recipients when set, instead of CONTACT_TO_EMAIL', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }));
+    await deliverContact(message, {
+      contact,
+      fetchImpl,
+      recipients: ['a@example.com', 'b@example.com'],
+    });
+    const body = JSON.parse(
+      (fetchImpl.mock.calls[0] as [string, RequestInit])[1].body as string,
+    ) as Record<string, unknown>;
+    expect(body.to).toEqual(['a@example.com', 'b@example.com']);
   });
 
   it('reports rejection and unreachable providers as failures', async () => {

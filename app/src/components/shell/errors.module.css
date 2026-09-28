@@ -1,0 +1,24 @@
+.stack {
+  display: grid;
+  gap: var(--s-24);
+}
+
+.linksTitle {
+  margin-bottom: var(--s-12);
+  font-family: var(--body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+
+.links {
+  display: grid;
+  gap: var(--s-8);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-12);
+}

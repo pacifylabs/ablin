@@ -2,9 +2,8 @@ import type { Metadata } from 'next';
 import { BlockRenderer } from '@/cms/BlockRenderer';
 import { getPageWithFallback } from '@/cms/store';
 import { jsonLdScriptContent } from '@/lib/json-ld';
-import { config } from '@/lib/config';
 import { getAbout } from '@/lib/content';
-import { site } from '@/lib/site';
+import { organizationJsonLd } from '@/cms/site-meta';
 
 // Reads content from Redis (see cms/store.ts's getPageWithFallback), so this must render per-request,
 // not once at build time: a save in the admin block editor needs to be live immediately, and the build
@@ -22,15 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const [page, about] = await Promise.all([getPageWithFallback('about'), getAbout()]);
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: site.name,
-    url: config.siteUrl,
-    logo: `${config.siteUrl}/image/logo-lockup-light.png`,
-    description: page.seoDescription,
-    areaServed: 'GB',
-  };
+  const jsonLd = await organizationJsonLd();
 
   // The Mission/Vision cards are pinned (the closed block palette has no block for a fixed two-card pair; see
   // admin/README.md §Pinned sections). They always render immediately after the page's first rich-text block —

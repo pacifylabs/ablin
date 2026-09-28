@@ -1,9 +1,9 @@
 import styles from './shell.module.css';
 
-export function SkipLink() {
+export function SkipLink({ label }: { label: string }) {
   return (
     <a href="#main" className={styles.skip}>
-      Skip to main content
+      {label}
     </a>
   );
 }

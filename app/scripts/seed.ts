@@ -1,12 +1,19 @@
 /**
- * One-time (and re-runnable) seed: creates the admin user, sets the site to "live" if it has no availability
- * setting yet, seeds the frameworks list if it has never been saved, and writes a page:{slug} document for each
- * of the 10 known routes from src/cms/seed-data.ts.
+ * Re-runnable seed. By default it is NON-DESTRUCTIVE for content:
+ *   - upserts admin:user from ADMIN_EMAIL / ADMIN_PASSWORD (skip with --skip-admin)
+ *   - writes settings:availability, settings:frameworks, every settings:* global and every page:{slug} ONLY if
+ *     that key does not exist yet
+ * Opt-in overwrites, for resetting content to the bundled defaults:
+ *   --globals   overwrite every settings:* global (not availability)
+ *   --pages     overwrite every page:{slug}
+ * It never touches insights:* or submission:*.
  *
- * Run with: pnpm seed   (needs UPSTASH_REDIS_REST_URL/TOKEN, ADMIN_EMAIL, ADMIN_PASSWORD in the environment —
- * see .env.example). Re-running is safe: it overwrites admin:user and every page:{slug}, but never touches
- * insights:*, submission:*, settings:availability or settings:frameworks once each already has a value.
+ * Run with: pnpm seed [-- --pages --globals --skip-admin]
+ * (needs UPSTASH_REDIS_REST_URL/TOKEN, and ADMIN_EMAIL/ADMIN_PASSWORD unless --skip-admin; see .env.example).
  */
+import { GLOBAL_NAMES, GLOBALS } from '../src/cms/globals';
+import { keys } from '../src/cms/keys';
+import { redis } from '../src/cms/redis';
 import { seedFrameworks, seedPages } from '../src/cms/seed-data';
 import {
   getAdminUser,
@@ -21,7 +28,12 @@ import { hashPassword } from '../src/admin/auth/password';
 
 const now = () => new Date().toISOString();
 
-async function main() {
+const flags = new Set(process.argv.slice(2));
+const overwriteGlobals = flags.has('--globals');
+const overwritePages = flags.has('--pages');
+const skipAdmin = flags.has('--skip-admin');
+
+async function seedAdmin() {
   const email = process.env.ADMIN_EMAIL?.trim();
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) {
@@ -40,6 +52,11 @@ async function main() {
     updatedAt: now(),
   });
   console.log(existingUser ? `Updated admin user: ${email}` : `Created admin user: ${email}`);
+}
+
+async function main() {
+  if (skipAdmin) console.log('Skipped admin:user (--skip-admin).');
+  else await seedAdmin();
 
   const availability = await getAvailability();
   if (!availability) {
@@ -59,10 +76,26 @@ async function main() {
     );
   }
 
+  for (const name of GLOBAL_NAMES) {
+    const { key, seed } = GLOBALS[name];
+    const exists = (await redis().exists(key)) === 1;
+    if (exists && !overwriteGlobals) {
+      console.log(`${key} already set — left unchanged (use --globals to overwrite).`);
+      continue;
+    }
+    await redis().set(key, seed);
+    console.log(`${exists ? 'Overwrote' : 'Seeded'} ${key}.`);
+  }
+
   for (const page of seedPages) {
+    const exists = (await redis().exists(keys.page(page.slug))) === 1;
+    if (exists && !overwritePages) {
+      console.log(`page:${page.slug} already set — left unchanged (use --pages to overwrite).`);
+      continue;
+    }
     await putPage(page);
     console.log(
-      `Seeded page:${page.slug} (${page.blocks.length} block${page.blocks.length === 1 ? '' : 's'}).`,
+      `${exists ? 'Overwrote' : 'Seeded'} page:${page.slug} (${page.blocks.length} block${page.blocks.length === 1 ? '' : 's'}).`,
     );
   }
 

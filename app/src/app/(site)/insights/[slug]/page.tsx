@@ -5,8 +5,8 @@ import { getPublishedArticle } from '@/cms/store';
 import { toImageAsset } from '@/cms/image';
 import { ImageSlot } from '@/components/ui/ImageSlot';
 import { jsonLdScriptContent } from '@/lib/json-ld';
-import { config } from '@/lib/config';
-import { site } from '@/lib/site';
+import { getSeoSettings } from '@/cms/globals';
+import { getSiteUrl } from '@/cms/site-meta';
 
 // Reads the article from Redis, so this must render per-request, not once at build time (see (site)/page.tsx
 // for the same reasoning on the other Redis-backed routes).
@@ -28,6 +28,7 @@ export default async function ArticlePage({ params }: { params: Params }) {
   const article = await getPublishedArticle((await params).slug);
   if (!article) notFound();
 
+  const [siteUrl, seo] = await Promise.all([getSiteUrl(), getSeoSettings()]);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -35,7 +36,7 @@ export default async function ArticlePage({ params }: { params: Params }) {
     description: article.excerpt,
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
-    author: { '@type': 'Organization', name: site.name, url: config.siteUrl },
+    author: { '@type': 'Organization', name: seo.organization.name, url: siteUrl },
   };
 
   return (

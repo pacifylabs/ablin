@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { listPublishedSlugs } from '@/cms/store';
-import { config } from '@/lib/config';
+import { getSiteUrl } from '@/cms/site-meta';
 import { getServices } from '@/lib/content';
 
 const STATIC_PATHS = [
@@ -17,7 +17,7 @@ const STATIC_PATHS = [
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = config.siteUrl;
+  const base = await getSiteUrl();
   const now = new Date();
 
   const entries: MetadataRoute.Sitemap = STATIC_PATHS.map((path) => ({

@@ -11,7 +11,10 @@ import { isSafeBlockImageUrl, isSafeHref } from '@/lib/safe-href';
 
 const cta = z.object({
   label: z.string().min(1),
-  href: z.string().min(1).refine(isSafeHref, 'Link must be https, mailto, site-relative, or a fragment'),
+  href: z
+    .string()
+    .min(1)
+    .refine(isSafeHref, 'Link must be https, mailto, site-relative, or a fragment'),
 });
 
 /**
@@ -315,10 +318,21 @@ export const articleDocSchema = z.object({
 });
 export type ArticleDoc = z.infer<typeof articleDocSchema>;
 
+/** Copy shown on the availability gate for one mode (DS v3 §9). */
+export const availabilityCopySchema = z.object({
+  headline: z.string().trim().min(1),
+  message: z.string().trim().min(1),
+  contactLine: z.string().trim(),
+});
+export type AvailabilityCopy = z.infer<typeof availabilityCopySchema>;
+
 export const availabilitySchema = z.object({
   mode: z.enum(['live', 'coming_soon', 'under_construction']),
+  /** Legacy single message, from before per-mode copy existed; used only when the mode has no copy of its own. */
   message: z.string(),
   updatedAt: z.string(),
+  comingSoon: availabilityCopySchema.optional(),
+  underConstruction: availabilityCopySchema.optional(),
 });
 export type Availability = z.infer<typeof availabilitySchema>;
 

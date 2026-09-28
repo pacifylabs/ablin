@@ -25,7 +25,13 @@ function subscribe(onChange: () => void): () => void {
   };
 }
 
-export function ThemeToggle() {
+export interface ThemeToggleLabels {
+  themeToggle: string;
+  themeToLight: string;
+  themeToDark: string;
+}
+
+export function ThemeToggle({ labels }: { labels: ThemeToggleLabels }) {
   // The server cannot know the visitor's theme, so its snapshot is null and the label stays neutral.
   const theme = useSyncExternalStore<Theme | null>(subscribe, readEffectiveTheme, () => null);
 
@@ -42,10 +48,10 @@ export function ThemeToggle() {
 
   const label =
     theme === null
-      ? 'Switch colour theme'
+      ? labels.themeToggle
       : theme === 'dark'
-        ? 'Switch to light theme'
-        : 'Switch to dark theme';
+        ? labels.themeToLight
+        : labels.themeToDark;
 
   return (
     <button type="button" className={styles.iconButton} onClick={toggle} aria-label={label}>

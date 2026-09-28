@@ -14,17 +14,17 @@
 
 .title {
   margin: 0;
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--body);
   font-size: 0.9375rem;
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.4;
-  color: var(--footer-text);
+  color: var(--heading);
 }
 
 .note {
   font-size: 0.875rem;
-  color: var(--footer-muted);
+  color: var(--muted);
 }
 
 .viewport {
@@ -33,7 +33,7 @@
 }
 
 .viewport:focus-visible {
-  outline: 2px solid var(--feature-text);
+  outline: 2px solid var(--focus);
   outline-offset: 4px;
 }
 
@@ -62,7 +62,7 @@
   flex: 0 0 auto;
   width: 17.5rem;
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--footer-line);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
   white-space: nowrap;
 }
@@ -77,14 +77,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
-  color: var(--footer-text);
+  color: var(--heading);
 }
 
 .scope {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.8125rem;
-  color: var(--footer-muted);
+  color: var(--muted);
 }
 
 @keyframes slide {

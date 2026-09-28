@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ContactForm } from '@/components/contact/ContactForm';
+import { getContactSettings, toContactFormCopy } from '@/cms/globals';
 import blocks from '@/components/ui/blocks.module.css';
 import { getPageWithFallback } from '@/cms/store';
 import { getContactPage } from '@/lib/content';
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContactPage() {
-  const page = await getContactPage();
+  const [page, contact] = await Promise.all([getContactPage(), getContactSettings()]);
 
   return (
     <>
@@ -44,7 +45,7 @@ export default async function ContactPage() {
       >
         <div className={`container ${blocks.contactGrid}`}>
           <div className="card" style={{ padding: 'clamp(1.5rem, 3vw, 2.5rem)' }}>
-            <ContactForm enquiryTypes={page.enquiryTypes} />
+            <ContactForm copy={toContactFormCopy(contact)} />
           </div>
           <aside className={blocks.contactAside} aria-label="About your enquiry">
             <div className="card">

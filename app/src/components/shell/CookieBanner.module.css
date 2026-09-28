@@ -1,0 +1,74 @@
+/* DS v3 §7.15: bottom-left card on the panel colour. No shadow (not on the §4 list); a strong hairline instead. */
+.banner {
+  position: fixed;
+  left: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: grid;
+  gap: 14px;
+  width: min(400px, calc(100vw - 32px));
+  padding: 22px;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+}
+
+.title {
+  font-size: 1.05rem;
+}
+
+.body {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.actions :global(.btn) {
+  padding: 11px 18px;
+}
+
+.linkButton {
+  padding: 8px 4px;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.prefs {
+  display: grid;
+  gap: 12px;
+}
+
+.pref {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.pref input {
+  margin-top: 5px;
+  accent-color: var(--navy);
+}
+
+.pref label {
+  display: grid;
+  gap: 2px;
+  font-size: 0.88rem;
+}
+
+.pref span {
+  color: var(--muted);
+}

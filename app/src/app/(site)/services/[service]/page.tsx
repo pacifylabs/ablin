@@ -8,9 +8,9 @@ import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
 import { jsonLdScriptContent } from '@/lib/json-ld';
-import { config } from '@/lib/config';
 import { getApproach, getAudiences, getService, getServices, serviceHref } from '@/lib/content';
-import { site } from '@/lib/site';
+import { getSeoSettings } from '@/cms/globals';
+import { getSiteUrl } from '@/cms/site-meta';
 
 type Params = Promise<{ service: string }>;
 
@@ -41,7 +41,8 @@ export default async function ServicePage({ params }: { params: Params }) {
   ]);
   const audiences = allAudiences.filter((a) => service.whoFor.includes(a.slug));
   const related = allServices.filter((s) => service.related.includes(s.slug));
-  const url = `${config.siteUrl}${serviceHref(service.slug)}`;
+  const [siteUrl, seo] = await Promise.all([getSiteUrl(), getSeoSettings()]);
+  const url = `${siteUrl}${serviceHref(service.slug)}`;
 
   const jsonLd = [
     {
@@ -51,14 +52,14 @@ export default async function ServicePage({ params }: { params: Params }) {
       description: service.definition,
       url,
       areaServed: 'GB',
-      provider: { '@type': 'Organization', name: site.name, url: config.siteUrl },
+      provider: { '@type': 'Organization', name: seo.organization.name, url: siteUrl },
     },
     {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: config.siteUrl },
-        { '@type': 'ListItem', position: 2, name: 'Services', item: `${config.siteUrl}/services` },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+        { '@type': 'ListItem', position: 2, name: 'Services', item: `${siteUrl}/services` },
         { '@type': 'ListItem', position: 3, name: service.title, item: url },
       ],
     },
