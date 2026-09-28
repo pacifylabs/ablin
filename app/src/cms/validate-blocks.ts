@@ -1,5 +1,6 @@
-import { getAudiences, getServices } from '@/lib/content';
-import { getFrameworksWithFallback } from './store';
+import { getAudiences } from '@/lib/content';
+import { getFrameworks } from './collections/frameworks';
+import { listServices } from './collections/services';
 import { isRichDocSafe } from './richtext';
 import type { Block } from './schema';
 
@@ -14,9 +15,9 @@ import type { Block } from './schema';
  */
 export async function findBlockReferenceError(blocks: readonly Block[]): Promise<string | null> {
   const [services, audiences, frameworks] = await Promise.all([
-    getServices(),
+    listServices(),
     getAudiences(),
-    getFrameworksWithFallback(),
+    getFrameworks(),
   ]);
   const serviceSlugs = new Set(services.map((s) => s.slug));
   const audienceSlugs = new Set(audiences.map((a) => a.slug));

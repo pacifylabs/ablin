@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 
 export interface CloudinaryUploadResult {
   url: string;
+  publicId: string;
   width: number;
   height: number;
   bytes: number;
@@ -20,7 +21,7 @@ export type CloudinaryResult =
 export async function uploadImage(
   buffer: Buffer,
   filename: string,
-  deps: { fetchImpl?: typeof fetch } = {},
+  deps: { fetchImpl?: typeof fetch; folder?: string; publicId?: string } = {},
 ): Promise<CloudinaryResult> {
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
   const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
@@ -29,17 +30,26 @@ export async function uploadImage(
 
   const fetchImpl = deps.fetchImpl ?? fetch;
   const timestamp = Math.floor(Date.now() / 1000);
-  const folder = 'ablin-admin';
+  const folder = deps.folder ?? 'ablin-admin';
   // Cloudinary's signature: every param that will be sent (other than file/api_key/signature), sorted and
   // joined, with the API secret appended, then SHA-1 hashed. https://cloudinary.com/documentation/signatures
-  const toSign = `folder=${folder}&timestamp=${timestamp}${apiSecret}`;
+  // A fixed public_id (the seed script) also overwrites, so re-seeding replaces rather than duplicates.
+  const params: Record<string, string> = { folder, timestamp: String(timestamp) };
+  if (deps.publicId) {
+    params.public_id = deps.publicId;
+    params.overwrite = 'true';
+  }
+  const toSign =
+    Object.keys(params)
+      .sort()
+      .map((k) => `${k}=${params[k]}`)
+      .join('&') + apiSecret;
   const signature = createHash('sha1').update(toSign).digest('hex');
 
   const form = new FormData();
   form.set('file', new Blob([new Uint8Array(buffer)]), filename);
   form.set('api_key', apiKey);
-  form.set('timestamp', String(timestamp));
-  form.set('folder', folder);
+  for (const [k, v] of Object.entries(params)) form.set(k, v);
   form.set('signature', signature);
 
   try {
@@ -50,6 +60,7 @@ export async function uploadImage(
     if (!response.ok) return { ok: false, reason: 'upstream' };
     const body = (await response.json()) as {
       secure_url: string;
+      public_id: string;
       width: number;
       height: number;
       bytes: number;
@@ -59,6 +70,7 @@ export async function uploadImage(
       ok: true,
       data: {
         url: body.secure_url,
+        publicId: body.public_id,
         width: body.width,
         height: body.height,
         bytes: body.bytes,

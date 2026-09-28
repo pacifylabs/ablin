@@ -1,11 +1,11 @@
-import { getFooterFrameworks } from '@/cms/frameworks-cache';
+import { getFrameworks, withMarks } from '@/cms/collections/frameworks';
+import { listServices, serviceHref } from '@/cms/collections/services';
 import {
   getCookieSettings,
   getFooterSettings,
   getNavigation,
   getSiteSettings,
 } from '@/cms/globals';
-import { getServices, serviceHref } from '@/lib/content';
 import { CookieBanner } from './CookieBanner';
 import { Footer } from './Footer';
 import { Header } from './Header';
@@ -22,8 +22,8 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
     getNavigation(),
     getFooterSettings(),
     getCookieSettings(),
-    getServices(),
-    getFooterFrameworks(),
+    listServices(),
+    getFrameworks().then(withMarks),
   ]);
   const logo = { light: site.logoLight, dark: site.logoDark, alt: site.logoAlt };
 

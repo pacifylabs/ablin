@@ -1,6 +1,6 @@
-import type { Framework } from '@/content/schema';
+import type { FrameworkWithMark } from '@/cms/collections/frameworks';
+import { FrameworkMark } from '@/components/public/FrameworkMark';
 import { ArchRule } from '@/components/motifs/ArchRule';
-import { FrameworkBadge } from './FrameworkBadge';
 import styles from './FrameworkBand.module.css';
 
 interface FrameworkBandProps {
@@ -8,13 +8,12 @@ interface FrameworkBandProps {
   title: string;
   lead: string;
   note: string;
-  frameworks: readonly Framework[];
+  frameworks: readonly FrameworkWithMark[];
 }
 
 /**
  * "Frameworks we advise on" (Design System v2.1 §D). The honest alternative to a stat bar or logo wall: the
  * standards Ablin advises on and prepares organisations for. It never reads as certifications held or issued.
- * Custom badges stand in until the client supplies approved logos (see FrameworkBadge for the logo slot).
  */
 export function FrameworkBand({ id, title, lead, note, frameworks }: FrameworkBandProps) {
   return (
@@ -28,9 +27,9 @@ export function FrameworkBand({ id, title, lead, note, frameworks }: FrameworkBa
         <ul className={styles.grid}>
           {frameworks.map((framework) => (
             <li key={framework.id} className={`card ${styles.item}`}>
-              <FrameworkBadge framework={framework} />
+              <FrameworkMark framework={framework} />
               <span className={styles.name}>{framework.name}</span>
-              <span className="muted small">{framework.scope}</span>
+              <span className="muted small">{framework.descriptor}</span>
               <span className={styles.meta}>
                 {framework.publisher}
                 {framework.edition ? `, ${framework.edition}` : ''}

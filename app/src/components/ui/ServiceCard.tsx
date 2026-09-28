@@ -1,27 +1,20 @@
 import Link from 'next/link';
-import type { Service } from '@/content/schema';
-import { serviceHref } from '@/lib/content';
-import { Illustration } from './Illustration';
+import { serviceHref, type Service } from '@/cms/collections/services';
 
 interface ServiceCardProps {
   service: Service;
-  /** Show the illustration and a preview of what the service covers (services index). */
+  /** Show a preview of what the service covers (services index). */
   detailed?: boolean;
 }
 
 export function ServiceCard({ service, detailed = false }: ServiceCardProps) {
   return (
     <article className="card">
-      {detailed ? (
-        <div className="card-media">
-          <Illustration scene={service.illustration} />
-        </div>
-      ) : null}
       <h3>{service.title}</h3>
       <p className="muted">{service.summary}</p>
       {detailed ? (
         <ul className="check-list small">
-          {service.covers.slice(0, 3).map((item) => (
+          {service.detail.covers.slice(0, 3).map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>

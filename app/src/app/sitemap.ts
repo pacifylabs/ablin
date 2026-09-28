@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { listPublishedSlugs } from '@/cms/store';
 import { getSiteUrl } from '@/cms/site-meta';
-import { getServices } from '@/lib/content';
+import { listServices, serviceHref } from '@/cms/collections/services';
 
 const STATIC_PATHS = [
   '/',
@@ -27,9 +27,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === '/' ? 1 : 0.7,
   }));
 
-  for (const service of await getServices()) {
+  for (const service of await listServices()) {
     entries.push({
-      url: `${base}/services/${service.slug}`,
+      url: `${base}${serviceHref(service.slug)}`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.6,

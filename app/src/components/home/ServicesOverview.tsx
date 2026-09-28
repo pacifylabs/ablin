@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
-import type { Service } from '@/content/schema';
+import type { Service } from '@/cms/collections/services';
 import type { ServiceListData } from '@/cms/schema';
 import styles from './home.module.css';
 

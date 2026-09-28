@@ -1,9 +1,9 @@
-import { FrameworkBadge } from '@/components/ui/FrameworkBadge';
-import type { Framework } from '@/content/schema';
+import type { FrameworkWithMark } from '@/cms/collections/frameworks';
+import { FrameworkMark } from '@/components/public/FrameworkMark';
 import styles from './FrameworkSlider.module.css';
 
 interface FrameworkSliderProps {
-  items: readonly Framework[];
+  items: readonly FrameworkWithMark[];
   title: string;
   note: string;
   ariaLabel: string;
@@ -17,7 +17,7 @@ interface FrameworkSliderProps {
  * WCAG 2.2.2 wants a way to pause moving content, so if strict AA conformance is required a visible control must
  * come back; see docs/ablin-design-system-v2.1.md §E.
  *
- * Each tile shows a custom glyph until an approved, licensed logo is set on the framework (see FrameworkBadge).
+ * Each tile shows the framework's line icon, or its logo once the client has approved one (see FrameworkMark).
  */
 export function FrameworkSlider({ items, title, note, ariaLabel }: FrameworkSliderProps) {
   return (
@@ -37,10 +37,12 @@ export function FrameworkSlider({ items, title, note, ariaLabel }: FrameworkSlid
           <ul className={styles.set}>
             {items.map((item) => (
               <li key={item.id} className={styles.item}>
-                <FrameworkBadge framework={item} size={44} tone="default" />
+                <span className={styles.mark}>
+                  <FrameworkMark framework={item} size={28} />
+                </span>
                 <span className={styles.text}>
                   <span className={styles.name}>{item.name}</span>
-                  <span className={styles.scope}>{item.scope}</span>
+                  <span className={styles.scope}>{item.descriptor}</span>
                 </span>
               </li>
             ))}
@@ -49,10 +51,12 @@ export function FrameworkSlider({ items, title, note, ariaLabel }: FrameworkSlid
           <ul className={`${styles.set} ${styles.clone}`} aria-hidden="true">
             {items.map((item) => (
               <li key={item.id} className={styles.item}>
-                <FrameworkBadge framework={item} size={44} tone="default" />
+                <span className={styles.mark}>
+                  <FrameworkMark framework={item} size={28} />
+                </span>
                 <span className={styles.text}>
                   <span className={styles.name}>{item.name}</span>
-                  <span className={styles.scope}>{item.scope}</span>
+                  <span className={styles.scope}>{item.descriptor}</span>
                 </span>
               </li>
             ))}

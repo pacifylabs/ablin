@@ -616,3 +616,30 @@
 .richContent :global(.ProseMirror a) {
   color: var(--link);
 }
+
+.checkRow {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+}
+
+.checkRow input {
+  margin-top: 4px;
+}
+
+.linkBtn {
+  justify-self: start;
+  padding: 6px 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--link);
+  cursor: pointer;
+}
+
+.linkBtn:hover {
+  text-decoration: underline;
+}

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Illustration } from '@/components/ui/Illustration';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { CapabilityGridData } from '@/cms/schema';
-import { serviceHref } from '@/lib/content';
+import { serviceHref } from '@/cms/collections/services';
 
 type CapabilitiesData = CapabilityGridData;
 

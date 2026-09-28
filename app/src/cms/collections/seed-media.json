@@ -1,0 +1,110 @@
+[
+  {
+    "id": "hero-stairs",
+    "file": "/image/photo/hero-stairs.jpg",
+    "alt": "A spiral of white stairs seen from below",
+    "credit": "https://unsplash.com/photos/1tD5AHzcrDQ",
+    "width": 1100,
+    "height": 1661,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAQAAsDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAMF/8QAIRAAAgEDAwUAAAAAAAAAAAAAAQMCAAQhERJBBRQzUZH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8Au5q0r3S5GB7rLPUM+CX0UJjX3B3aHQ8nFPX2RXEsuxGRGQYHFB//2Q=="
+  },
+  {
+    "id": "glass-facade",
+    "file": "/image/photo/glass-facade.jpg",
+    "alt": "Glass curtain wall of an office building",
+    "credit": "https://unsplash.com/photos/V5vF94h52r0",
+    "width": 1100,
+    "height": 1650,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAQAAsDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAABP/EABwQAQACAQUAAAAAAAAAAAAAAAEAAyECERNBUf/EABQBAQAAAAAAAAAAAAAAAAAAAAT/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwANIYxE7HhB02aUEcRPIHcQO//Z"
+  },
+  {
+    "id": "light-stairs",
+    "file": "/image/photo/light-stairs.jpg",
+    "alt": "Light falling across a flight of concrete stairs",
+    "credit": "https://unsplash.com/photos/jHEcgLUfxxQ",
+    "width": 1600,
+    "height": 1071,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAgQF/8QAHxAAAgEEAgMAAAAAAAAAAAAAAQIDAAQREyExM0Fx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAVEQEBAAAAAAAAAAAAAAAAAAARAP/aAAwDAQACEQMRAD8AxrWCd/DM2fvVO9OiALs3ydlh0KIdktwqnAJ5x7qVySDk1Iyl/9k="
+  },
+  {
+    "id": "zigzag-stairs",
+    "file": "/image/photo/zigzag-stairs.jpg",
+    "alt": "Zigzag external stairs on a white building",
+    "credit": "https://unsplash.com/photos/H_oz3mRXkqc",
+    "width": 1100,
+    "height": 1650,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAQAAsDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABAH/xAAeEAACAgIDAQEAAAAAAAAAAAABAgMEABESITEyQf/EABUBAQEAAAAAAAAAAAAAAAAAAAID/8QAFREBAQAAAAAAAAAAAAAAAAAAEQD/2gAMAwEAAhEDEQA/AJc3NZuPDCr7dSdjw6wteR0gVXoh2HrBAd4i1KLFizLzNblxIUn6P7gYk1GBHcQL302icmM2/9k="
+  },
+  {
+    "id": "geometric-facade",
+    "file": "/image/photo/geometric-facade.jpg",
+    "alt": "Geometric facade of a modern building",
+    "credit": "https://unsplash.com/photos/w-nBFVS928I",
+    "width": 1600,
+    "height": 1068,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABQb/xAAeEAACAQQDAQAAAAAAAAAAAAABAgMAERIxBCGBcf/EABQBAQAAAAAAAAAAAAAAAAAAAAL/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwAjgnLLq+vlJiZo7MGKsujfXtTiyOhbFiLKCB7SkcjsqgsSCt+6Yv/Z"
+  },
+  {
+    "id": "stepped-glass",
+    "file": "/image/photo/stepped-glass.jpg",
+    "alt": "Stepped glass skyscraper against a clear blue sky",
+    "credit": "https://unsplash.com/photos/0d-z8cJGIR4",
+    "width": 1600,
+    "height": 1280,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAANABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAgMF/8QAHBAAAQQDAQAAAAAAAAAAAAAAAQACAxESITFx/8QAFAEBAAAAAAAAAAAAAAAAAAAABf/EABoRAAICAwAAAAAAAAAAAAAAAAACAQMREiH/2gAMAwEAAhEDEQA/ALnSL34DYKZ4fFnzSvjlNOJHaKQZsBFVe3ZP/9k="
+  },
+  {
+    "id": "glass-converge",
+    "file": "/image/photo/glass-converge.jpg",
+    "alt": "Two glass towers converging overhead against the sky",
+    "credit": "https://unsplash.com/photos/ISQ3M9fPa0g",
+    "width": 1600,
+    "height": 1200,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAMABADASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABQID/8QAHhAAAgICAgMAAAAAAAAAAAAAAQIAAwQRBUEhMTL/xAAUAQEAAAAAAAAAAAAAAAAAAAAD/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAECQf/aAAwDAQACEQMRAD8A0ryRUu29DqH5vImxiAZGUxDWID4QbEOs+9dR3eBKNP/Z"
+  },
+  {
+    "id": "tower-clouds",
+    "file": "/image/photo/tower-clouds.jpg",
+    "alt": "Glass tower with white clouds reflected in its facade",
+    "credit": "https://unsplash.com/photos/KT26agrEUM0",
+    "width": 1600,
+    "height": 1065,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABAX/xAAgEAACAgIABwAAAAAAAAAAAAABAgMEACEREiIyQWGR/8QAFAEBAAAAAAAAAAAAAAAAAAAAA//EABcRAAMBAAAAAAAAAAAAAAAAAAABERL/2gAMAwEAAhEDEQA/AJ4qheCs6F37QARv7i0grtX1GVYDq8nAVnZ7cbMSTzZfjgiQRKqABtn2cbTgcP/Z"
+  },
+  {
+    "id": "tower-sky",
+    "file": "/image/photo/tower-sky.jpg",
+    "alt": "Tall modern skyscraper rising into a blue sky",
+    "credit": "https://unsplash.com/photos/PaHwsFEfiEA",
+    "width": 1600,
+    "height": 2000,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAQAA0DASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABAX/xAAgEAACAAUFAQAAAAAAAAAAAAABAgADBBESBRQhMXFR/8QAFAEBAAAAAAAAAAAAAAAAAAAAAv/EABURAQEAAAAAAAAAAAAAAAAAAAEA/9oADAMBAAIRAxEAPwCpqDbajmmSMB96yNodKOaKWbAEAhUHUA1s2pWAHODHwWhtCS1HJIFry1PHkMYpf//Z"
+  },
+  {
+    "id": "reflective-facade",
+    "file": "/image/photo/reflective-facade.jpg",
+    "alt": "Reflective glass facade mirroring the sky and clouds",
+    "credit": "https://unsplash.com/photos/TMWf-cO_nA0",
+    "width": 1600,
+    "height": 1894,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAQAA4DASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAQQFBv/EACAQAAICAgAHAAAAAAAAAAAAAAECAyEABQQREhMxU3H/xAAUAQEAAAAAAAAAAAAAAAAAAAAD/8QAGBEBAQEBAQAAAAAAAAAAAAAAAQIAESH/2gAMAwEAAhEDEQA/ADseDkghLNQLcqxCJwt2fhy7v5DHrT3PYoGZ5H6fBAsi7xbpp64YkDzf/9k="
+  },
+  {
+    "id": "curved-tower",
+    "file": "/image/photo/curved-tower.jpg",
+    "alt": "Curved skyscraper facade against a deep blue sky",
+    "credit": "https://unsplash.com/photos/WAmcjTUAcWc",
+    "width": 1600,
+    "height": 2000,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAQAA0DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABQME/8QAHxABAAIBAwUAAAAAAAAAAAAAAQIRAAMEMRMUUYHx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAwT/xAAXEQEBAQEAAAAAAAAAAAAAAAABAgAR/9oADAMBAAIRAxEAPwAjb6LrzkXUYxZL4yCUo8mJ7GB2O6mtKUevuYNUOrOuFvHK7SaNnkjv/9k="
+  },
+  {
+    "id": "glass-towers",
+    "file": "/image/photo/glass-towers.jpg",
+    "alt": "Cluster of glass office towers seen from street level",
+    "credit": "https://unsplash.com/photos/nJxV03P2BRg",
+    "width": 1600,
+    "height": 1200,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAMABADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABAX/xAAfEAADAAIBBQEAAAAAAAAAAAABAgMAEQQFISIxgUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAD/8QAGBEBAAMBAAAAAAAAAAAAAAAAAQACERL/2gAMAwEAAhEDEQA/AC8GC0qtbeE02FB9Fv0/Mm9SQvyKVVWCejs713xtbPM1mh0s5qF+kE4Ll3el+QGOwGJ1iqNchY9T/9k="
+  }
+]

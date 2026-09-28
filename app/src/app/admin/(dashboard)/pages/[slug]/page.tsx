@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PAGE_SLUGS, type PageSlug } from '@/cms/schema';
-import { getFrameworksWithFallback, getPageWithFallback } from '@/cms/store';
-import { getAudiences, getServices } from '@/lib/content';
+import { getPageWithFallback } from '@/cms/store';
+import { getFrameworks } from '@/cms/collections/frameworks';
+import { listServices } from '@/cms/collections/services';
+import { getAudiences } from '@/lib/content';
 import { PageEditor } from '@/admin/ui/PageEditor';
 import styles from '@/admin/ui/admin.module.css';
 
@@ -23,9 +25,9 @@ export default async function EditPagePage({ params }: { params: Params }) {
 
   const [page, services, audiences, frameworks] = await Promise.all([
     getPageWithFallback(slug),
-    getServices(),
+    listServices(),
     getAudiences(),
-    getFrameworksWithFallback(),
+    getFrameworks(),
   ]);
 
   return (

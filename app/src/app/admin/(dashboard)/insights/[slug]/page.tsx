@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArticle, getFrameworksWithFallback, listTopics } from '@/cms/store';
-import { getAudiences, getServices } from '@/lib/content';
+import { getArticle } from '@/cms/store';
+import { getFrameworks } from '@/cms/collections/frameworks';
+import { listServices } from '@/cms/collections/services';
+import { readTopics, SEED_TOPICS } from '@/cms/collections/topics';
+import { getAudiences } from '@/lib/content';
 import { ArticleEditor } from '@/admin/ui/ArticleEditor';
 import { DeleteArticleButton } from '@/admin/ui/DeleteArticleButton';
 import styles from '@/admin/ui/admin.module.css';
@@ -17,10 +20,10 @@ export default async function EditInsightPage({ params }: { params: Params }) {
   const { slug } = await params;
   const [article, services, audiences, frameworks, topics] = await Promise.all([
     getArticle(slug),
-    getServices(),
+    listServices(),
     getAudiences(),
-    getFrameworksWithFallback(),
-    listTopics(),
+    getFrameworks(),
+    readTopics().then((t) => (t ?? SEED_TOPICS).map((x) => x.name)),
   ]);
   if (!article) notFound();
 

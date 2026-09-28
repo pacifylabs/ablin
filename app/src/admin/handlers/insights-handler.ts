@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  addTopics,
   deleteArticle,
   getArticle,
   listAllArticles,
@@ -11,6 +10,9 @@ import {
 import { blockImageSchema, blockSchema, type ArticleDoc } from '@/cms/schema';
 import { findBlockReferenceError } from '@/cms/validate-blocks';
 import { isSameOrigin, json } from '@/admin/http';
+import { expireKeys } from '@/cms/cached';
+import { ensureTopics } from '@/cms/collections/topics';
+import { keys } from '@/cms/keys';
 
 export async function handleListInsights(): Promise<Response> {
   const articles = await listAllArticles();
@@ -70,7 +72,7 @@ export async function handleCreateInsight(request: Request): Promise<Response> {
   const doc: ArticleDoc = { slug, ...fields, status: 'draft', updatedAt: now };
   await putArticle(doc);
   await markArticleDraft(slug);
-  await addTopics(fields.topics);
+  if (await ensureTopics(fields.topics)) expireKeys(keys.topics);
   return json(doc, 201);
 }
 
@@ -100,7 +102,7 @@ export async function handleUpdateInsight(request: Request, slug: string): Promi
       : { ...existing, ...parsed.data, updatedAt: now };
 
   await putArticle(doc);
-  await addTopics(parsed.data.topics);
+  if (await ensureTopics(parsed.data.topics)) expireKeys(keys.topics);
   return json(doc, 200);
 }
 

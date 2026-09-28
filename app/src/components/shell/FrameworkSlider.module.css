@@ -65,6 +65,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   white-space: nowrap;
+  color: var(--muted);
 }
 
 .text {
@@ -111,4 +112,10 @@
   .clone {
     display: none;
   }
+}
+
+.mark {
+  display: inline-flex;
+  flex: none;
+  color: var(--link);
 }

@@ -25,21 +25,6 @@ export const approachSchema = z.object({
   steps: z.array(step).length(5),
 });
 
-export const serviceSchema = z.object({
-  slug: z.string().regex(/^[a-z0-9-]+$/),
-  title: z.string(),
-  summary: z.string(),
-  definition: z.string(),
-  covers: z.array(z.string()).min(4),
-  /** One line per approach step, in order. */
-  howWeWork: z.array(z.string()).length(5),
-  whoFor: z.array(z.string()).min(1),
-  related: z.array(z.string()).min(1),
-  illustration: illustrationScene,
-  ctaTitle: z.string(),
-});
-export type Service = z.infer<typeof serviceSchema>;
-
 export const audienceSchema = z.object({
   slug: z.string(),
   title: z.string(),
@@ -48,39 +33,6 @@ export const audienceSchema = z.object({
   services: z.array(z.string()).min(1),
 });
 export type Audience = z.infer<typeof audienceSchema>;
-
-/**
- * Optional licensed logo for a framework. It renders only when EVERY field is present: the client must have
- * approved it and hold the right to use it. Until then the custom badge is shown (see FrameworkBadge).
- */
-export const frameworkLogoSchema = z.object({
-  src: z.string().startsWith('/'),
-  alt: z.string().min(1),
-  width: z.number().int().positive(),
-  height: z.number().int().positive(),
-  approvedBy: z.string().min(1),
-  licenceRef: z.string().min(1),
-});
-
-/** The only five framework ids that exist — each has its own hand-drawn glyph in ui/FrameworkBadge.tsx with no
- *  generic fallback, so this list is closed rather than an open string (see admin/README.md §Frameworks). */
-export const FRAMEWORK_IDS = ['iso-27001', 'iso-42001', 'uk-gdpr', 'soc-2', 'nist-ai-rmf'] as const;
-
-export const frameworkSchema = z.object({
-  id: z.enum(FRAMEWORK_IDS),
-  name: z.string(),
-  scope: z.string(),
-  /** Who publishes or owns the framework. Named as a fact; never as an endorsement of Ablin. */
-  publisher: z.string().min(1),
-  /** Edition or year, where the framework has one. */
-  edition: z.string().optional(),
-  /** Authoritative pages for the framework: the reader can check it at the source. */
-  sources: z
-    .array(z.object({ label: z.string().min(1), url: z.string().url().startsWith('https://') }))
-    .min(1),
-  logo: frameworkLogoSchema.optional(),
-});
-export type Framework = z.infer<typeof frameworkSchema>;
 
 export const imageSchema = z.object({
   src: z.string().startsWith('/'),
@@ -140,4 +92,3 @@ export const contactPageSchema = z.object({
   }),
   privacyNote: z.string(),
 });
-export type EnquiryType = z.infer<typeof contactPageSchema>['enquiryTypes'][number];

@@ -14,8 +14,9 @@ import { ImageSlot } from '@/components/ui/ImageSlot';
 import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { ServiceCard } from '@/components/ui/ServiceCard';
-import { getAudiences, getServices, serviceHref } from '@/lib/content';
-import { getFrameworksWithFallback } from './store';
+import { getAudiences } from '@/lib/content';
+import { getFrameworks, withMarks } from './collections/frameworks';
+import { listServices, serviceHref } from './collections/services';
 import type { Block } from './schema';
 import { toImageAsset } from './image';
 import { RichText, splitLegalSections } from './richtext';
@@ -68,7 +69,7 @@ async function renderOne(block: Block): Promise<React.ReactNode> {
       return <Capabilities key={block.id} data={block.data} />;
 
     case 'serviceList': {
-      const allServices = await getServices();
+      const allServices = await listServices();
       const bySlug = new Map(allServices.map((s) => [s.slug, s]));
       const services = block.data.serviceSlugs
         .map((slug) => bySlug.get(slug))
@@ -112,7 +113,7 @@ async function renderOne(block: Block): Promise<React.ReactNode> {
           />
         );
       }
-      const allServices = await getServices();
+      const allServices = await listServices();
       const titleBySlug = new Map(allServices.map((s) => [s.slug, s.title]));
       const headingId = `groups-${block.id}`;
       return (
@@ -166,7 +167,7 @@ async function renderOne(block: Block): Promise<React.ReactNode> {
     }
 
     case 'frameworkIndex': {
-      const all = await getFrameworksWithFallback();
+      const all = await withMarks(await getFrameworks());
       const frameworks =
         block.data.frameworkIds.length === 0
           ? all

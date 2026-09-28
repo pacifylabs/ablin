@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { FooterSettings, SiteSettings } from '@/cms/globals/schemas';
 import type { Link as NavLink } from '@/cms/fields';
-import type { Framework } from '@/content/schema';
+import type { FrameworkWithMark } from '@/cms/collections/frameworks';
 import { Logo } from '@/components/ui/Logo';
 import { FrameworkSlider } from './FrameworkSlider';
 import styles from './shell.module.css';
@@ -10,7 +10,7 @@ interface FooterProps {
   footer: FooterSettings;
   site: SiteSettings;
   services: readonly NavLink[];
-  frameworks: readonly Framework[];
+  frameworks: readonly FrameworkWithMark[];
 }
 
 /**

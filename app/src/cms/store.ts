@@ -1,7 +1,5 @@
-import { z } from 'zod';
 import { redis } from './redis';
 import { keys } from './keys';
-import { frameworkSchema, type Framework } from '@/content/schema';
 import {
   LEGAL_PAGE_SLUGS,
   type AdminUser,
@@ -22,7 +20,7 @@ import {
   submissionSchema,
 } from './schema';
 import { sha256Hex } from '@/lib/token-hash';
-import { seedFrameworks, seedPage } from './seed-data';
+import { seedPage } from './seed-data';
 
 /**
  * The data-access layer over Redis. Every read parses with the matching zod schema — a value written by an
@@ -59,34 +57,6 @@ export async function getAvailability(): Promise<Availability | null> {
 
 export async function setAvailability(value: Availability): Promise<void> {
   await redis().set(keys.availability, value);
-}
-
-// --- Frameworks (footer slider + frameworkIndex blocks' picker) ------------------------------------------------
-
-export async function getFrameworks(): Promise<Framework[] | null> {
-  const raw = await redis().get(keys.frameworks);
-  if (!raw) return null;
-  return z.array(frameworkSchema).parse(raw);
-}
-
-export async function putFrameworks(frameworks: readonly Framework[]): Promise<void> {
-  await redis().set(keys.frameworks, frameworks);
-}
-
-/** What the footer slider, the frameworkIndex block picker and the public FrameworkBand all read: the
- *  admin-edited list, or — before it's ever been saved, or if Redis is briefly unreachable — the bundled
- *  starting content (content/frameworks.json via cms/seed-data.ts), the same fail-open pattern as
- *  getPageWithFallback below. */
-export async function getFrameworksWithFallback(): Promise<readonly Framework[]> {
-  try {
-    return (await getFrameworks()) ?? seedFrameworks;
-  } catch (error) {
-    console.error(
-      'Failed to read settings:frameworks from Redis; serving the bundled starting content instead.',
-      error,
-    );
-    return seedFrameworks;
-  }
 }
 
 // --- Admin user ------------------------------------------------------------------------------------------------
@@ -269,16 +239,6 @@ export async function listAllArticles(): Promise<ArticleDoc[]> {
   if (slugs.length === 0) return [];
   const docs = await redis().mget<unknown[]>(...slugs.map((s) => keys.article(s)));
   return docs.filter((d): d is object => d != null).map((d) => articleDocSchema.parse(d));
-}
-
-export async function addTopics(topics: readonly string[]): Promise<void> {
-  const [first, ...rest] = topics;
-  if (!first) return;
-  await redis().sadd(keys.topicsIndex, first, ...rest);
-}
-
-export async function listTopics(): Promise<string[]> {
-  return redis().smembers<string[]>(keys.topicsIndex);
 }
 
 // --- Submissions -------------------------------------------------------------------------------------------

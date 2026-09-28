@@ -48,6 +48,21 @@ export async function readCached<T>(key: string, schema: z.ZodType<T>, fallback:
   return parsed.data;
 }
 
+/**
+ * A cached read that is not a single GET (an index range, an MGET). Tagged with every key it depends on so saving
+ * any of them expires it. Errors propagate: callers decide their own fallback.
+ */
+export function cachedQuery<T>(
+  tags: readonly string[],
+  keyParts: readonly string[],
+  fn: () => Promise<T>,
+): Promise<T> {
+  return unstable_cache(fn, ['redis-query', ...keyParts], {
+    tags: [...tags],
+    revalidate: SAFETY_REVALIDATE_SECONDS,
+  })();
+}
+
 /** Expire the cache for every key an admin save wrote. Call only from route handlers / server actions. */
 export function expireKeys(...keys: readonly string[]): void {
   for (const key of keys) revalidateTag(key, { expire: 0 });

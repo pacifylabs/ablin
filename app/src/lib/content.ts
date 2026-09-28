@@ -6,7 +6,6 @@ import contactJson from '@/content/contact.json';
 import homeJson from '@/content/home.json';
 import imagesJson from '@/content/images.json';
 import insightsJson from '@/content/insights.json';
-import servicesJson from '@/content/services.json';
 import {
   aboutSchema,
   approachSchema,
@@ -15,17 +14,13 @@ import {
   homeSchema,
   imagesSchema,
   insightsPageSchema,
-  serviceSchema,
 } from '@/content/schema';
+import { SEED_SERVICES } from '@/cms/collections/services';
 
 /**
- * The seam between the site and the copy the admin block editor does NOT cover. Home, About, Services, Who We
- * Serve and Insights are now mostly built from page:{slug}/insights:article:{slug} documents in Redis (see
- * cms/store.ts and cms/BlockRenderer.tsx) — this file now only serves:
- *   - "master data" the block editor references by slug/id rather than owns: services, audiences, the five
- *     approach steps, and the stock-photo manifest. (Frameworks moved fully to Redis — see
- *     cms/store.ts's getFrameworksWithFallback and /admin/frameworks — so content/frameworks.json is now only
- *     read by cms/seed-data.ts, as the starting content, not from here.)
+ * The seam between the site and the copy the admin block editor does NOT cover yet. Services, frameworks, topics and
+ * media are Redis collections (cms/collections/*); this file now only serves:
+ *   - audiences, the five approach steps, and the stock-photo manifest, which the block editor references by slug.
  *   - the handful of pinned, non-block sections the closed block palette has no block for (see
  *     admin/README.md §Pinned sections): the Home Insights teaser, the About mission/vision cards, and the
  *     Insights page's topic/empty-state copy.
@@ -35,7 +30,7 @@ import {
 const home = homeSchema.parse(homeJson);
 const about = aboutSchema.parse(aboutJson);
 const approach = approachSchema.parse(approachJson);
-const services = z.array(serviceSchema).parse(servicesJson);
+const services = SEED_SERVICES;
 const audiences = z.array(audienceSchema).parse(audiencesJson);
 const insightsPage = insightsPageSchema.parse(insightsJson);
 const contactPage = contactPageSchema.parse(contactJson);
@@ -51,10 +46,10 @@ for (const ref of imageRefs) {
 const serviceSlugs = new Set(services.map((s) => s.slug));
 const audienceSlugs = new Set(audiences.map((a) => a.slug));
 for (const s of services) {
-  for (const ref of s.related) {
+  for (const ref of s.detail.related) {
     if (!serviceSlugs.has(ref)) throw new Error(`Unknown related service "${ref}" in ${s.slug}`);
   }
-  for (const ref of s.whoFor) {
+  for (const ref of s.detail.whoFor) {
     if (!audienceSlugs.has(ref)) throw new Error(`Unknown audience "${ref}" in ${s.slug}`);
   }
 }
@@ -73,12 +68,6 @@ export async function getAbout() {
 export async function getApproach() {
   return approach;
 }
-export async function getServices() {
-  return services;
-}
-export async function getService(slug: string) {
-  return services.find((s) => s.slug === slug);
-}
 export async function getAudiences() {
   return audiences;
 }
@@ -95,8 +84,4 @@ export async function getInsightsPage() {
 }
 export async function getContactPage() {
   return contactPage;
-}
-
-export function serviceHref(slug: string): string {
-  return `/services/${slug}`;
 }

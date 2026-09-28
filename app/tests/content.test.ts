@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { getLegalReviewStatus } from '@/cms/BlockRenderer';
 import { seedPage, seedPages } from '@/cms/seed-data';
-import { getAudiences, getServices } from '@/lib/content';
+import { SEED_SERVICES } from '@/cms/collections/services';
+import { getAudiences } from '@/lib/content';
 
 // Copy the admin will edit is validated at import time (lib/content.ts) or, for pages/articles, by cms/schema.ts
 // at save time. These tests guard the rules that schema validation cannot express.
@@ -35,7 +36,7 @@ async function allText(): Promise<string> {
 
 describe('content integrity', () => {
   it('contains all eight services with unique slugs', async () => {
-    const services = await getServices();
+    const services = SEED_SERVICES;
     expect(services).toHaveLength(8);
     expect(new Set(services.map((s) => s.slug)).size).toBe(8);
   });
@@ -65,10 +66,9 @@ describe('content integrity', () => {
   });
 
   it('never presents Ablin as issuing certificates on the certification-related services', async () => {
-    const services = await getServices();
     for (const slug of ['iso-compliance-readiness', 'soc2-controls-readiness']) {
-      const service = services.find((s) => s.slug === slug);
-      expect(service?.definition).toMatch(/independent/i);
+      const service = SEED_SERVICES.find((s) => s.slug === slug);
+      expect(service?.detail.definition).toMatch(/independent/i);
     }
   });
 

@@ -13,7 +13,13 @@ describe('cms key builders', () => {
     expect(keys.article('my-slug')).toBe('insights:article:my-slug');
     expect(keys.articlesIndex).toBe('insights:index');
     expect(keys.articleDrafts).toBe('insights:drafts');
-    expect(keys.topicsIndex).toBe('topics:index');
+    expect(keys.legacyTopicsIndex).toBe('topics:index');
+    expect(keys.topics).toBe('topics');
+    expect(keys.frameworksList).toBe('frameworks');
+    expect(keys.service('grc')).toBe('services:grc');
+    expect(keys.servicesIndex).toBe('services:index');
+    expect(keys.media('x')).toBe('media:x');
+    expect(keys.mediaIndex).toBe('media:index');
     expect(keys.submission('123')).toBe('submission:123');
     expect(keys.submissionsIndex).toBe('submissions:index');
   });
