@@ -10,6 +10,9 @@ vi.mock('next/cache', () => ({
 const store = new Map<string, unknown>();
 let redisDown = false;
 vi.mock('@/cms/redis', () => ({
+  isRedisConfigured: () => true,
+  RedisNotConfiguredError: class extends Error {},
+  reportReadFailure: (context: string, error: unknown) => console.error(context, error),
   redis: () => ({
     get: async (key: string) => {
       if (redisDown) throw new Error('unreachable');
