@@ -7,6 +7,7 @@ import {
   getSiteSettings,
 } from '@/cms/globals';
 import { PreviewBanner } from '@/admin/ui/PreviewBanner';
+import { config } from '@/lib/config';
 import { CookieBanner } from './CookieBanner';
 import { Footer } from './Footer';
 import { Header } from './Header';
@@ -42,7 +43,7 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
         services={services.map((s) => ({ label: s.title, href: serviceHref(s.slug) }))}
         frameworks={frameworks}
       />
-      {cookies.ga4Id ? <CookieBanner copy={cookies} /> : null}
+      <CookieBanner copy={cookies} ga4Id={cookies.ga4Id || config.analytics.gaMeasurementId} />
     </>
   );
 }

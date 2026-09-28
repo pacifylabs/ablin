@@ -33,14 +33,15 @@
   --error: #c0392b;
 
   /* Type */
-  --display: var(--font-display), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --body: var(--font-body), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: var(--font-brand), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --body: var(--font-brand), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Layout (§4) */
   --wrap: 1240px;
   --narrow: 760px;
   --gutter: clamp(16px, 4vw, 40px);
-  --sec: clamp(72px, 9vw, 128px);
+  /* Tighter on phones (from main: section padding starts at 52px). */
+  --sec: clamp(52px, 7vw, 128px);
   --header-h: 78px;
 
   /* Spacing scale (px) */

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { resolveImage } from '@/cms/collections/media';
 import { getSeoSettings, getSiteSettings } from '@/cms/globals';
-import { absoluteUrl, getSiteUrl } from '@/cms/site-meta';
+import { absoluteUrl, defaultShareImage, getSiteUrl } from '@/cms/site-meta';
+import { buildPageMetadata } from '@/lib/seo';
 import { draftMode } from 'next/headers';
 import { getPreviewArticle, getPublishedArticleCached } from '@/cms/public-reads';
 import { BlockRenderer } from '@/components/public/BlockRenderer';
@@ -19,14 +20,26 @@ async function loadArticle(slug: string) {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const article = await loadArticle((await params).slug);
   if (!article) return {};
-  const [cover, siteUrl] = await Promise.all([resolveImage(article.coverImage), getSiteUrl()]);
-  const images = cover ? [{ url: absoluteUrl(siteUrl, cover.src), alt: cover.alt }] : undefined;
-  return {
+  const [cover, siteUrl, fallback] = await Promise.all([
+    resolveImage(article.coverImage),
+    getSiteUrl(),
+    defaultShareImage(),
+  ]);
+  return buildPageMetadata({
     title: article.seoTitle,
     description: article.seoDescription,
-    alternates: { canonical: `/insights/${article.slug}` },
-    openGraph: { type: 'article', publishedTime: article.publishedAt, images },
-  };
+    path: `/insights/${article.slug}`,
+    openGraphType: 'article',
+    image: cover
+      ? {
+          url: absoluteUrl(siteUrl, cover.src),
+          width: cover.width,
+          height: cover.height,
+          alt: cover.alt,
+        }
+      : null,
+    defaultImage: fallback,
+  });
 }
 
 export default async function ArticlePage({ params }: { params: Params }) {

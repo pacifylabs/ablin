@@ -179,19 +179,19 @@ const home = page(
         {
           icon: 'square-check',
           title: 'Governance, Risk & Compliance',
-          text: 'Effective governance frameworks, risk management, stronger internal controls and readiness for regulatory and assurance requirements.',
+          text: 'We help organisations establish effective governance frameworks, identify and manage risk, strengthen internal controls and prepare for regulatory and assurance requirements.',
           link: link('View service', '/services/governance-risk-compliance'),
         },
         {
           icon: 'shield-check',
           title: 'Cybersecurity & Technology Risk',
-          text: 'Security governance, IT controls, vulnerability management, security assessments and recognised compliance frameworks.',
+          text: 'We help organisations understand and manage cyber and technology risks through security governance, IT controls, vulnerability management, security assessments and recognised compliance frameworks.',
           link: link('View service', '/services/cybersecurity-governance'),
         },
         {
           icon: 'database',
           title: 'Data Protection & AI Governance',
-          text: 'Protecting personal and organisational data, meeting privacy obligations and governing the responsible use of AI.',
+          text: 'We help organisations protect personal and organisational data, meet privacy obligations and establish appropriate governance for the responsible adoption and use of artificial intelligence.',
           link: link('View service', '/services/data-protection-privacy'),
         },
       ],
@@ -326,7 +326,7 @@ const about = page(
       eyebrow: 'About us',
       title: 'About Ablin',
       lead: 'A UK governance, risk, compliance and technology advisory firm.',
-      image: photo('stepped-glass'),
+      image: photo('colleagues-desk'),
       breadcrumb: true,
       cta: null,
     }),
@@ -334,8 +334,8 @@ const about = page(
       eyebrow: 'Who we are',
       title: 'Governance first, technology aware',
       paragraphs: [
-        'Ablin Limited helps organisations understand their obligations, manage information and technology risk, and put controls in place that people can operate.',
-        'We work across governance, risk and compliance, cybersecurity governance, data protection, AI governance and technology assurance. Technology is part of the picture, but our starting point is always the organisation: what it must do, what could go wrong and who is accountable.',
+        'Ablin Limited is a UK-based governance, risk, compliance and technology advisory firm. We help organisations navigate regulatory complexity, strengthen internal controls, manage technology and information risks, protect data and establish responsible governance around emerging technologies.',
+        'Our consultants combine governance principles with practical implementation, helping organisations move from identifying risks and compliance gaps to developing workable controls, policies, processes and improvement programmes.',
       ],
     }),
     b(
@@ -473,7 +473,7 @@ const whoWeServe = page(
       eyebrow: 'Who we serve',
       title: 'Who we serve',
       lead: 'We advise organisations that need to show they manage risk, protect information and adopt technology responsibly.',
-      image: photo('tower-clouds'),
+      image: photo('zigzag-stairs'),
       breadcrumb: true,
       cta: null,
     }),
@@ -705,11 +705,11 @@ const cookiePolicy = legal(
   doc(
     h2('What we use now'),
     p(
-      "This website currently sets no analytics or advertising cookies. It stores one item in your browser's local storage: your light or dark theme choice. It stays on your device and is not sent to us.",
+      'Essential storage on your device remembers your light or dark theme choice and your cookie preference. These stay on your device and are not used to track you across other websites.',
     ),
     h2('Analytics'),
     p(
-      'If we introduce analytics, we will load it only after you accept it in a cookie banner, and we will update this policy to describe what it collects.',
+      'If you choose Accept analytics in the cookie banner, we load Google Analytics 4 to understand how visitors use this website (pages viewed, approximate location and device type). We do not load analytics unless you accept. You can change your mind by clearing site data in your browser and choosing again.',
     ),
     h2('Controlling storage'),
     p(

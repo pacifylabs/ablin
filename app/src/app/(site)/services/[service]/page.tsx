@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getService, listServices, serviceHref } from '@/cms/collections/services';
 import { getNavigation, getSeoSettings } from '@/cms/globals';
-import { getSiteUrl } from '@/cms/site-meta';
+import { absoluteUrl, defaultShareImage, getSiteUrl } from '@/cms/site-meta';
+import { resolveImage } from '@/cms/collections/media';
+import { buildPageMetadata } from '@/lib/seo';
 import { BlockRenderer } from '@/components/public/BlockRenderer';
 import { jsonLdScriptContent } from '@/lib/json-ld';
 
@@ -19,11 +21,25 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const service = await getService((await params).service);
   if (!service) return {};
-  return {
+  const [card, siteUrl, fallback] = await Promise.all([
+    resolveImage(service.cardImage),
+    getSiteUrl(),
+    defaultShareImage(),
+  ]);
+  return buildPageMetadata({
     title: service.seoTitle || service.title,
     description: service.seoDescription || service.summary,
-    alternates: { canonical: serviceHref(service.slug) },
-  };
+    path: serviceHref(service.slug),
+    image: card
+      ? {
+          url: absoluteUrl(siteUrl, card.src),
+          width: card.width,
+          height: card.height,
+          alt: card.alt,
+        }
+      : null,
+    defaultImage: fallback,
+  });
 }
 
 /** DS v3 §7.14: the service's own blocks (pageHeader → checklist → steps → related → contact band). */

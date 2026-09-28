@@ -50,9 +50,13 @@ describe('media library seed', () => {
     }
   });
 
-  it('seeds only architectural photography (no people-at-desk stock, DS v3 §5)', () => {
-    const ids = SEED_MEDIA.map((m) => m.id);
-    expect(ids).not.toContain('colleagues-desk');
-    expect(ids).not.toContain('review-documents');
+  it('gives every service page its own header photo', async () => {
+    const { SEED_SERVICES } = await import('@/cms/collections/services');
+    const headers = SEED_SERVICES.map((s) => {
+      const header = s.blocks.find((b) => b.type === 'pageHeader');
+      return header?.type === 'pageHeader' ? header.data.image?.mediaId : undefined;
+    });
+    expect(headers.every(Boolean)).toBe(true);
+    expect(new Set(headers).size).toBe(SEED_SERVICES.length);
   });
 });

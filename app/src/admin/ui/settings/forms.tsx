@@ -517,7 +517,7 @@ export function CookiesForm({ value: v, onChange }: Props<CookieSettings>) {
           label="GA4 measurement ID (optional)"
           value={v.ga4Id}
           placeholder="G-XXXXXXX"
-          hint="Leave empty for no analytics. The cookie banner only appears when an ID is set."
+          hint="Leave empty to use the NEXT_PUBLIC_GA_MEASUREMENT_ID setting. Analytics load only after a visitor accepts."
           onChange={(ga4Id) => set({ ga4Id })}
         />
       </Group>

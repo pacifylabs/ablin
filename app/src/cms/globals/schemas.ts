@@ -170,7 +170,7 @@ export function toContactFormCopy(settings: ContactSettings): ContactFormCopy {
 }
 
 export const cookieSettingsSchema = z.object({
-  /** GA4 measurement ID (G-XXXX). Empty = no analytics, so no banner is needed and none is shown. */
+  /** GA4 measurement ID (G-XXXX). Empty = the NEXT_PUBLIC_GA_MEASUREMENT_ID env var; neither = no analytics load. */
   ga4Id: z
     .string()
     .trim()

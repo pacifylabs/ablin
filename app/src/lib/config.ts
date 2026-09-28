@@ -57,4 +57,8 @@ export const config = {
     resetFromEmail:
       (process.env.ADMIN_RESET_FROM_EMAIL?.trim() || process.env.CONTACT_FROM_EMAIL?.trim()) ?? '',
   },
+  /** Google Analytics 4 measurement ID (public). Loaded only after cookie consent — see Analytics.tsx. */
+  analytics: {
+    gaMeasurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() ?? '',
+  },
 } as const;

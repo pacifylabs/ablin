@@ -70,7 +70,7 @@ a:hover {
   border-radius: 6px;
 }
 
-/* Type — DS v3 §3. Manrope for display and headings; Instrument Sans for everything else. */
+/* Type — DS v3 §3 sizes, set in Montserrat (client decision) for headings and body. */
 h1,
 h2,
 h3,
@@ -261,7 +261,6 @@ p {
     scroll-behavior: auto !important;
   }
 }
-
 
 /*
  * Block backgrounds (DS v3 §9: bg | surface | band). On `band` the text tokens point at the band colours, so any

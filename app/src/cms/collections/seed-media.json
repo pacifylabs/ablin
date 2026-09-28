@@ -106,5 +106,23 @@
     "width": 1600,
     "height": 1200,
     "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAMABADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABAX/xAAfEAADAAIBBQEAAAAAAAAAAAABAgMAEQQFISIxgUH/xAAUAQEAAAAAAAAAAAAAAAAAAAAD/8QAGBEBAAMBAAAAAAAAAAAAAAAAAQACERL/2gAMAwEAAhEDEQA/AC8GC0qtbeE02FB9Fv0/Mm9SQvyKVVWCejs713xtbPM1mh0s5qF+kE4Ll3el+QGOwGJ1iqNchY9T/9k="
+  },
+  {
+    "id": "colleagues-desk",
+    "file": "/image/photo/colleagues-desk.jpg",
+    "alt": "Two colleagues reviewing a document at an office desk",
+    "credit": "https://unsplash.com/photos/zQXdDfmkevA",
+    "width": 1600,
+    "height": 900,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAJABADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABQT/xAAiEAABBAECBwAAAAAAAAAAAAACAAEDETEEchIhIjJBscH/xAAVAQEBAAAAAAAAAAAAAAAAAAABA//EABURAQEAAAAAAAAAAAAAAAAAABEA/9oADAMBAAIRAxEAPwA9oLa3kCMY/FVxcsqoAcNO8pv3D0jm0cWA2N9SIYi2P6SU1v/Z"
+  },
+  {
+    "id": "review-documents",
+    "file": "/image/photo/review-documents.jpg",
+    "alt": "Two people reviewing a printed form together at a table",
+    "credit": "https://unsplash.com/photos/MhqUBTxQ3Hw",
+    "width": 1600,
+    "height": 1067,
+    "blur": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABADASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAABAL/xAAeEAACAgIDAQEAAAAAAAAAAAABAgMEABIRIVEFMf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAVEQEBAAAAAAAAAAAAAAAAAAABAP/aAAwDAQACEQMRAD8ANep1/oTiUSGFyoGzDpsI8dag5jltJJt3wgPR9OKVBu797cAfuS9eGQ8vGjH0jARb/9k="
   }
 ]

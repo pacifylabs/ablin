@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Instrument_Sans, Manrope } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import { getErrorSettings, getSeoSettings, getSiteSettings } from '@/cms/globals';
 import { absoluteUrl, getSiteUrl } from '@/cms/site-meta';
 import { ErrorCopyProvider } from '@/components/shell/ErrorCopy';
@@ -7,17 +7,11 @@ import { themeInitScript } from '@/lib/theme';
 import './globals.css';
 import '@/styles/motion.css';
 
-const display = Manrope({
+/** Geometric sans aligned with the ABLIN wordmark, for headings and body (client decision, replaces DS v3 §3 faces). */
+const brand = Montserrat({
   subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-const body = Instrument_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600'],
-  variable: '--font-body',
+  weight: ['300', '400', '500', '600', '700', '800'],
+  variable: '--font-brand',
   display: 'swap',
 });
 
@@ -43,6 +37,11 @@ export async function generateMetadata(): Promise<Metadata> {
       images: ogImage,
     },
     twitter: { card: 'summary_large_image', images: ogImage },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+    },
     ...(seo.searchConsoleVerification
       ? { verification: { google: seo.searchConsoleVerification } }
       : {}),
@@ -65,11 +64,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [site, errors] = await Promise.all([getSiteSettings(), getErrorSettings()]);
   return (
-    <html
-      lang={site.locale}
-      className={`${display.variable} ${body.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang={site.locale} className={brand.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript(site.defaultTheme) }} />
       </head>

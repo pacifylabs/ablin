@@ -53,6 +53,21 @@ type LegacyService = {
   ctaTitle: string;
 };
 
+/**
+ * Each service page's own header photo (main's picks, client-approved, including two people photos), distinct across
+ * the eight services. Cards use a separate architectural photo.
+ */
+const SEED_HEADER: Record<string, string> = {
+  'governance-risk-compliance': 'review-documents',
+  'iso-compliance-readiness': 'geometric-facade',
+  'data-protection-privacy': 'colleagues-desk',
+  'ai-governance': 'glass-facade',
+  'cybersecurity-governance': 'hero-stairs',
+  'technology-risk-it-controls': 'light-stairs',
+  'soc2-controls-readiness': 'zigzag-stairs',
+  'audit-assurance-regulatory-readiness': 'tower-clouds',
+};
+
 const SEED_CARD: Record<string, { code: string; image: string }> = {
   'governance-risk-compliance': { code: 'GRC', image: 'glass-facade' },
   'iso-compliance-readiness': { code: 'ISO', image: 'tower-sky' },
@@ -139,7 +154,7 @@ export function fromLegacyService(s: LegacyService, order: number): Service {
     cardImage: card ? { mediaId: card.image, decorative: true } : null,
     seoTitle: s.title,
     seoDescription: `${s.summary} ${s.definition}`.slice(0, 300),
-    blocks: detailBlocks(s, code, card?.image),
+    blocks: detailBlocks(s, code, SEED_HEADER[s.slug] ?? card?.image),
   };
 }
 

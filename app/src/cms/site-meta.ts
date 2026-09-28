@@ -33,3 +33,9 @@ export async function organizationJsonLd(): Promise<Record<string, unknown>> {
     ...(organization.sameAs.length ? { sameAs: organization.sameAs } : {}),
   };
 }
+
+/** The site default share image from settings:seo, as an absolute URL, or null. */
+export async function defaultShareImage(): Promise<{ url: string; alt: string } | null> {
+  const [seo, base] = await Promise.all([getSeoSettings(), getSiteUrl()]);
+  return seo.ogImage ? { url: absoluteUrl(base, seo.ogImage), alt: seo.ogImageAlt } : null;
+}

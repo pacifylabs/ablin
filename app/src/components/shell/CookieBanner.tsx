@@ -3,32 +3,28 @@
 import Link from 'next/link';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { CookieSettings } from '@/cms/globals/schemas';
+import {
+  readCookieConsent,
+  writeCookieConsent,
+  type CookieConsentChoice,
+} from '@/lib/cookie-consent';
 import styles from './CookieBanner.module.css';
 
-const CONSENT_KEY = 'ablin-consent';
-type Consent = 'granted' | 'denied';
-
-function readConsent(): Consent | null {
-  try {
-    const value = localStorage.getItem(CONSENT_KEY);
-    return value === 'granted' || value === 'denied' ? value : null;
-  } catch {
-    return null;
-  }
-}
+const CONSENT_EVENT = 'ablin-cookie-consent';
 
 const listeners = new Set<() => void>();
 function subscribe(onChange: () => void) {
   listeners.add(onChange);
-  return () => listeners.delete(onChange);
+  window.addEventListener(CONSENT_EVENT, onChange);
+  return () => {
+    listeners.delete(onChange);
+    window.removeEventListener(CONSENT_EVENT, onChange);
+  };
 }
 
-function writeConsent(value: Consent) {
-  try {
-    localStorage.setItem(CONSENT_KEY, value);
-  } catch {
-    // Storage blocked: the choice still applies for this page view.
-  }
+function choose(value: CookieConsentChoice) {
+  writeCookieConsent(value);
+  window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: value }));
   listeners.forEach((l) => l());
 }
 
@@ -50,22 +46,23 @@ function loadAnalytics(id: string) {
 }
 
 /**
- * DS v3 §7.15: a bottom-left card, not a full-width bar. Rendered only when a GA4 ID is configured — with no
- * analytics the site sets essential storage only, so there is nothing to ask consent for.
+ * DS v3 §7.15: a bottom-left card, not a full-width bar, shown until the visitor chooses. Analytics (GA4) load only
+ * after "Accept". The choice is stored under the same key and values as before the redesign, so visitors who already
+ * chose are not asked again. `ga4Id` is settings:cookies.ga4Id, else NEXT_PUBLIC_GA_MEASUREMENT_ID.
  */
-export function CookieBanner({ copy }: { copy: CookieSettings }) {
+export function CookieBanner({ copy, ga4Id }: { copy: CookieSettings; ga4Id: string }) {
   // Server snapshot 'pending' keeps the banner out of the SSR HTML, so returning visitors never see it flash.
-  const consent = useSyncExternalStore<Consent | null | 'pending'>(
+  const consent = useSyncExternalStore<CookieConsentChoice | null | 'pending'>(
     subscribe,
-    readConsent,
+    readCookieConsent,
     () => 'pending',
   );
   const [showPrefs, setShowPrefs] = useState(false);
   const [analytics, setAnalytics] = useState(false);
 
   useEffect(() => {
-    if (consent === 'granted') loadAnalytics(copy.ga4Id);
-  }, [consent, copy.ga4Id]);
+    if (consent === 'analytics' && ga4Id) loadAnalytics(ga4Id);
+  }, [consent, ga4Id]);
 
   if (consent !== null) return null;
 
@@ -108,20 +105,16 @@ export function CookieBanner({ copy }: { copy: CookieSettings }) {
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => writeConsent(analytics ? 'granted' : 'denied')}
+            onClick={() => choose(analytics ? 'analytics' : 'essential')}
           >
             {copy.saveLabel}
           </button>
         ) : (
           <>
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => writeConsent('granted')}
-            >
+            <button type="button" className="btn btn-primary" onClick={() => choose('analytics')}>
               {copy.acceptLabel}
             </button>
-            <button type="button" className="btn btn-line" onClick={() => writeConsent('denied')}>
+            <button type="button" className="btn btn-line" onClick={() => choose('essential')}>
               {copy.rejectLabel}
             </button>
             <button type="button" className={styles.linkButton} onClick={() => setShowPrefs(true)}>

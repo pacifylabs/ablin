@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getTopics } from '@/cms/collections/topics';
 import { getPublicPage } from '@/cms/public-reads';
 import { PageView } from '@/components/public/PageView';
+import { defaultShareImage } from '@/cms/site-meta';
+import { buildPageMetadata } from '@/lib/seo';
 
 type Params = Promise<{ topic: string }>;
 
@@ -16,16 +18,18 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const [topic, page] = await Promise.all([
+  const [topic, page, fallback] = await Promise.all([
     resolveTopic((await params).topic),
     getPublicPage('insights'),
+    defaultShareImage(),
   ]);
   if (!topic) return {};
-  return {
+  return buildPageMetadata({
     title: `${topic.name} — ${page.seoTitle}`,
     description: page.seoDescription,
-    alternates: { canonical: `/insights/topic/${topic.slug}` },
-  };
+    path: `/insights/topic/${topic.slug}`,
+    defaultImage: fallback,
+  });
 }
 
 /** The Insights index filtered to one topic: the same page:insights blocks, with the topic in the render context. */

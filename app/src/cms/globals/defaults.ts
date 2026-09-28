@@ -91,7 +91,7 @@ export const defaultSeo: SeoSettings = {
   defaultDescription:
     'Ablin Limited is a UK governance, risk, compliance and technology advisory firm helping organisations manage regulatory, information security, data and AI risk.',
   ogImage: '/image/og-default.png',
-  ogImageAlt: 'Ablin Limited: Secure, Scalable, Smart IT Consulting',
+  ogImageAlt: 'Ablin Limited — governance, risk, compliance and technology advisory',
   organization: {
     name: 'Ablin Limited',
     legalName: 'Ablin Limited',
@@ -154,15 +154,15 @@ export const defaultContact: ContactSettings = {
 
 export const defaultCookies: CookieSettings = {
   ga4Id: '',
-  title: 'Cookies on this site',
-  body: 'We use essential cookies to make this site work. With your permission we would also like to use analytics cookies to understand how the site is used.',
+  title: 'Cookies on this website',
+  body: 'We use essential storage for your theme preference. With your permission we also use Google Analytics to understand how the site is used. See our',
   policyLink: { label: 'Cookie Policy', href: '/cookie-policy' },
   acceptLabel: 'Accept analytics',
-  rejectLabel: 'Reject analytics',
+  rejectLabel: 'Essential only',
   preferencesLabel: 'Preferences',
   preferencesTitle: 'Cookie preferences',
   necessaryTitle: 'Essential cookies',
-  necessaryText: 'Needed for the site to work, such as remembering your theme. Always on.',
+  necessaryText: 'Remember your theme and your cookie choice. Always on.',
   analyticsTitle: 'Analytics cookies',
   analyticsText: 'Help us understand which pages are useful. Off unless you turn them on.',
   saveLabel: 'Save preferences',

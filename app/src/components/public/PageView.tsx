@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { resolveImage } from '@/cms/collections/media';
 import type { PageSlug } from '@/cms/schema';
-import { absoluteUrl, getSiteUrl } from '@/cms/site-meta';
+import { absoluteUrl, defaultShareImage, getSiteUrl } from '@/cms/site-meta';
+import { buildPageMetadata } from '@/lib/seo';
 import { getPublicPage } from '@/cms/public-reads';
 import { BlockRenderer } from './BlockRenderer';
 import type { RenderContext } from './blocks/types';
@@ -12,18 +13,23 @@ export async function pageMetadata(
   path: string,
   options: { absoluteTitle?: boolean } = {},
 ): Promise<Metadata> {
-  const [doc, siteUrl] = await Promise.all([getPublicPage(slug), getSiteUrl()]);
+  const [doc, siteUrl, fallback] = await Promise.all([
+    getPublicPage(slug),
+    getSiteUrl(),
+    defaultShareImage(),
+  ]);
   const og = await resolveImage(doc.ogImage);
-  const images = og
-    ? [{ url: absoluteUrl(siteUrl, og.src), width: og.width, height: og.height, alt: og.alt }]
-    : undefined;
-  return {
-    title: options.absoluteTitle ? { absolute: doc.seoTitle } : doc.seoTitle,
+  return buildPageMetadata({
+    title: doc.seoTitle,
     description: doc.seoDescription,
-    alternates: { canonical: path },
-    ...(doc.noindex ? { robots: { index: false, follow: true } } : {}),
-    ...(images ? { openGraph: { images }, twitter: { images } } : {}),
-  };
+    path,
+    absoluteTitle: options.absoluteTitle,
+    robots: doc.noindex ? { index: false, follow: true } : undefined,
+    image: og
+      ? { url: absoluteUrl(siteUrl, og.src), width: og.width, height: og.height, alt: og.alt }
+      : null,
+    defaultImage: fallback,
+  });
 }
 
 /** Renders page:{slug}'s blocks. Pages are statically rendered; each admin save expires the page's cache tag. */
