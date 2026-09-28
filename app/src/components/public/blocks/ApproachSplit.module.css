@@ -1,0 +1,63 @@
+.split {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;
+}
+
+.media {
+  position: relative;
+  margin-top: 56px;
+}
+
+.photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--chip);
+}
+
+/* The circular badge is one of the four elements allowed a shadow (DS v3 §4). */
+.badge {
+  position: absolute;
+  top: -46px;
+  right: -18px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 148px;
+  height: 148px;
+  padding: 20px;
+  border-radius: 50%;
+  background: var(--navy);
+  box-shadow: var(--shadow-badge);
+  color: var(--white);
+  font-family: var(--display);
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.badge:hover {
+  background: var(--navy-deep);
+  color: var(--white);
+}
+
+@media (max-width: 1000px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .badge {
+    top: -40px;
+    right: 12px;
+    width: 124px;
+    height: 124px;
+    font-size: 0.88rem;
+  }
+}

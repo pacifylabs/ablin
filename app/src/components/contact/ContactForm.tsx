@@ -112,7 +112,7 @@ export function ContactForm({ copy }: { copy: ContactFormCopy }) {
         <p className="lead">{copy.successMessage.replaceAll('{email}', values.email.trim())}</p>
         <button
           type="button"
-          className="btn btn-line"
+          className="btn btn-ghost-white"
           onClick={() => {
             setValues(empty);
             startedAt.current = Date.now();
@@ -228,7 +228,14 @@ export function ContactForm({ copy }: { copy: ContactFormCopy }) {
         </Field>
       </div>
 
-      <Field id="message" label={fields.message.label} marks={copy} required error={errors.message}>
+      <Field
+        id="message"
+        label={fields.message.label}
+        marks={copy}
+        required
+        full
+        error={errors.message}
+      >
         <textarea
           id="message"
           name="message"
@@ -284,8 +291,8 @@ export function ContactForm({ copy }: { copy: ContactFormCopy }) {
         ) : null}
       </div>
 
-      <div>
-        <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
+      <div className={styles.actions}>
+        <button type="submit" className="btn btn-white" disabled={status === 'sending'}>
           {status === 'sending' ? copy.sendingLabel : copy.submitLabel}
         </button>
       </div>
@@ -298,13 +305,15 @@ interface FieldProps {
   label: string;
   marks: { requiredMark: string; optionalMark: string };
   required?: boolean;
+  /** Span both columns (the message field). */
+  full?: boolean;
   error?: string | undefined;
   children: React.ReactNode;
 }
 
-function Field({ id, label, marks, required, error, children }: FieldProps) {
+function Field({ id, label, marks, required, full, error, children }: FieldProps) {
   return (
-    <div className={styles.field}>
+    <div className={`${styles.field}${full ? ` ${styles.full}` : ''}`}>
       <label htmlFor={id}>
         {label}
         {required ? (

@@ -5,30 +5,17 @@ import { optionalTextSchema, textSchema } from '../fields';
 import { keys } from '../keys';
 import { redis } from '../redis';
 import servicesJson from '@/content/services.json';
+import { blockSchema, newBlock, type Block } from '../blocks';
+import type { RichDoc } from '../richdoc';
+import approachJson from '@/content/approach.json';
 import { mediaRefSchema } from './media';
 
 /**
  * Services (DS v3 §9): one `services:{slug}` document each, ordered by `services:index` (a sorted set scored by
- * `order`). Cards (carousel, footer, related) read the card fields; /services/{slug} renders the detail.
+ * `order`). Cards (carousel, footer, related) read the card fields; /services/{slug} renders `blocks`.
  * Any service write expires both its own key and `services:index`, which every listing is tagged with.
  */
 export const SERVICE_SLUG = /^(?!index$)[a-z0-9][a-z0-9-]{0,63}$/;
-
-export const serviceDetailSchema = z.object({
-  definition: textSchema,
-  coversTitle: textSchema,
-  covers: z.array(textSchema).min(1),
-  howTitle: textSchema,
-  howLead: optionalTextSchema,
-  /** One line per approach step, in order. */
-  howWeWork: z.array(textSchema).min(1).max(8),
-  whoForTitle: textSchema,
-  whoFor: z.array(z.string()),
-  relatedTitle: textSchema,
-  related: z.array(z.string().regex(SERVICE_SLUG)),
-  ctaTitle: textSchema,
-  ctaText: textSchema,
-});
 
 export const serviceSchema = z.object({
   slug: z.string().regex(SERVICE_SLUG, 'Lowercase letters, numbers and hyphens; not "index"'),
@@ -41,7 +28,8 @@ export const serviceSchema = z.object({
   cardImage: mediaRefSchema.nullable(),
   seoTitle: optionalTextSchema,
   seoDescription: optionalTextSchema,
-  detail: serviceDetailSchema,
+  /** The detail page, from the closed palette (DS v3 §7.14). */
+  blocks: z.array(blockSchema),
 });
 export type Service = z.infer<typeof serviceSchema>;
 
@@ -74,31 +62,82 @@ const SEED_CARD: Record<string, { code: string; image: string }> = {
   'audit-assurance-regulatory-readiness': { code: 'AUDIT', image: 'light-stairs' },
 };
 
+function checklistDoc(items: readonly string[]): RichDoc {
+  return {
+    type: 'doc',
+    content: [
+      {
+        type: 'bulletList',
+        content: items.map((item) => ({
+          type: 'listItem',
+          content: [{ type: 'paragraph', content: [{ type: 'text', text: item }] }],
+        })),
+      },
+    ],
+  };
+}
+
+/** The DS v3 §7.14 detail template, built from the v2 service JSON. */
+function detailBlocks(s: LegacyService, code: string): Block[] {
+  const id = (n: string) => `${s.slug}-${n}`;
+  const header = newBlock('pageHeader', id('header'));
+  header.data = {
+    eyebrow: code,
+    title: s.title,
+    lead: s.definition,
+    image: null,
+    breadcrumb: true,
+    cta: null,
+  };
+  const covers = newBlock('richText', id('covers'));
+  covers.data = {
+    title: 'What this covers',
+    meta: '',
+    doc: checklistDoc(s.covers),
+    layout: 'checklist',
+  };
+  const how = newBlock('approachSteps', id('how'));
+  how.data = {
+    eyebrow: '',
+    title: 'How we work on this',
+    lead: 'The same five steps apply to every service, applied here to this work.',
+    steps: s.howWeWork.map((text, i) => ({ title: approachJson.steps[i]?.title ?? '', text })),
+    compact: true,
+  };
+  const related = newBlock('serviceCarousel', id('related'));
+  related.data = {
+    variant: 'grid',
+    eyebrow: '',
+    title: 'Related services',
+    lead: '',
+    serviceSlugs: s.related,
+    cardLinkLabel: 'View service',
+    prevLabel: 'Previous services',
+    nextLabel: 'Next services',
+    trackLabel: 'Related services',
+  };
+  const contact = newBlock('contactBand', id('contact'));
+  contact.data = {
+    title: s.ctaTitle,
+    sub: 'Tell us what you are working towards and we will advise on where to start.',
+    checklist: [],
+  };
+  return [header, covers, how, related, contact];
+}
+
 export function fromLegacyService(s: LegacyService, order: number): Service {
   const card = SEED_CARD[s.slug];
+  const code = card?.code ?? s.title.slice(0, 4).toUpperCase();
   return {
     slug: s.slug,
     order,
-    code: card?.code ?? s.title.slice(0, 4).toUpperCase(),
+    code,
     title: s.title,
     summary: s.summary,
     cardImage: card ? { mediaId: card.image, decorative: true } : null,
     seoTitle: s.title,
     seoDescription: `${s.summary} ${s.definition}`.slice(0, 300),
-    detail: {
-      definition: s.definition,
-      coversTitle: 'What this covers',
-      covers: s.covers,
-      howTitle: 'How we work on this',
-      howLead: 'The same five steps apply to every service, applied here to this work.',
-      howWeWork: s.howWeWork,
-      whoForTitle: 'Who it’s for',
-      whoFor: s.whoFor,
-      relatedTitle: 'Related services',
-      related: s.related,
-      ctaTitle: s.ctaTitle,
-      ctaText: 'Tell us what you are working towards and we will advise on where to start.',
-    },
+    blocks: detailBlocks(s, code),
   };
 }
 

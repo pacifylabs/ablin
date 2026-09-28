@@ -50,6 +50,7 @@ export const navigationSettingsSchema = z.object({
     skipLink: textSchema,
     primaryNav: textSchema,
     mobileNav: textSchema,
+    breadcrumb: textSchema,
     home: textSchema,
     openMenu: textSchema,
     closeMenu: textSchema,

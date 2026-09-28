@@ -1,0 +1,4 @@
+.layout {
+  display: grid;
+  gap: clamp(32px, 4vw, 48px);
+}

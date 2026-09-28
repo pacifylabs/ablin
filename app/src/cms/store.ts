@@ -21,6 +21,7 @@ import {
 } from './schema';
 import { sha256Hex } from '@/lib/token-hash';
 import { seedPage } from './seed-data';
+import { cachedQuery } from './cached';
 
 /**
  * The data-access layer over Redis. Every read parses with the matching zod schema — a value written by an
@@ -146,7 +147,10 @@ export async function getPageWithFallback(slug: PageSlug): Promise<PageDoc> {
     return (await getPage(slug)) ?? seedPage(slug);
   } catch (error) {
     if (LEGAL_PAGE_SLUGS.has(slug)) {
-      console.error(`Failed to read legal page:${slug} from Redis; refusing bundled fallback.`, error);
+      console.error(
+        `Failed to read legal page:${slug} from Redis; refusing bundled fallback.`,
+        error,
+      );
       throw error;
     }
     console.error(
@@ -155,6 +159,39 @@ export async function getPageWithFallback(slug: PageSlug): Promise<PageDoc> {
     );
     return seedPage(slug);
   }
+}
+
+/**
+ * The public read of a page: cached under the tag `page:{slug}` (expired by every admin save), so pages render
+ * statically. A missing key, or a stored document from an older schema, serves the bundled page; a Redis error does
+ * too, except for legal pages, which fail loudly rather than show unreviewed bundled copy.
+ */
+export async function getPublicPage(slug: PageSlug): Promise<PageDoc> {
+  let raw: unknown;
+  try {
+    raw = await cachedQuery(
+      [keys.page(slug)],
+      ['page', slug],
+      async () => (await redis().get(keys.page(slug))) ?? null,
+    );
+  } catch (error) {
+    if (LEGAL_PAGE_SLUGS.has(slug)) {
+      console.error(
+        `Failed to read legal page:${slug} from Redis; refusing bundled fallback.`,
+        error,
+      );
+      throw error;
+    }
+    console.error(`Failed to read page:${slug} from Redis; serving the bundled page.`, error);
+    return seedPage(slug);
+  }
+  if (raw === null) return seedPage(slug);
+  const parsed = pageDocSchema.safeParse(raw);
+  if (parsed.success) return parsed.data;
+  console.error(
+    `Stored page:${slug} does not match the current page schema; serving the bundled page.`,
+  );
+  return seedPage(slug);
 }
 
 export async function listPages(): Promise<PageDoc[]> {
@@ -233,6 +270,34 @@ export async function listPublishedArticlesSafe(limit = 100): Promise<ArticleDoc
   }
 }
 
+/** Cached public reads, tagged `insights:index` / `insights:article:{slug}`; every article write expires both. */
+export async function listPublishedArticlesCached(limit = 100): Promise<ArticleDoc[]> {
+  try {
+    return await cachedQuery([keys.articlesIndex], ['articles', String(limit)], () =>
+      listPublishedArticles(limit),
+    );
+  } catch (error) {
+    console.error('Failed to list published articles from Redis.', error);
+    return [];
+  }
+}
+
+export async function getPublishedArticleCached(slug: string): Promise<ArticleDoc | null> {
+  try {
+    return await cachedQuery(
+      [keys.article(slug), keys.articlesIndex],
+      ['article', slug],
+      async () => {
+        const article = await getArticle(slug);
+        return article && article.status === 'published' ? article : null;
+      },
+    );
+  } catch (error) {
+    console.error(`Failed to read insights:article:${slug} from Redis.`, error);
+    return null;
+  }
+}
+
 export async function listAllArticles(): Promise<ArticleDoc[]> {
   const [published, drafts] = await Promise.all([listPublishedSlugs(500), listDraftSlugs()]);
   const slugs = [...published, ...drafts];
@@ -268,8 +333,10 @@ export async function setSubmissionStatus(
   const updated: Submission = { ...existing, status };
   const r = redis();
   await r.set(keys.submission(id), updated, { ex: SUBMISSION_RETENTION_SECONDS });
-  if (existing.status === 'unread' && status !== 'unread') await r.decr(keys.submissionsUnreadCount);
-  if (existing.status !== 'unread' && status === 'unread') await r.incr(keys.submissionsUnreadCount);
+  if (existing.status === 'unread' && status !== 'unread')
+    await r.decr(keys.submissionsUnreadCount);
+  if (existing.status !== 'unread' && status === 'unread')
+    await r.incr(keys.submissionsUnreadCount);
   return updated;
 }
 

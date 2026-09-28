@@ -1,0 +1,27 @@
+.head {
+  margin-bottom: clamp(32px, 4vw, 56px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 40px 32px;
+}
+
+.grid li {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.icon {
+  margin-bottom: 8px;
+  color: var(--link);
+}
+
+.grid p {
+  font-size: 0.93rem;
+  color: var(--muted);
+}

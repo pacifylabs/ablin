@@ -1,0 +1,95 @@
+.strip {
+  padding-block: 34px;
+  border-block: 1px solid var(--line);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 22px 32px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+
+.item:hover {
+  color: var(--heading);
+}
+
+.item b {
+  display: block;
+  font-family: var(--display);
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.item small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.74rem;
+}
+
+.caption {
+  margin-top: 22px;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.head {
+  margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--panel);
+}
+
+.cardMark {
+  color: var(--link);
+  margin-bottom: 6px;
+}
+
+.muted,
+.meta {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.meta {
+  font-size: 0.84rem;
+}
+
+.sources {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 600px) {
+  .row {
+    justify-content: flex-start;
+  }
+}

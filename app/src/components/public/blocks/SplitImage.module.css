@@ -1,0 +1,37 @@
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: center;
+}
+
+.left .media {
+  order: -1;
+}
+
+.text {
+  display: grid;
+  gap: 20px;
+}
+
+.media {
+  position: relative;
+  min-height: 520px;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--chip);
+}
+
+@media (max-width: 1000px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .left .media {
+    order: 0;
+  }
+
+  .media {
+    min-height: 420px;
+  }
+}

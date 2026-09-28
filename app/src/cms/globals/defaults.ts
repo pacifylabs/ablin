@@ -42,6 +42,7 @@ export const defaultNavigation: NavigationSettings = {
     skipLink: 'Skip to main content',
     primaryNav: 'Primary',
     mobileNav: 'Mobile primary',
+    breadcrumb: 'Breadcrumb',
     home: 'Ablin Limited home',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',

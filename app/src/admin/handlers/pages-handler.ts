@@ -3,6 +3,9 @@ import { getPage, listPages, putPage } from '@/cms/store';
 import { blockSchema, PAGE_SLUGS, type PageDoc } from '@/cms/schema';
 import { findBlockReferenceError } from '@/cms/validate-blocks';
 import { isSameOrigin, json } from '@/admin/http';
+import { expireKeys } from '@/cms/cached';
+import { mediaRefSchema } from '@/cms/collections/media';
+import { keys } from '@/cms/keys';
 
 export async function handleListPages(): Promise<Response> {
   const pages = await listPages();
@@ -30,7 +33,8 @@ const putSchema = z.object({
   title: z.string().min(1),
   seoTitle: z.string().min(1),
   seoDescription: z.string().min(1),
-  ogImage: z.string(),
+  ogImage: mediaRefSchema.nullable(),
+  noindex: z.boolean(),
   blocks: z.array(blockSchema),
   /** true = write straight to the live page; false = stage as an unpublished draft (see cms/schema.ts PageDoc). */
   publish: z.boolean(),
@@ -53,7 +57,13 @@ export async function handlePutPage(request: Request, slug: string): Promise<Res
   }
   const parsed = putSchema.safeParse(payload);
   if (!parsed.success)
-    return json({ error: 'validation', fieldErrors: parsed.error.flatten().fieldErrors }, 422);
+    return json(
+      {
+        error: 'validation',
+        issues: parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+      },
+      422,
+    );
 
   const referenceError = await findBlockReferenceError(parsed.data.blocks);
   if (referenceError) return json({ error: 'invalid_reference', message: referenceError }, 422);
@@ -65,6 +75,7 @@ export async function handlePutPage(request: Request, slug: string): Promise<Res
     seoTitle: parsed.data.seoTitle,
     seoDescription: parsed.data.seoDescription,
     ogImage: parsed.data.ogImage,
+    noindex: parsed.data.noindex,
     blocks: parsed.data.blocks,
   };
 
@@ -75,5 +86,7 @@ export async function handlePutPage(request: Request, slug: string): Promise<Res
       : { slug, ...fields, status: 'draft', updatedAt: now };
 
   await putPage(doc);
+  // A draft save changes nothing public, but expiring is harmless and keeps the rule simple: every write expires.
+  expireKeys(keys.page(slug));
   return json(doc, 200);
 }

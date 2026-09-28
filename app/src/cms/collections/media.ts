@@ -36,16 +36,14 @@ export const mediaRefSchema = z.object({
 export type MediaRef = z.infer<typeof mediaRefSchema>;
 
 /** Bundled photos, used by the seed and as the fallback if a media doc is missing or Redis is down. */
-export const SEED_MEDIA: readonly Media[] = z
-  .array(mediaSchema)
-  .parse(
-    seedMediaJson.map(({ file, ...m }) => ({
-      ...m,
-      url: file,
-      publicId: '',
-      createdAt: '2026-01-01T00:00:00.000Z',
-    })),
-  );
+export const SEED_MEDIA: readonly Media[] = z.array(mediaSchema).parse(
+  seedMediaJson.map(({ file, ...m }) => ({
+    ...m,
+    url: file,
+    publicId: '',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  })),
+);
 const SEED_BY_ID = new Map(SEED_MEDIA.map((m) => [m.id, m]));
 
 export const getMedia = cache(async (id: string): Promise<Media | null> => {

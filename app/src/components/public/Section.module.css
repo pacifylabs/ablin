@@ -1,0 +1,19 @@
+.section {
+  position: relative;
+}
+
+.default {
+  padding-block: var(--sec);
+}
+
+.tight {
+  padding-block: calc(var(--sec) / 2);
+}
+
+.none {
+  padding-block: 0;
+}
+
+.flushTop {
+  padding-top: 0;
+}

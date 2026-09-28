@@ -298,3 +298,72 @@ p {
     max-width: none;
   }
 }
+
+/*
+ * Block backgrounds (DS v3 §9: bg | surface | band). On `band` the text tokens point at the band colours, so any
+ * block reads correctly on navy without its own dark styles.
+ */
+[data-bg='bg'] {
+  background: var(--bg);
+}
+
+[data-bg='surface'] {
+  background: var(--surface);
+}
+
+[data-bg='band'] {
+  --heading: var(--band-text);
+  --text: var(--band-text);
+  --muted: var(--band-muted);
+  --link: var(--band-text);
+  --link-hover: var(--band-muted);
+  --line: rgba(255, 255, 255, 0.14);
+  --line-strong: rgba(255, 255, 255, 0.28);
+  --chip: rgba(255, 255, 255, 0.08);
+  --focus: var(--white);
+  background: var(--band);
+  color: var(--band-text);
+}
+
+/* Rich text (richText block, articles, split image). Body measure ≤ 65ch (DS v3 §3). */
+.prose {
+  display: grid;
+  gap: 18px;
+  max-width: 65ch;
+}
+
+.prose h2 {
+  margin-top: 20px;
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.prose h3 {
+  margin-top: 12px;
+}
+
+.prose ul,
+.prose ol {
+  display: grid;
+  gap: 8px;
+  padding-left: 1.3em;
+}
+
+.prose ul {
+  list-style: disc;
+}
+
+.prose ol {
+  list-style: decimal;
+}
+
+.prose li::marker {
+  color: var(--link);
+}
+
+.prose blockquote {
+  padding-left: 18px;
+  border-left: 2px solid var(--line-strong);
+  color: var(--muted);
+}

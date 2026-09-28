@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import type { FrameworkWithMark } from '@/cms/collections/frameworks';
-import { cloudinaryLoader } from '@/cms/cloudinary-loader';
 import { LineIcon } from './LineIcon';
 
 /**
@@ -22,7 +21,6 @@ export function FrameworkMark({
         alt=""
         width={Math.round((width / height) * size)}
         height={size}
-        loader={cloudinaryLoader}
         style={{ height: size, width: 'auto' }}
       />
     );

@@ -162,7 +162,7 @@ describe('Cloudinary loader', () => {
       }),
     ).toBe('https://res.cloudinary.com/demo/image/upload/f_auto,q_auto,w_640,c_limit/v1/a.jpg');
     expect(cloudinaryLoader({ src: '/image/photo/a.jpg', width: 640 })).toBe(
-      '/_next/image?url=%2Fimage%2Fphoto%2Fa.jpg&w=640&q=75',
+      '/image/photo/a.jpg?w=640',
     );
   });
 });

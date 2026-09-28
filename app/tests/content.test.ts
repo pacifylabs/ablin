@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { getLegalReviewStatus } from '@/cms/BlockRenderer';
 import { seedPage, seedPages } from '@/cms/seed-data';
 import { SEED_SERVICES } from '@/cms/collections/services';
-import { getAudiences } from '@/lib/content';
+import audiences from '@/content/audiences.json';
+import { GLOBALS, GLOBAL_NAMES } from '@/cms/globals';
 
 // Copy the admin will edit is validated at import time (lib/content.ts) or, for pages/articles, by cms/schema.ts
 // at save time. These tests guard the rules that schema validation cannot express.
@@ -26,11 +26,12 @@ async function allText(): Promise<string> {
   // legal pages) rather than these JSON files, which now only hold the "master data" and the pinned, non-block
   // sections (see admin/README.md). Both are scanned, so this test still covers everything the site says.
   const modules = await Promise.all(
-    ['home', 'about', 'services', 'insights', 'contact', 'audiences'].map(async (name) =>
+    ['about', 'services', 'insights', 'audiences'].map(async (name) =>
       JSON.stringify((await import(`@/content/${name}.json`)).default),
     ),
   );
-  modules.push(JSON.stringify(seedPages));
+  modules.push(JSON.stringify(seedPages), JSON.stringify(SEED_SERVICES));
+  for (const name of GLOBAL_NAMES) modules.push(JSON.stringify(GLOBALS[name].seed));
   return modules.join(' ').toLowerCase();
 }
 
@@ -42,8 +43,7 @@ describe('content integrity', () => {
   });
 
   it('maps every audience to at least one service', async () => {
-    for (const audience of await getAudiences())
-      expect(audience.services.length).toBeGreaterThan(0);
+    for (const audience of audiences) expect(audience.services.length).toBeGreaterThan(0);
   });
 
   it('uses none of the banned hype vocabulary', async () => {
@@ -68,18 +68,51 @@ describe('content integrity', () => {
   it('never presents Ablin as issuing certificates on the certification-related services', async () => {
     for (const slug of ['iso-compliance-readiness', 'soc2-controls-readiness']) {
       const service = SEED_SERVICES.find((s) => s.slug === slug);
-      expect(service?.detail.definition).toMatch(/independent/i);
+      expect(JSON.stringify(service?.blocks)).toMatch(/independent/i);
     }
   });
 
-  it('keeps unreviewed legal pages flagged as draft', () => {
+  it('keeps unreviewed legal pages out of search indexes', () => {
     for (const slug of [
       'privacy-policy',
       'cookie-policy',
       'terms-of-use',
       'accessibility',
     ] as const) {
-      expect(getLegalReviewStatus(seedPage(slug).blocks)).toBe('draft');
+      expect(seedPage(slug).noindex).toBe(true);
     }
+  });
+
+  it('seeds every page slug, and every seed page is valid', async () => {
+    const { PAGE_SLUGS, pageDocSchema } = await import('@/cms/schema');
+    for (const slug of PAGE_SLUGS)
+      expect(pageDocSchema.safeParse(seedPage(slug)).success, slug).toBe(true);
+  });
+
+  it('seeds the Home page in the DS v3 order', () => {
+    expect(seedPage('home').blocks.map((b) => b.type)).toEqual([
+      'heroFramed',
+      'capabilityPanels',
+      'aboutIntro',
+      'factStrip',
+      'frameworkStrip',
+      'serviceCarousel',
+      'approachSplit',
+      'audienceList',
+      'whyGrid',
+      'topicList',
+      'articleGrid',
+      'contactBand',
+    ]);
+  });
+
+  it('uses only service-structure counts in the fact strip (DS v3 §7.5 integrity rule)', () => {
+    const facts = seedPage('home').blocks.find((b) => b.type === 'factStrip');
+    expect(facts?.type === 'factStrip' && facts.data.facts.map((f) => f.value)).toEqual([
+      '3',
+      '8',
+      '5',
+      '5',
+    ]);
   });
 });

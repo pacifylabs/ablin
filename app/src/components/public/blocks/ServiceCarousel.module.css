@@ -1,0 +1,153 @@
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 44px;
+}
+
+.nav {
+  display: flex;
+  gap: 10px;
+}
+
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--heading);
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    background-color 0.2s;
+}
+
+.navBtn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.navBtn:hover {
+  border-color: var(--link);
+  color: var(--link);
+}
+
+.navNext {
+  background: var(--heading);
+  border-color: var(--heading);
+  color: var(--bg);
+}
+
+.navNext:hover {
+  background: var(--link);
+  border-color: var(--link);
+  color: var(--bg);
+}
+
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, calc((100% - 72px) / 4));
+  gap: 24px;
+  padding-bottom: 6px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 32px 24px;
+}
+
+.card {
+  scroll-snap-align: start;
+}
+
+.cardLink {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--chip);
+}
+
+/* Photo zoom: a transform on the image only, never on the card or a button (DS v3 §8). */
+.media img {
+  transition: transform 0.7s var(--ease);
+}
+
+.cardLink:hover .media img {
+  transform: scale(1.04);
+}
+
+.code {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 6px 10px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.92);
+  color: #13233a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.cardLink h3 {
+  font-size: 1.1rem;
+}
+
+.cardLink p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.more {
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: var(--link);
+}
+
+.cardLink:hover .more {
+  color: var(--link-hover);
+}
+
+@media (max-width: 600px) {
+  .track {
+    grid-auto-columns: 78%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .media img {
+    transition: none;
+  }
+
+  .cardLink:hover .media img {
+    transform: none;
+  }
+}

@@ -1,0 +1,59 @@
+.steps {
+  border-top: 1px solid var(--line);
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 22px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--heading);
+  color: var(--bg);
+  font-family: var(--display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-bg='band'] .num {
+  color: var(--band);
+}
+
+.steps h3 {
+  margin-bottom: 6px;
+  font-size: 1.18rem;
+}
+
+.steps p {
+  max-width: 52ch;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.compact li {
+  padding: 20px 0;
+}
+
+@media (min-width: 1001px) {
+  .compact {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 56px;
+    border-top: 0;
+  }
+
+  .compact li {
+    border-top: 1px solid var(--line);
+    border-bottom: 0;
+  }
+}

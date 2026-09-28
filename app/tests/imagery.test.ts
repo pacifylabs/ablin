@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { imagesSchema } from '@/content/schema';
 import { SEED_FRAMEWORKS, frameworkSchema, withMarks } from '@/cms/collections/frameworks';
 import { SEED_MEDIA } from '@/cms/collections/media';
-import { getImages } from '@/lib/content';
 
 const base = SEED_FRAMEWORKS[0]!;
 
@@ -56,28 +54,5 @@ describe('media library seed', () => {
     const ids = SEED_MEDIA.map((m) => m.id);
     expect(ids).not.toContain('colleagues-desk');
     expect(ids).not.toContain('review-documents');
-  });
-});
-
-describe('image manifest', () => {
-  it('records source and licence for every photograph and flags stand-ins as placeholders', async () => {
-    const images = await getImages();
-    expect(Object.keys(images).length).toBeGreaterThan(0);
-    for (const [id, image] of Object.entries(images)) {
-      expect(image.credit.licence, id).toBe('Unsplash License');
-      expect(image.credit.url, id).toMatch(/^https:\/\/unsplash\.com\/photos\//);
-      expect(image.status, id).toBe('placeholder');
-    }
-  });
-
-  it('gives meaningful images alt text and leaves decorative ones empty', async () => {
-    for (const [id, image] of Object.entries(await getImages())) {
-      if (image.decorative) expect(image.alt, id).toBe('');
-      else expect(image.alt.length, id).toBeGreaterThan(10);
-    }
-  });
-
-  it('rejects entries that are missing required fields', () => {
-    expect(imagesSchema.safeParse({ x: { src: '/a.jpg' } }).success).toBe(false);
   });
 });

@@ -7,7 +7,8 @@ import {
   markArticlePublished,
   putArticle,
 } from '@/cms/store';
-import { blockImageSchema, blockSchema, type ArticleDoc } from '@/cms/schema';
+import { blockSchema, type ArticleDoc } from '@/cms/schema';
+import { mediaRefSchema } from '@/cms/collections/media';
 import { findBlockReferenceError } from '@/cms/validate-blocks';
 import { isSameOrigin, json } from '@/admin/http';
 import { expireKeys } from '@/cms/cached';
@@ -40,7 +41,7 @@ export async function handleGetInsight(slug: string): Promise<Response> {
 const editableFields = z.object({
   title: z.string().min(1),
   excerpt: z.string().min(1),
-  coverImage: blockImageSchema.optional(),
+  coverImage: mediaRefSchema.nullable(),
   topics: z.array(z.string().min(1)),
   blocks: z.array(blockSchema),
   seoTitle: z.string().min(1),
@@ -72,6 +73,7 @@ export async function handleCreateInsight(request: Request): Promise<Response> {
   const doc: ArticleDoc = { slug, ...fields, status: 'draft', updatedAt: now };
   await putArticle(doc);
   await markArticleDraft(slug);
+  expireKeys(keys.articlesIndex, keys.article(slug));
   if (await ensureTopics(fields.topics)) expireKeys(keys.topics);
   return json(doc, 201);
 }
@@ -102,6 +104,7 @@ export async function handleUpdateInsight(request: Request, slug: string): Promi
       : { ...existing, ...parsed.data, updatedAt: now };
 
   await putArticle(doc);
+  expireKeys(keys.articlesIndex, keys.article(slug));
   if (await ensureTopics(parsed.data.topics)) expireKeys(keys.topics);
   return json(doc, 200);
 }
@@ -111,6 +114,7 @@ export async function handleDeleteInsight(request: Request, slug: string): Promi
   const existing = await getArticle(slug);
   if (!existing) return json({ error: 'not_found' }, 404);
   await deleteArticle(slug);
+  expireKeys(keys.articlesIndex, keys.article(slug));
   return json({ ok: true }, 200);
 }
 
@@ -130,6 +134,7 @@ export async function handlePublishInsight(request: Request, slug: string): Prom
   }
   await putArticle(doc);
   await markArticlePublished(slug, Date.parse(doc.publishedAt ?? now));
+  expireKeys(keys.articlesIndex, keys.article(slug));
   return json(doc, 200);
 }
 
@@ -145,5 +150,6 @@ export async function handleUnpublishInsight(request: Request, slug: string): Pr
   };
   await putArticle(doc);
   await markArticleDraft(slug);
+  expireKeys(keys.articlesIndex, keys.article(slug));
   return json(doc, 200);
 }
