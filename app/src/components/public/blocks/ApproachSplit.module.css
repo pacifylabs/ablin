@@ -2,17 +2,27 @@
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;
   gap: clamp(40px, 6vw, 96px);
-  align-items: start;
+  align-items: stretch;
+}
+
+/* Both columns end on the same line: the photo takes whatever height the steps leave after the heading. */
+.left {
+  display: flex;
+  flex-direction: column;
 }
 
 .media {
   position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   margin-top: 56px;
 }
 
 .photo {
   position: relative;
-  aspect-ratio: 4 / 5;
+  flex: 1;
+  min-height: 360px;
   overflow: hidden;
   border-radius: var(--r-lg);
   background: var(--chip);
@@ -51,6 +61,12 @@
 @media (max-width: 1000px) {
   .split {
     grid-template-columns: 1fr;
+  }
+
+  .photo {
+    flex: none;
+    aspect-ratio: 4 / 5;
+    min-height: 0;
   }
 
   .badge {

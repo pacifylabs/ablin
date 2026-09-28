@@ -206,6 +206,7 @@ const home = page(
           'Ablin Limited is a UK-based governance, risk, compliance and technology advisory firm. We help organisations navigate regulatory complexity, strengthen internal controls, manage technology and information risks, protect data and establish responsible governance around emerging technologies.',
           'Our consultants combine governance principles with practical implementation, moving from identifying risks and gaps to workable controls, policies and improvement programmes.',
         ],
+        image: null,
       },
       { anchorId: 'about' },
     ),
@@ -337,6 +338,7 @@ const about = page(
         'Ablin Limited is a UK-based governance, risk, compliance and technology advisory firm. We help organisations navigate regulatory complexity, strengthen internal controls, manage technology and information risks, protect data and establish responsible governance around emerging technologies.',
         'Our consultants combine governance principles with practical implementation, helping organisations move from identifying risks and compliance gaps to developing workable controls, policies, processes and improvement programmes.',
       ],
+      image: photo('stepped-glass'),
     }),
     b(
       'missionVision',

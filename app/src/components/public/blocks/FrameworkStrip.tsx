@@ -1,4 +1,4 @@
-import { getFrameworks, withMarks } from '@/cms/collections/frameworks';
+import { getVisibleFrameworks, withMarks } from '@/cms/collections/frameworks';
 import { FrameworkMark } from '../FrameworkMark';
 import { Heading } from '../Heading';
 import { Section } from '../Section';
@@ -8,7 +8,7 @@ import styles from './FrameworkStrip.module.css';
 /** DS v3 §7.6: a row of marks between hairlines (`strip`), or cards with publisher and sources (`index`). */
 export async function FrameworkStrip({ block }: BlockProps<'frameworkStrip'>) {
   const { data } = block;
-  const all = await withMarks(await getFrameworks());
+  const all = await withMarks(await getVisibleFrameworks());
   const frameworks =
     data.frameworkIds.length === 0
       ? all
@@ -27,7 +27,7 @@ export async function FrameworkStrip({ block }: BlockProps<'frameworkStrip'>) {
         <div className="wrap">
           {data.title ? <Heading id={titleId} eyebrow={data.eyebrow} title={data.title} /> : null}
           <div className={styles.strip}>
-            <ul className={styles.row}>
+            <ul className={styles.row} data-few={frameworks.length < 4 || undefined}>
               {frameworks.map((f) => (
                 <li key={f.id} className={styles.item}>
                   <FrameworkMark framework={f} />

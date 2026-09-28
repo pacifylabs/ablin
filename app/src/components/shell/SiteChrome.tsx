@@ -1,4 +1,4 @@
-import { getFrameworks, withMarks } from '@/cms/collections/frameworks';
+import { getVisibleFrameworks, withMarks } from '@/cms/collections/frameworks';
 import { listServices, serviceHref } from '@/cms/collections/services';
 import {
   getCookieSettings,
@@ -25,7 +25,7 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
     getFooterSettings(),
     getCookieSettings(),
     listServices(),
-    getFrameworks().then(withMarks),
+    getVisibleFrameworks().then(withMarks),
   ]);
   const logo = { light: site.logoLight, dark: site.logoDark, alt: site.logoAlt };
 

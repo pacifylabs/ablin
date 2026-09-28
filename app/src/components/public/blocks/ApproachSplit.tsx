@@ -7,7 +7,10 @@ import { Steps } from './Steps';
 import type { BlockProps } from './types';
 import styles from './ApproachSplit.module.css';
 
-/** DS v3 §7.8: heading and a 4:5 photo with a round navy badge; the numbered steps beside them. */
+/**
+ * DS v3 §7.8: heading and a photo with a round navy badge; the numbered steps beside them. On desktop the photo
+ * fills to the steps' height so both columns end together; stacked, it is 4:5.
+ */
 export async function ApproachSplit({ block }: BlockProps<'approachSplit'>) {
   const { data } = block;
   const image = await resolveImage(data.image);
@@ -15,7 +18,7 @@ export async function ApproachSplit({ block }: BlockProps<'approachSplit'>) {
   return (
     <Section anchorId={block.anchorId} background={block.background} labelledBy={titleId}>
       <div className={`wrap ${styles.split}`}>
-        <div>
+        <div className={styles.left}>
           <Heading id={titleId} eyebrow={data.eyebrow} title={data.title} lead={data.lead} />
           {image || data.badge ? (
             <div className={styles.media}>

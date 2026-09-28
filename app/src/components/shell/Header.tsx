@@ -9,8 +9,8 @@ import { Logo, type LogoAssets } from '@/components/ui/Logo';
 import { ThemeToggle } from './ThemeToggle';
 import styles from './shell.module.css';
 
-// Matches the 1000px breakpoint in shell.module.css (DS v3 §4).
-const DESKTOP_QUERY = '(min-width: 1001px)';
+// Matches the header breakpoint in shell.module.css.
+const DESKTOP_QUERY = '(min-width: 1101px)';
 
 function isCurrent(pathname: string, href: string): boolean {
   return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);

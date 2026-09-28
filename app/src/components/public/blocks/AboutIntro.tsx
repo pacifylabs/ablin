@@ -1,4 +1,6 @@
 import type { BlockOf } from '@/cms/blocks';
+import { resolveImage } from '@/cms/collections/media';
+import { Photo } from '../Photo';
 import { Heading } from '../Heading';
 import { Section } from '../Section';
 import styles from './AboutIntro.module.css';
@@ -9,13 +11,14 @@ interface AboutIntroProps {
   facts?: BlockOf<'factStrip'> | null;
 }
 
-export function AboutIntro({ block, facts }: AboutIntroProps) {
+export async function AboutIntro({ block, facts }: AboutIntroProps) {
   const { data } = block;
   const titleId = `${block.id}-title`;
   const showFacts = facts && facts.visible && facts.data.approvedByClient;
+  const image = showFacts ? null : await resolveImage(data.image);
   return (
     <Section anchorId={block.anchorId} background={block.background} labelledBy={titleId}>
-      <div className={`wrap ${showFacts ? styles.split : ''}`}>
+      <div className={`wrap ${showFacts || image ? styles.split : ''}`}>
         <div className={styles.intro}>
           <Heading id={titleId} eyebrow={data.eyebrow} title={data.title} />
           {data.paragraphs.map((p, i) => (
@@ -25,6 +28,11 @@ export function AboutIntro({ block, facts }: AboutIntroProps) {
           ))}
         </div>
         {showFacts ? <FactList facts={facts.data.facts} /> : null}
+        {image ? (
+          <div className={styles.photo}>
+            <Photo image={image} fill sizes="(max-width: 1000px) 100vw, 520px" />
+          </div>
+        ) : null}
       </div>
     </Section>
   );

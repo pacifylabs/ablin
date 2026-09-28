@@ -1,0 +1,24 @@
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ring {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 0.3;
+}
+
+.edge {
+  stroke: var(--link);
+  stroke-width: 0.25;
+}
+
+.node {
+  fill: var(--line-strong);
+}
+
+.hot {
+  fill: var(--link);
+}

@@ -4,8 +4,42 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: 1fr;
   gap: 40px 32px;
+}
+
+/*
+ * Rows always end full: three per row on desktop (six-track grid, each cell two tracks), and a short last row
+ * stretches — one leftover cell spans the row, two leftovers take half each. No empty holes whatever the count.
+ */
+@media (min-width: 601px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1001px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .grid li,
+  .grid li:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+
+  .grid li:last-child:nth-child(3n + 1) {
+    grid-column: 1 / -1;
+  }
+
+  .grid li:nth-last-child(2):nth-child(3n + 1),
+  .grid li:nth-last-child(2):nth-child(3n + 1) + li {
+    grid-column: span 3;
+  }
 }
 
 .grid li {

@@ -15,13 +15,17 @@ export function RichTextBlock({ block }: BlockProps<'richText'>) {
       labelledBy={data.title ? titleId : undefined}
       label={data.title ? undefined : undefined}
     >
-      <div className={checklist ? 'wrap' : `wrap ${styles.narrow}`}>
-        {data.title ? (
-          <h2 id={titleId} className={`h2 ${styles.title}`}>
-            {data.title}
-          </h2>
+      <div className={checklist ? `wrap ${styles.checklistLayout}` : `wrap ${styles.narrow}`}>
+        {data.title || data.meta ? (
+          <div>
+            {data.title ? (
+              <h2 id={titleId} className={`h2 ${styles.title}`}>
+                {data.title}
+              </h2>
+            ) : null}
+            {data.meta ? <p className={styles.meta}>{data.meta}</p> : null}
+          </div>
         ) : null}
-        {data.meta ? <p className={styles.meta}>{data.meta}</p> : null}
         <div className={checklist ? `prose ${styles.checklist}` : 'prose'}>
           <RichText doc={data.doc} />
         </div>

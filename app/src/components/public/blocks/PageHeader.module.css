@@ -91,3 +91,25 @@
 .crumbs a {
   color: inherit;
 }
+
+/* Plain header: the copy on the left, a still lattice filling the right on wide screens. */
+.plainGrid {
+  display: grid;
+  align-items: center;
+  gap: 40px;
+}
+
+.art {
+  display: none;
+}
+
+@media (min-width: 1001px) {
+  .plainGrid {
+    grid-template-columns: 1.5fr 1fr;
+  }
+
+  .art {
+    display: block;
+    max-height: 260px;
+  }
+}

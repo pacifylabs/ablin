@@ -13,7 +13,21 @@
 }
 
 .checklist {
-  margin-top: 28px;
+  max-width: none;
+}
+
+/* Checklist: heading on the left, the list across the rest of the width (no empty right half). */
+.checklistLayout {
+  display: grid;
+  gap: 28px;
+}
+
+@media (min-width: 1001px) {
+  .checklistLayout {
+    grid-template-columns: 0.8fr 1.6fr;
+    gap: clamp(40px, 6vw, 96px);
+    align-items: start;
+  }
 }
 
 .checklist ul {

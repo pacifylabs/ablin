@@ -55,6 +55,7 @@
 }
 
 .navLink {
+  white-space: nowrap;
   font-size: 0.93rem;
   font-weight: 500;
   color: var(--text);
@@ -156,7 +157,8 @@
   margin-top: 16px;
 }
 
-@media (min-width: 1001px) {
+/* Montserrat is wide: the full nav needs 1100px before it would wrap; below that the menu button takes over. */
+@media (min-width: 1101px) {
   .nav {
     display: block;
   }

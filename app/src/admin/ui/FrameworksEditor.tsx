@@ -13,6 +13,7 @@ const BLANK: Framework = {
   name: '',
   descriptor: '',
   icon: 'document',
+  visible: true,
   logo: null,
   approvedByClient: false,
   publisher: '',
@@ -66,7 +67,10 @@ export function FrameworksEditor({ initial }: { initial: readonly Framework[] })
         {items.map((item, index) => (
           <div key={index} className={styles.blockItem}>
             <div className={styles.blockItemHead}>
-              <span className={styles.blockItemTitle}>{item.name || 'New framework'}</span>
+              <span className={styles.blockItemTitle}>
+                {item.name || 'New framework'}
+                {!item.visible ? <span className={styles.badgeMuted}>Hidden</span> : null}
+              </span>
               <MoveDeleteButtons
                 index={index}
                 count={items.length}
@@ -75,6 +79,14 @@ export function FrameworksEditor({ initial }: { initial: readonly Framework[] })
               />
             </div>
             <div className={styles.blockItemBody}>
+              <label className={styles.checkRow}>
+                <input
+                  type="checkbox"
+                  checked={item.visible}
+                  onChange={(e) => update(index, { visible: e.target.checked })}
+                />
+                Show on the site (footer strip and framework strips)
+              </label>
               <TextField
                 label="Name"
                 value={item.name}

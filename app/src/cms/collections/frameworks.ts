@@ -19,6 +19,8 @@ export const frameworkSchema = z.object({
   /** Short descriptor under the name, e.g. "Information security". */
   descriptor: textSchema,
   icon: z.enum(ICON_NAMES),
+  /** Unticked in the admin = kept in the list but shown nowhere on the site (footer strip and page strips). */
+  visible: z.boolean().default(true),
   logo: mediaRefSchema.nullable(),
   approvedByClient: z.boolean(),
   /** Who publishes the framework, stated as a fact, never as an endorsement. */
@@ -67,6 +69,7 @@ export function fromLegacyFramework(f: LegacyFramework): Framework {
     name: f.name,
     descriptor: DESCRIPTOR_BY_ID[f.id] ?? f.scope,
     icon: ICON_BY_ID[f.id] ?? 'document',
+    visible: true,
     logo: null,
     approvedByClient: false,
     publisher: f.publisher,
@@ -77,6 +80,11 @@ export function fromLegacyFramework(f: LegacyFramework): Framework {
 
 export const SEED_FRAMEWORKS: readonly Framework[] = frameworksListSchema.parse(
   (frameworksJson as LegacyFramework[]).map(fromLegacyFramework),
+);
+
+/** Only the frameworks ticked "Show on the site", in order. Every public surface reads this. */
+export const getVisibleFrameworks = cache(async () =>
+  (await getFrameworks()).filter((f) => f.visible),
 );
 
 export const getFrameworks = cache(() =>

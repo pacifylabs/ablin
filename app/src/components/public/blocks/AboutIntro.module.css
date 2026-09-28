@@ -5,6 +5,15 @@
   align-items: start;
 }
 
+.photo {
+  position: relative;
+  align-self: stretch;
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--chip);
+}
+
 .intro {
   display: grid;
   gap: 16px;

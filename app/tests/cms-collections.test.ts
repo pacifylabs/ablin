@@ -86,6 +86,20 @@ describe('services collection', () => {
 });
 
 describe('frameworks and topics', () => {
+  it('shows only frameworks ticked "Show on the site", in order', async () => {
+    const { SEED_FRAMEWORKS, getVisibleFrameworks, putFrameworks } =
+      await import('@/cms/collections/frameworks');
+    await putFrameworks(SEED_FRAMEWORKS.map((f, i) => ({ ...f, visible: i === 2 })));
+    const visible = await getVisibleFrameworks();
+    expect(visible.map((f) => f.id)).toEqual([SEED_FRAMEWORKS[2]!.id]);
+  });
+
+  it('treats a stored framework without the flag as visible (older data)', async () => {
+    const { frameworkSchema, SEED_FRAMEWORKS } = await import('@/cms/collections/frameworks');
+    const { visible: _v, ...legacy } = SEED_FRAMEWORKS[0]!;
+    expect(frameworkSchema.parse(legacy).visible).toBe(true);
+  });
+
   it('rejects duplicate framework ids', async () => {
     const { SEED_FRAMEWORKS } = await import('@/cms/collections/frameworks');
     const { handlePutFrameworks } = await import('@/admin/handlers/frameworks-handler');

@@ -9,7 +9,7 @@ export function ApproachSteps({ block }: BlockProps<'approachSteps'>) {
   const titleId = `${block.id}-title`;
   return (
     <Section anchorId={block.anchorId} background={block.background} labelledBy={titleId}>
-      <div className={`wrap ${styles.layout}`}>
+      <div className={`wrap ${styles.layout}${data.compact ? '' : ` ${styles.split}`}`}>
         <Heading id={titleId} eyebrow={data.eyebrow} title={data.title} lead={data.lead} />
         <Steps steps={data.steps} compact={data.compact} />
       </div>

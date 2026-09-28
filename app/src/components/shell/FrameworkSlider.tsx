@@ -10,7 +10,8 @@ interface FrameworkSliderProps {
 }
 
 /**
- * Autoplay strip of the frameworks Ablin advises on. It is pure CSS, so it ships no JavaScript.
+ * Strip of the frameworks Ablin advises on (only those ticked "Show on the site"). Five or more scroll; fewer sit
+ * still. It is pure CSS, so it ships no JavaScript.
  *
  * There is deliberately no visible pause button (client request). Motion stops on hover, when the strip has keyboard
  * focus (it is a focusable group so keyboard users can stop it), and permanently under prefers-reduced-motion.
@@ -19,13 +20,48 @@ interface FrameworkSliderProps {
  *
  * Each tile shows the framework's line icon, or its logo once the client has approved one (see FrameworkMark).
  */
+/** Up to this many fit the footer width, so they sit still in one row instead of scrolling. */
+const STATIC_MAX = 4;
+
+function Tile({ item }: { item: FrameworkWithMark }) {
+  return (
+    <li className={styles.item}>
+      <span className={styles.mark}>
+        <FrameworkMark framework={item} size={28} />
+      </span>
+      <span className={styles.text}>
+        <span className={styles.name}>{item.name}</span>
+        <span className={styles.scope}>{item.descriptor}</span>
+      </span>
+    </li>
+  );
+}
+
 export function FrameworkSlider({ items, title, note, ariaLabel }: FrameworkSliderProps) {
+  const head = (
+    <div className={styles.head}>
+      <h2 className={styles.title}>{title}</h2>
+      {note ? <p className={styles.note}>{note}</p> : null}
+    </div>
+  );
+
+  // A short list does not need to move: one still row, no duplicate copy, nothing to pause.
+  if (items.length <= STATIC_MAX) {
+    return (
+      <div className={styles.slider}>
+        {head}
+        <ul className={styles.staticRow}>
+          {items.map((item) => (
+            <Tile key={item.id} item={item} />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.slider}>
-      <div className={styles.head}>
-        <h2 className={styles.title}>{title}</h2>
-        {note ? <p className={styles.note}>{note}</p> : null}
-      </div>
+      {head}
       <div
         className={styles.viewport}
         role="group"
@@ -36,29 +72,13 @@ export function FrameworkSlider({ items, title, note, ariaLabel }: FrameworkSlid
         <div className={styles.track}>
           <ul className={styles.set}>
             {items.map((item) => (
-              <li key={item.id} className={styles.item}>
-                <span className={styles.mark}>
-                  <FrameworkMark framework={item} size={28} />
-                </span>
-                <span className={styles.text}>
-                  <span className={styles.name}>{item.name}</span>
-                  <span className={styles.scope}>{item.descriptor}</span>
-                </span>
-              </li>
+              <Tile key={item.id} item={item} />
             ))}
           </ul>
           {/* Second copy makes the loop seamless; hidden from assistive technology and reduced-motion users. */}
           <ul className={`${styles.set} ${styles.clone}`} aria-hidden="true">
             {items.map((item) => (
-              <li key={item.id} className={styles.item}>
-                <span className={styles.mark}>
-                  <FrameworkMark framework={item} size={28} />
-                </span>
-                <span className={styles.text}>
-                  <span className={styles.name}>{item.name}</span>
-                  <span className={styles.scope}>{item.descriptor}</span>
-                </span>
-              </li>
+              <Tile key={item.id} item={item} />
             ))}
           </ul>
         </div>

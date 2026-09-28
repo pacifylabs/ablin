@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { resolveImage } from '@/cms/collections/media';
 import { getNavigation } from '@/cms/globals';
+import { LatticeArt } from '../LatticeArt';
 import { Photo } from '../Photo';
 import type { BlockProps } from './types';
 import styles from './PageHeader.module.css';
@@ -51,7 +52,10 @@ export async function PageHeader({ block }: BlockProps<'pageHeader'>) {
         className={styles.plain}
         aria-labelledby={titleId}
       >
-        <div className="wrap">{copy}</div>
+        <div className={`wrap ${styles.plainGrid}`}>
+          {copy}
+          <LatticeArt className={styles.art} />
+        </div>
       </section>
     );
   }

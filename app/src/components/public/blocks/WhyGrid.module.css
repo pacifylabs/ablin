@@ -54,3 +54,29 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Short last rows stretch so the hairline grid never ends with empty cells (six-track grid, two per cell). */
+@media (min-width: 1001px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .grid > div {
+    grid-column: span 2;
+  }
+
+  .grid > div:last-child:nth-child(3n + 1) {
+    grid-column: 1 / -1;
+  }
+
+  .grid > div:nth-last-child(2):nth-child(3n + 1),
+  .grid > div:nth-last-child(2):nth-child(3n + 1) + div {
+    grid-column: span 3;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 1000px) {
+  .grid > div:last-child:nth-child(even) {
+    grid-column: 1 / -1;
+  }
+}

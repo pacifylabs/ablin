@@ -7,6 +7,8 @@ const canvas = (page: Page) => page.locator(`${HERO} [data-lattice]`);
 
 async function open(browser: Browser, opts: Parameters<Browser['newContext']>[0] = {}) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, ...opts });
+  // A recorded cookie choice keeps the banner from covering the hero in pixel checks.
+  await context.addInitScript(() => localStorage.setItem('ablin-cookie-consent', 'essential'));
   const page = await context.newPage();
   await page.goto(PATH);
   return { page, context };

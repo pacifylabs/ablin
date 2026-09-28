@@ -145,6 +145,11 @@ export function AboutIntroForm({ data, onChange }: FormProps<'aboutIntro'>) {
         create={() => ''}
         render={(p, update) => <TextField label="Text" value={p} multiline onChange={update} />}
       />
+      <MediaField
+        label="Photo beside the text (optional — hidden when a fact strip follows)"
+        value={data.image}
+        onChange={(image) => set({ image })}
+      />
     </>
   );
 }
