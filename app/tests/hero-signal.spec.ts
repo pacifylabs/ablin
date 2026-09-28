@@ -60,14 +60,12 @@ test.describe('hero content and structure (matches the reference)', () => {
       ).length;
       return {
         canvas: has('canvas'),
-        contours: has('svg'),
         children: layer.children.length,
         exposed,
       };
     }, HERO);
     expect(layers.canvas).toBe(true);
-    expect(layers.contours).toBe(true);
-    expect(layers.children).toBe(4); // canvas, contours, glow, scrim
+    expect(layers.children).toBe(1); // the canvas; photo and shade belong to the hero frame
     expect(layers.exposed).toBe(0);
   });
 });
@@ -79,7 +77,7 @@ test.describe('hero lattice behaviour', () => {
     await context.close();
   });
 
-  test('under reduced motion it draws one static frame, and parallax and pointer tracking are off', async ({
+  test('under reduced motion it draws one static frame and pointer tracking is off', async ({
     browser,
   }) => {
     const { page, context } = await open(browser, { reducedMotion: 'reduce' });
@@ -91,35 +89,6 @@ test.describe('hero lattice behaviour', () => {
     expect(await snapshot()).toBe(first);
     await page.mouse.move(600, 300);
     await expect(canvas(page)).toHaveAttribute('data-pointer', 'away');
-    await page.evaluate(() => window.scrollTo(0, 300));
-    await page.waitForTimeout(300);
-    const transform = await page
-      .locator(`${HERO} svg[viewBox="0 0 1200 700"]`)
-      .evaluate((el) => (el as SVGElement).style.transform);
-    expect(transform).toBe('');
-    await context.close();
-  });
-
-  test('scroll parallax moves the contours in proportion to the scroll (0.18 px per px)', async ({
-    browser,
-  }) => {
-    const { page, context } = await open(browser, {
-      reducedMotion: 'no-preference',
-      viewport: { width: 1280, height: 700 },
-    });
-    await expect(canvas(page)).toHaveAttribute('data-lattice', 'running', { timeout: 6000 });
-    await page.evaluate(() => window.scrollTo(0, 200));
-    await expect
-      .poll(async () =>
-        page.evaluate((hero) => {
-          const svg = document.querySelector(`${hero} svg[viewBox="0 0 1200 700"]`) as SVGElement;
-          const y = Number(
-            /translate3d\(0(?:px)?,\s*([\d.]+)px/.exec(svg.style.transform)?.[1] ?? 'NaN',
-          );
-          return Math.abs(y - window.scrollY * 0.18) < 0.6 && window.scrollY > 100;
-        }, HERO),
-      )
-      .toBe(true);
     await context.close();
   });
 
@@ -183,90 +152,7 @@ test.describe('hero lattice behaviour', () => {
     expect(bigCount).toBeLessThanOrEqual(80);
     expect(bigCount).toBeGreaterThan(smallCount);
   });
-
-  test('a theme switch re-reads the colours', async ({ browser }) => {
-    const { page, context } = await open(browser, {
-      reducedMotion: 'reduce',
-      colorScheme: 'light',
-    });
-    await expect(canvas(page)).toHaveAttribute('data-lattice', 'static', { timeout: 6000 });
-    const before = await canvas(page).evaluate((c: HTMLCanvasElement) => c.toDataURL());
-    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
-    await expect
-      .poll(() => canvas(page).evaluate((c: HTMLCanvasElement) => c.toDataURL()))
-      .not.toBe(before);
-    await context.close();
-  });
 });
-
-// Real-pixel contrast: force the worst case (a solid, fully bright --signal canvas under the scrim), hide the text so
-// only the background is captured, then check every pixel behind the headline and lead against the text colour.
-type Case = { theme: 'light' | 'dark'; width: number; height: number };
-const cases: Case[] = (['light', 'dark'] as const).flatMap((theme) =>
-  [
-    [1440, 900],
-    [1280, 800],
-    [1024, 768],
-    [390, 844],
-  ].map(([width, height]) => ({ theme, width: width!, height: height! })),
-);
-
-for (const c of cases) {
-  test(`hero copy is AA over a worst-case lattice — ${c.theme}, ${c.width}px`, async ({
-    browser,
-  }) => {
-    const { page, context } = await open(browser, {
-      colorScheme: c.theme,
-      viewport: { width: c.width, height: c.height },
-      reducedMotion: 'reduce',
-    });
-    await expect(canvas(page)).toHaveAttribute('data-lattice', 'static', { timeout: 6000 });
-
-    for (const selector of ['#hero-title', `${HERO} [data-hero="lead"]`]) {
-      const target = page.locator(selector).first();
-      const textColour = await target.evaluate((el) => getComputedStyle(el).color);
-      await page.addStyleTag({
-        content: `${HERO} [data-lattice]{background:var(--signal)!important}${selector}{color:transparent!important}`,
-      });
-      const png = (await target.screenshot()).toString('base64');
-      const worst = await page.evaluate(
-        async ({ png, textColour }) => {
-          const channel = (v: number) => {
-            const s = v / 255;
-            return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-          };
-          const lum = (r: number, g: number, b: number) =>
-            0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
-          const [tr, tg, tb] = (textColour.match(/[\d.]+/g) ?? []).map(Number) as [
-            number,
-            number,
-            number,
-          ];
-          const tl = lum(tr, tg, tb);
-          const img = new Image();
-          img.src = `data:image/png;base64,${png}`;
-          await img.decode();
-          const cv = document.createElement('canvas');
-          cv.width = img.width;
-          cv.height = img.height;
-          const ctx = cv.getContext('2d')!;
-          ctx.drawImage(img, 0, 0);
-          const { data } = ctx.getImageData(0, 0, cv.width, cv.height);
-          let min = Infinity;
-          for (let i = 0; i < data.length; i += 4 * 7) {
-            const bl = lum(data[i]!, data[i + 1]!, data[i + 2]!);
-            const ratio = (Math.max(tl, bl) + 0.05) / (Math.min(tl, bl) + 0.05);
-            if (ratio < min) min = ratio;
-          }
-          return min;
-        },
-        { png, textColour },
-      );
-      expect(worst, `${selector} worst-case contrast`).toBeGreaterThanOrEqual(4.5);
-    }
-    await context.close();
-  });
-}
 
 test.describe('calm hero buttons', () => {
   test('never move on hover: no transform, no positional transition, glow or border only', async ({

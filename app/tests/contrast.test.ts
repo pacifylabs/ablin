@@ -38,33 +38,29 @@ function ratio(a: string, b: string): number {
 }
 
 /**
- * [foreground, background, minimum ratio] — 4.5 body text, 3 large text / UI.
- * --border-strong is deliberately absent: at ~1.5:1 it is a divider, not an input border.
- * Form controls use --input-border, which must meet WCAG 1.4.11 (3:1).
+ * [foreground, background, minimum ratio] — 4.5 body text, 3 large text / UI (DS v3 §2, §10).
+ * --line-strong is deliberately absent: it is a divider, not an input border. Form controls use --muted, which must
+ * meet WCAG 1.4.11 (3:1).
  */
 const pairs: Array<[string, string, number]> = [
   ['text', 'bg', 4.5],
   ['text', 'surface', 4.5],
   ['text', 'panel', 4.5],
-  ['text-muted', 'bg', 4.5],
-  ['text-muted', 'surface', 4.5],
-  ['text-muted', 'panel', 4.5],
+  ['muted', 'bg', 4.5],
+  ['muted', 'surface', 4.5],
+  ['muted', 'panel', 4.5],
   ['heading', 'bg', 4.5],
   ['heading', 'surface', 4.5],
-  ['heading', 'surface-2', 4.5],
-  ['on-accent', 'accent', 4.5],
-  ['on-accent', 'accent-hover', 4.5],
+  ['heading', 'chip', 4.5],
+  ['btn-text', 'btn-bg', 4.5],
+  ['btn-text', 'btn-hover', 4.5],
   ['link', 'bg', 4.5],
   ['link', 'surface', 4.5],
-  ['accent', 'bg', 3],
   ['focus', 'bg', 3],
   ['focus', 'surface', 3],
-  ['feature-text', 'feature-bg', 4.5],
-  ['feature-muted', 'feature-bg', 4.5],
-  ['footer-text', 'footer-bg', 4.5],
-  ['footer-muted', 'footer-bg', 4.5],
-  ['input-border', 'bg', 3],
-  ['input-border', 'panel', 3],
+  ['band-text', 'band', 4.5],
+  ['band-muted', 'band', 4.5],
+  ['muted', 'bg', 3],
   ['error', 'bg', 4.5],
   ['error', 'panel', 4.5],
   ['error', 'surface', 4.5],
@@ -76,18 +72,7 @@ function resolve(
   base: Record<string, string>,
   name: string,
 ): string {
-  const value = theme[name] ?? base[name];
-  if (value) return value;
-  // Tokens defined as var() aliases in the light block.
-  const aliases: Record<string, string> = {
-    accent: 'brand',
-    'accent-hover': 'brand-strong',
-    link: 'brand',
-    'footer-bg': 'brand-strong',
-  };
-  const target = aliases[name];
-  if (target) return theme[target] ?? base[target] ?? '';
-  return '';
+  return theme[name] ?? base[name] ?? '';
 }
 
 describe.each([
@@ -109,5 +94,52 @@ describe('theme parity', () => {
     for (const [name, value] of Object.entries(dark)) {
       expect(system[name], name).toBe(value);
     }
+  });
+});
+
+/** DS v3 §2: the client palette plus its navy tints and the two form status colours. Nothing else may appear. */
+const ALLOWED = new Set(
+  [
+    '#1C4E8B',
+    '#143A69',
+    '#0E2747',
+    '#FFFFFF',
+    '#2C2C2C',
+    '#F3F5F8',
+    '#0C1626',
+    '#111E33',
+    '#14233A',
+    '#D2DAE5',
+    '#13233A',
+    '#F1F4F8',
+    '#5A6474',
+    '#95A2B5',
+    '#E3E8EF',
+    '#21324B',
+    '#CCD5E1',
+    '#2E4463',
+    '#9BBBE6',
+    '#C3D6F0',
+    '#2A5E9E',
+    '#0A1424',
+    '#BFD0E6',
+    '#95A9C6',
+    '#EEF2F7',
+    '#172A45',
+    '#2E7D5B',
+    '#4FB183',
+    '#C0392B',
+    '#E06A5C',
+  ].map((h) => h.toLowerCase()),
+);
+
+describe('palette', () => {
+  it('tokens.css uses only DS v3 colours', () => {
+    const used = [...css.matchAll(/#[0-9a-fA-F]{6}\b/g)].map((m) => m[0].toLowerCase());
+    expect(used.filter((h) => !ALLOWED.has(h))).toEqual([]);
+  });
+
+  it('has no --signal accent', () => {
+    expect(css).not.toMatch(/--signal/);
   });
 });

@@ -1,14 +1,7 @@
 /**
- * Hero "signal structure": switches and tuning. Values marked (sample) are ported one-to-one from the approved
- * reference hero (ablin-signal-structure.html).
- *
- * OFF SWITCH: set `HERO_BACKGROUND.enabled` to `false` and the hero keeps its content and layout but drops the whole
- * animated background (canvas, contours, glow, scrim). Nothing else depends on it.
+ * Hero lattice tuning. Values marked (sample) are ported one-to-one from the approved reference hero. Whether the
+ * lattice renders at all is a per-block admin switch (heroFramed.lattice).
  */
-export const HERO_BACKGROUND = {
-  enabled: true,
-} as const;
-
 export const LATTICE = {
   /** (sample) one node per this many CSS px² of hero area, clamped to [minNodes, maxNodes]. */
   areaPerNode: 16_000,
@@ -35,17 +28,3 @@ export const LATTICE = {
   /** Device pixel ratio cap: a 3x phone screen does not need a 3x canvas. */
   dprCap: 2,
 } as const;
-
-/** (sample) scroll parallax: px of translateY per px scrolled. */
-export const PARALLAX = {
-  contours: 0.18,
-  glow: 0.1,
-} as const;
-
-/**
- * Text-protection scrim: the page background at this opacity behind the headline column, solid across the copy and
- * feathering out beyond it. The sample's scrim tops out at 78%; that leaves up to 22% of a bright signal pixel
- * showing behind body text, which does not hold AA in the worst case. This is stronger, with the sample's shape and
- * position unchanged. Both tests/atmosphere-contrast.test.ts (tokens) and the browser pixel test enforce it.
- */
-export const SCRIM_ALPHA = 0.92;

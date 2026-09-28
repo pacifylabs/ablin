@@ -27,7 +27,7 @@ export function NotFoundContent() {
           ))}
         </ul>
         <div>
-          <Button href="/contact" variant="ghost">
+          <Button href="/contact" variant="line">
             Speak to our consultants
           </Button>
         </div>

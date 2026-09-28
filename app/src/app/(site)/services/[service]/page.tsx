@@ -77,7 +77,7 @@ export default async function ServicePage({ params }: { params: Params }) {
         kicker="Services"
       >
         <Button href="/contact">Request a consultation</Button>
-        <Button href="/services" variant="ghost">
+        <Button href="/services" variant="line">
           All services
         </Button>
       </PageHero>

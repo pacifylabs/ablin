@@ -1,5 +1,5 @@
 /*
- * Hero "signal structure": layout and type ported from the reference hero. Colours are theme tokens (--signal,
+ * Hero "signal structure": layout and type ported from the reference hero. Colours are theme tokens (--btn-bg,
  * --heading, --text, --text-muted, --border-strong); nothing here is a raw colour.
  */
 .hero {
@@ -39,8 +39,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--signal);
-  box-shadow: 0 0 12px var(--signal);
+  background: var(--btn-bg);
+  box-shadow: none;
 }
 
 /* (sample) headline. */
@@ -94,16 +94,15 @@
 }
 
 .primary {
-  background: var(--signal);
+  background: var(--btn-bg);
   color: var(--on-accent);
   box-shadow: 0 0 0 transparent;
 }
 
 .primary:hover {
   color: var(--on-accent);
-  box-shadow:
-    0 8px 30px color-mix(in srgb, var(--signal) 30%, transparent),
-    0 0 0 1px var(--signal);
+  background: var(--btn-hover);
+  box-shadow: var(--glow-primary);
 }
 
 .ghost {
@@ -113,8 +112,8 @@
 }
 
 .ghost:hover {
-  border-color: var(--signal);
-  color: var(--signal);
+  border-color: var(--link);
+  color: var(--link);
 }
 
 .dot {

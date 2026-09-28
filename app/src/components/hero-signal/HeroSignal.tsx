@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import type { HeroData as BlockHeroData } from '@/cms/schema';
-import { HERO_BACKGROUND } from './config';
 import { HeroSignalBackground } from './HeroSignalBackground';
 import styles from './HeroSignal.module.css';
 
@@ -11,13 +10,11 @@ type HeroData = Extract<BlockHeroData, { variant: 'home' }>;
 /**
  * The approved "signal structure" hero: eyebrow, headline, lead, two calls to action, and the frameworks strip, over
  * the animated lattice background. All copy comes from content/home.json (hero), so it stays editable with the rest.
- *
- * The background is one isolated layer; set HERO_BACKGROUND.enabled to false in ./config.ts to drop it.
  */
 export function HeroSignal({ hero }: { hero: HeroData }) {
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
-      {HERO_BACKGROUND.enabled ? <HeroSignalBackground /> : null}
+      <HeroSignalBackground />
 
       <div className={`container ${styles.inner}`}>
         <p className={styles.eyebrow}>{hero.eyebrow}</p>

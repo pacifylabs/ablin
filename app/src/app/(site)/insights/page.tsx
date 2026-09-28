@@ -63,7 +63,7 @@ export default async function InsightsPage() {
                 </h2>
                 <p className="muted">{insightsPage.emptyBody}</p>
                 <p className="card-foot">
-                  <Button href="/contact" variant="ghost">
+                  <Button href="/contact" variant="line">
                     Suggest a topic
                   </Button>
                 </p>

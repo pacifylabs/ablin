@@ -1,23 +1,22 @@
 import type { Metadata, Viewport } from 'next';
-import { Hanken_Grotesk, Source_Serif_4 } from 'next/font/google';
+import { Instrument_Sans, Manrope } from 'next/font/google';
 import { config } from '@/lib/config';
 import { site } from '@/lib/site';
 import { themeInitScript } from '@/lib/theme';
 import './globals.css';
-import '@/styles/patterns.css';
-import '@/styles/texture.css';
 import '@/styles/motion.css';
 
-const serif = Source_Serif_4({
+const display = Manrope({
   subsets: ['latin'],
-  axes: ['opsz'],
-  variable: '--font-serif',
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-display',
   display: 'swap',
 });
 
-const sans = Hanken_Grotesk({
+const body = Instrument_Sans({
   subsets: ['latin'],
-  variable: '--font-sans',
+  weight: ['400', '500', '600'],
+  variable: '--font-body',
   display: 'swap',
 });
 
@@ -36,7 +35,7 @@ export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#0c1420' },
+    { media: '(prefers-color-scheme: dark)', color: '#0c1626' },
   ],
 };
 
@@ -47,9 +46,9 @@ export const viewport: Viewport = {
  */
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
+    <html lang="en-GB" className={`${display.variable} ${body.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript() }} />
       </head>
       <body>{children}</body>
     </html>

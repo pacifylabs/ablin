@@ -1,0 +1,51 @@
+/*
+ * TEMPORARY: v2 token names mapped onto DS v3 tokens so components not yet rebuilt keep rendering in the new
+ * palette. Every value points at a v3 token — no new hues. Deleted once the last consumer (admin CSS) is migrated.
+ */
+:root {
+  --brand: var(--navy);
+  --brand-strong: var(--navy-deep);
+  --brand-soft: var(--chip);
+  --surface-2: var(--chip);
+  --text-muted: var(--muted);
+  --border: var(--line);
+  --border-strong: var(--line-strong);
+  --input-border: var(--muted);
+  --accent: var(--link);
+  --accent-hover: var(--link-hover);
+  --on-accent: var(--bg);
+  --feature-bg: var(--band);
+  --feature-text: var(--band-text);
+  --feature-muted: var(--band-muted);
+  --feature-line: rgba(255, 255, 255, 0.18);
+  --footer-bg: var(--band);
+  --footer-text: var(--band-text);
+  --footer-muted: var(--band-muted);
+  --footer-line: rgba(255, 255, 255, 0.18);
+  --warning: var(--error);
+  --shadow-pop: none;
+  --duo-shadow: var(--navy-ink);
+  --duo-light: var(--chip);
+  --wash: transparent;
+  --motif-stroke: var(--link);
+  --motif-soft: var(--line-strong);
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --r-xs: var(--r-sm);
+  --container: var(--wrap);
+  --container-narrow: var(--narrow);
+  --section-y: var(--sec);
+  --font-serif: var(--font-display);
+  --font-sans: var(--font-body);
+}

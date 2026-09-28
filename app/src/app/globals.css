@@ -1,4 +1,5 @@
 @import '../styles/tokens.css';
+@import '../styles/legacy-aliases.css';
 
 *,
 *::before,
@@ -11,15 +12,21 @@ html {
   scroll-padding-top: calc(var(--header-h) + 1rem);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  font-size: 1.0625rem;
+  font-family: var(--body);
+  font-size: 17px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
 
 h1,
@@ -31,7 +38,8 @@ ul,
 ol,
 figure,
 dl,
-dd {
+dd,
+blockquote {
   margin: 0;
 }
 
@@ -42,7 +50,8 @@ ol {
 }
 
 img,
-svg {
+svg,
+canvas {
   display: block;
   max-width: 100%;
 }
@@ -56,75 +65,94 @@ a:hover {
   color: var(--link-hover);
 }
 
-:focus-visible {
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 3px;
-  border-radius: var(--r-xs);
+  border-radius: 6px;
 }
 
-/* Type scale — Design System v2 §6.1. Serif for H1 and section H2 only. */
+/* Type — DS v3 §3. Manrope for display and headings; Instrument Sans for everything else. */
 h1,
-h2 {
-  font-family: var(--font-serif), Georgia, serif;
-  font-weight: 600;
+h2,
+h3,
+h4 {
+  font-family: var(--display);
   color: var(--heading);
   text-wrap: balance;
 }
 
 h1 {
-  font-size: clamp(2.5rem, 4.8vw, 3.75rem);
-  line-height: 1.06;
-  letter-spacing: -0.015em;
-  font-optical-sizing: auto;
+  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
-h2 {
-  font-size: clamp(1.9rem, 3.3vw, 2.7rem);
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  font-optical-sizing: auto;
+h2,
+.h2 {
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 3.6vw, 2.9rem);
+  line-height: 1.06;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--heading);
+  text-wrap: balance;
 }
 
 h3 {
-  font-family: var(--font-sans), system-ui, sans-serif;
-  font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+  font-size: 1.14rem;
   line-height: 1.25;
-  font-weight: 600;
-  color: var(--heading);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+p {
+  max-width: 65ch;
 }
 
 .lead {
-  font-size: clamp(1.1rem, 1.4vw, 1.2rem);
-  line-height: 1.6;
-  color: var(--text-muted);
-  max-width: 48ch;
+  font-size: clamp(1.02rem, 1.3vw, 1.14rem);
+  line-height: 1.65;
+  color: var(--muted);
+  max-width: 52ch;
 }
 
 .small {
-  font-size: 0.9375rem;
-  line-height: 1.55;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
-.kicker {
-  font-size: 0.8125rem;
+.eyebrow {
+  display: block;
+  font-size: 0.82rem;
   line-height: 1.4;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--link);
 }
 
-.container {
+/* Legacy alias of .eyebrow for components not yet rebuilt. */
+.kicker {
+  display: block;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  font-weight: 600;
+  color: var(--link);
+}
+
+.container,
+.wrap {
   width: 100%;
-  max-width: calc(var(--container) + var(--gutter) * 2);
+  max-width: calc(var(--wrap) + var(--gutter) * 2);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
 .container-narrow {
-  max-width: calc(var(--container-narrow) + var(--gutter) * 2);
+  max-width: calc(var(--narrow) + var(--gutter) * 2);
 }
 
 .section {
-  padding-block: var(--section-y);
+  padding-block: var(--sec);
   background: var(--bg);
 }
 
@@ -143,51 +171,85 @@ h3 {
   white-space: nowrap;
 }
 
-/* Buttons — §10.1. Colour-only hover; no lift, no shadow. */
+/*
+ * Buttons — DS v3 §7.2. Hover changes colour and (primary/white) adds a soft glow. Buttons NEVER move: no
+ * transform, no translate, no scale, no cursor-following script anywhere.
+ */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
-  padding: 0.85rem 1.6rem;
+  gap: 10px;
+  min-height: 44px;
+  padding: 14px 24px;
   border: 1px solid transparent;
-  border-radius: var(--r-md);
-  font: inherit;
-  font-size: 1rem;
+  border-radius: var(--r-pill);
+  font-family: var(--body);
+  font-size: 0.95rem;
   font-weight: 600;
   line-height: 1.2;
   text-align: center;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
-  /* Calm hover: colour, border and a soft glow only. Buttons never move (no transform, no positional effects). */
   transition:
-    background-color 0.18s,
-    border-color 0.18s,
-    color 0.18s,
-    box-shadow 0.22s;
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.25s;
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--btn-bg);
+  color: var(--btn-text);
 }
 
 .btn-primary:hover {
-  background: var(--accent-hover);
-  color: var(--on-accent);
-  box-shadow: 0 0 0 4px var(--signal-soft);
+  background: var(--btn-hover);
+  color: var(--btn-text);
+  box-shadow: var(--glow-primary);
 }
 
+.btn-white {
+  background: var(--white);
+  color: #13233a;
+}
+
+.btn-white:hover {
+  background: #e6edf6;
+  color: #13233a;
+  box-shadow: var(--glow-white);
+}
+
+.btn-ghost-white {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.45);
+  color: var(--white);
+}
+
+.btn-ghost-white:hover {
+  border-color: var(--white);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--white);
+}
+
+.btn-line,
 .btn-ghost {
   background: transparent;
-  border-color: var(--border-strong);
+  border-color: var(--line-strong);
   color: var(--heading);
 }
 
+.btn-line:hover,
 .btn-ghost:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  box-shadow: 0 0 0 3px var(--signal-soft);
+  border-color: var(--link);
+  color: var(--link);
+}
+
+.btn svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
 }
 
 .link-quiet {
@@ -199,20 +261,16 @@ h3 {
   text-decoration: underline;
 }
 
-/* Section header — §10.4 */
+/* Legacy section header, kept until the block rebuild. */
 .section-header {
   display: grid;
-  gap: var(--space-4);
-  margin-bottom: clamp(2.5rem, 5vw, 3.75rem);
+  gap: var(--s-16);
+  margin-bottom: clamp(40px, 5vw, 56px);
 }
 
-.section-header .lead {
-  max-width: 54ch;
-}
-
-/* Feature block and footer sit on navy: the default focus colour would vanish there. */
+/* Navy surfaces (hero, panels, band): the default focus colour would vanish there. */
 .on-navy :focus-visible {
-  outline-color: var(--feature-text);
+  outline-color: var(--white);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -225,10 +283,10 @@ h3 {
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1000px) {
   .section-header-split {
     grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: var(--space-4) var(--space-16);
+    gap: var(--s-16) var(--s-56);
     align-items: end;
   }
 

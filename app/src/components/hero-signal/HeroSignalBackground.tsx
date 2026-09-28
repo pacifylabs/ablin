@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { LATTICE, PARALLAX, SCRIM_ALPHA } from './config';
+import { LATTICE } from './config';
 import {
   createNodes,
   drawLattice,
@@ -17,15 +17,13 @@ import styles from './HeroSignalBackground.module.css';
 type LatticeState = 'running' | 'paused' | 'static';
 
 /**
- * The reference hero's animated background, as one self-contained layer that fills its (positioned) parent:
- * interactive node/edge lattice on a canvas, faint contour lines and a radial glow that drift on scroll, and a scrim
- * that keeps the copy at AA contrast.
+ * The hero's interactive node/edge lattice (DS v3 §7.3), one self-contained canvas layer that fills its positioned
+ * parent. The parent supplies the photo beneath and the navy shade above.
  *
- *  - Colours come from the theme tokens (--signal, and hero-scoped aliases of existing tokens), so light and dark
- *    both work and a theme switch is picked up live.
+ *  - Colours come from the hero-scoped tokens --lattice-node/--lattice-edge/--lattice-hot, re-read on theme change.
  *  - DPR capped at 2; node count scales with area (34–80).
  *  - Runs only while the hero is on screen and the tab is visible.
- *  - prefers-reduced-motion: ONE static frame, no loop, no pointer tracking, no parallax.
+ *  - prefers-reduced-motion: ONE static frame, no loop, no pointer tracking.
  *  - Initialised when the browser is idle so it never competes with first paint.
  *  - All layers are aria-hidden. No external libraries.
  * `data-lattice`, `data-pointer` and `data-nodes` on the canvas expose state for tests.
@@ -33,17 +31,13 @@ type LatticeState = 'running' | 'paused' | 'static';
 export function HeroSignalBackground() {
   const layerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const contoursRef = useRef<SVGSVGElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const layer = layerRef.current;
     const canvas = canvasRef.current;
-    const contours = contoursRef.current;
-    const glow = glowRef.current;
     const host = layer?.parentElement;
     const ctx = canvas?.getContext('2d');
-    if (!layer || !canvas || !contours || !glow || !host || !ctx) return;
+    if (!layer || !canvas || !host || !ctx) return;
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -56,7 +50,6 @@ export function HeroSignalBackground() {
     let running = false;
     let raf = 0;
     let last = 0;
-    let scrollQueued = false;
     const pointer: Pointer = { x: -9999, y: -9999, active: false };
 
     const setState = (state: LatticeState) => {
@@ -75,7 +68,7 @@ export function HeroSignalBackground() {
       palette = {
         node: resolve('--lattice-node', palette.node),
         edge: resolve('--lattice-edge', palette.edge),
-        hot: resolve('--signal', palette.hot),
+        hot: resolve('--lattice-hot', palette.hot),
       };
       probe.remove();
     };
@@ -91,31 +84,6 @@ export function HeroSignalBackground() {
       raf = requestAnimationFrame(frame);
     };
 
-    const applyParallax = () => {
-      scrollQueued = false;
-      const y = window.scrollY;
-      contours.style.transform = `translate3d(0, ${(y * PARALLAX.contours).toFixed(1)}px, 0)`;
-      glow.style.transform = `translate3d(0, ${(y * PARALLAX.glow).toFixed(1)}px, 0)`;
-    };
-    const onScroll = () => {
-      if (scrollQueued) return;
-      scrollQueued = true;
-      requestAnimationFrame(applyParallax);
-    };
-    let parallaxOn = false;
-    const setParallax = (on: boolean) => {
-      if (on === parallaxOn) return;
-      parallaxOn = on;
-      if (on) {
-        window.addEventListener('scroll', onScroll, { passive: true });
-        applyParallax();
-      } else {
-        window.removeEventListener('scroll', onScroll);
-        contours.style.transform = '';
-        glow.style.transform = '';
-      }
-    };
-
     const stop = () => {
       running = false;
       cancelAnimationFrame(raf);
@@ -125,13 +93,11 @@ export function HeroSignalBackground() {
     const sync = () => {
       if (reduce.matches) {
         stop();
-        setParallax(false);
         setState('static');
         draw();
         return;
       }
       const shouldRun = inView && !document.hidden;
-      setParallax(shouldRun);
       if (shouldRun && !running) {
         running = true;
         last = performance.now();
@@ -248,7 +214,6 @@ export function HeroSignalBackground() {
     return () => {
       disposed = true;
       stop();
-      setParallax(false);
       if (idleHandle !== undefined) window.cancelIdleCallback(idleHandle);
       if (timeoutHandle !== undefined) window.clearTimeout(timeoutHandle);
       resizeObserver?.disconnect();
@@ -259,29 +224,8 @@ export function HeroSignalBackground() {
   }, []);
 
   return (
-    <div
-      ref={layerRef}
-      className={styles.layer}
-      aria-hidden="true"
-      style={{ '--scrim': `${SCRIM_ALPHA * 100}%` } as React.CSSProperties}
-    >
+    <div ref={layerRef} className={styles.layer} aria-hidden="true">
       <canvas ref={canvasRef} className={styles.canvas} data-lattice="paused" data-pointer="away" />
-      <svg
-        ref={contoursRef}
-        className={styles.contours}
-        viewBox="0 0 1200 700"
-        preserveAspectRatio="xMidYMid slice"
-        focusable="false"
-      >
-        <g fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5">
-          <path d="M-50 520 C 250 470 420 560 700 500 S 1150 430 1300 480" />
-          <path d="M-50 560 C 250 515 430 600 720 540 S 1150 475 1300 520" />
-          <path d="M-50 600 C 260 560 440 640 740 585 S 1150 520 1300 560" />
-          <path d="M-50 470 C 240 420 400 510 690 450 S 1150 380 1300 430" />
-        </g>
-      </svg>
-      <div ref={glowRef} className={styles.glow} />
-      <div className={styles.scrim} />
     </div>
   );
 }

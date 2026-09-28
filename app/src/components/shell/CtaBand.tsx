@@ -28,7 +28,7 @@ export function CtaBand({ title, body, primary, secondary, image }: CtaBandProps
           <div className={styles.ctaActions}>
             <Button href={primary.href}>{primary.label}</Button>
             {secondary ? (
-              <Button href={secondary.href} variant="ghost">
+              <Button href={secondary.href} variant="line">
                 {secondary.label}
               </Button>
             ) : null}

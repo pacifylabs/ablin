@@ -1,55 +1,33 @@
-/* Motion — Design System v2.1 §E. Every rule here is gated behind prefers-reduced-motion: no-preference. */
-
+/*
+ * Motion — DS v3 §8. ONE load sequence on the hero copy (eyebrow, H1, lead, CTAs rise 16px and fade in, 80ms
+ * stagger). No scroll-triggered reveals, no parallax. Content is fully visible if the animation never runs.
+ */
 @media (prefers-reduced-motion: no-preference) {
-  /* Sweep: the whole arc group rotates gently into place. One transform on one element, so it stays on the compositor. */
-  .m-sweep {
-    transform-origin: 100% 100%;
-    animation: m-sweep 1.6s var(--ease) both;
+  .rise {
+    animation: rise 0.8s var(--ease) both;
   }
 
-  /* Gentle reveal for a few key blocks. Elements stay visible if the browser lacks scroll timelines. */
-  @supports (animation-timeline: view()) {
-    .m-reveal {
-      animation: m-reveal linear both;
-      animation-timeline: view();
-      animation-range: entry 5% entry 45%;
-    }
+  .rise-1 {
+    animation-delay: 0.08s;
+  }
 
-    /* Parallax: layers drift at different rates as the hero scrolls out. */
-    .m-parallax {
-      animation: m-drift linear both;
-      animation-timeline: scroll(root);
-      animation-range: 0 60vh;
-    }
+  .rise-2 {
+    animation-delay: 0.16s;
+  }
+
+  .rise-3 {
+    animation-delay: 0.24s;
   }
 }
 
-@keyframes m-sweep {
+@keyframes rise {
   from {
-    opacity: 0;
-    transform: rotate(-9deg) scale(0.97);
+    opacity: 0.001;
+    transform: translateY(16px);
   }
 
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-@keyframes m-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes m-drift {
-  to {
-    transform: translateY(var(--drift, -40px));
   }
 }
