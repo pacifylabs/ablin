@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { cachedQuery } from '../cached';
 import { optionalTextSchema, textSchema } from '../fields';
 import { keys } from '../keys';
-import { redis } from '../redis';
+import { redis, reportReadFailure } from '../redis';
 import servicesJson from '@/content/services.json';
 import { blockSchema, newBlock, type Block } from '../blocks';
 import type { RichDoc } from '../richdoc';
@@ -183,7 +183,7 @@ export const listServices = cache(async (): Promise<readonly Service[]> => {
     }
     return out.sort((a, b) => a.order - b.order);
   } catch (error) {
-    console.error('Failed to list services from Redis; serving the bundled seed.', error);
+    reportReadFailure('Failed to list services from Redis; serving the bundled seed.', error);
     return SEED_SERVICES;
   }
 });

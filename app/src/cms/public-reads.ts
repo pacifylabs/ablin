@@ -1,7 +1,7 @@
 import { draftMode } from 'next/headers';
 import { cachedQuery } from './cached';
 import { keys } from './keys';
-import { redis } from './redis';
+import { RedisNotConfiguredError, redis, reportReadFailure } from './redis';
 import {
   LEGAL_PAGE_SLUGS,
   pageDocSchema,
@@ -32,14 +32,16 @@ export async function getPublicPage(slug: PageSlug): Promise<PageDoc> {
       async () => (await redis().get(keys.page(slug))) ?? null,
     );
   } catch (error) {
-    if (LEGAL_PAGE_SLUGS.has(slug)) {
+    // No Redis configured at all (a build or preview without env vars): the bundled legal text is still the
+    // reviewed-or-draft copy and stays noindex, so serve it rather than fail. A real outage still refuses.
+    if (LEGAL_PAGE_SLUGS.has(slug) && !(error instanceof RedisNotConfiguredError)) {
       console.error(
         `Failed to read legal page:${slug} from Redis; refusing bundled fallback.`,
         error,
       );
       throw error;
     }
-    console.error(`Failed to read page:${slug} from Redis; serving the bundled page.`, error);
+    reportReadFailure(`Failed to read page:${slug} from Redis; serving the bundled page.`, error);
     return seedPage(slug);
   }
   if (raw === null) return seedPage(slug);
@@ -58,7 +60,7 @@ export async function listPublishedArticlesCached(limit = 100): Promise<ArticleD
       listPublishedArticles(limit),
     );
   } catch (error) {
-    console.error('Failed to list published articles from Redis.', error);
+    reportReadFailure('Failed to list published articles from Redis.', error);
     return [];
   }
 }
@@ -74,7 +76,7 @@ export async function getPublishedArticleCached(slug: string): Promise<ArticleDo
       },
     );
   } catch (error) {
-    console.error(`Failed to read insights:article:${slug} from Redis.`, error);
+    reportReadFailure(`Failed to read insights:article:${slug} from Redis.`, error);
     return null;
   }
 }

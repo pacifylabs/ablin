@@ -1,6 +1,6 @@
 import { revalidateTag, unstable_cache } from 'next/cache';
 import { z } from 'zod';
-import { redis } from './redis';
+import { RedisNotConfiguredError, isRedisConfigured, redis, reportReadFailure } from './redis';
 
 /**
  * Public reads of admin-managed documents. Each Redis key is cached under a tag equal to the key itself, so a page
@@ -19,6 +19,9 @@ async function fetchRaw(key: string): Promise<unknown> {
 }
 
 function cachedRaw(key: string): Promise<unknown> {
+  // Without credentials there is nothing to cache; failing here keeps Next's data cache from logging a failed
+  // revalidation per key during a build that has no Redis.
+  if (!isRedisConfigured()) return Promise.reject(new RedisNotConfiguredError());
   return unstable_cache(() => fetchRaw(key), ['redis-doc', key], {
     tags: [key],
     revalidate: SAFETY_REVALIDATE_SECONDS,
@@ -34,7 +37,7 @@ export async function readCached<T>(key: string, schema: z.ZodType<T>, fallback:
   try {
     raw = await cachedRaw(key);
   } catch (error) {
-    console.error(`Redis read failed for ${key}; serving the bundled default.`, error);
+    reportReadFailure(`Redis read failed for ${key}; serving the bundled default.`, error);
     return fallback;
   }
   if (raw === null) return fallback;
@@ -57,6 +60,7 @@ export function cachedQuery<T>(
   keyParts: readonly string[],
   fn: () => Promise<T>,
 ): Promise<T> {
+  if (!isRedisConfigured()) return Promise.reject(new RedisNotConfiguredError());
   return unstable_cache(fn, ['redis-query', ...keyParts], {
     tags: [...tags],
     revalidate: SAFETY_REVALIDATE_SECONDS,
