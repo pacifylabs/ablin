@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { Framework } from '@/cms/collections/frameworks';
 import { ICON_NAMES } from '@/cms/collections/icons';
+import { MediaField } from './MediaField';
 import { MoveDeleteButtons, SelectField, TextField, move } from './fields/shared';
 import styles from './admin.module.css';
 
@@ -98,13 +99,10 @@ export function FrameworksEditor({ initial }: { initial: readonly Framework[] })
                 options={ICON_NAMES}
                 onChange={(v) => update(index, { icon: v })}
               />
-              <TextField
-                label="Logo (media id, optional)"
-                value={item.logo?.mediaId ?? ''}
-                placeholder="e.g. iso-27001-logo"
-                onChange={(v) =>
-                  update(index, { logo: v.trim() ? { mediaId: v.trim(), decorative: true } : null })
-                }
+              <MediaField
+                label="Logo (optional — shown only when approved by the client)"
+                value={item.logo}
+                onChange={(logo) => update(index, { logo })}
               />
               <label className={styles.checkRow}>
                 <input

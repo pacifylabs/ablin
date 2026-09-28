@@ -6,6 +6,7 @@ import {
   getNavigation,
   getSiteSettings,
 } from '@/cms/globals';
+import { PreviewBanner } from '@/admin/ui/PreviewBanner';
 import { CookieBanner } from './CookieBanner';
 import { Footer } from './Footer';
 import { Header } from './Header';
@@ -30,6 +31,7 @@ export async function SiteChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SkipLink label={nav.labels.skipLink} />
+      <PreviewBanner />
       <Header nav={nav} logo={logo} />
       <main id="main" tabIndex={-1}>
         {children}

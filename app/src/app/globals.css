@@ -1,5 +1,4 @@
 @import '../styles/tokens.css';
-@import '../styles/legacy-aliases.css';
 
 *,
 *::before,
@@ -130,15 +129,6 @@ p {
   color: var(--link);
 }
 
-/* Legacy alias of .eyebrow for components not yet rebuilt. */
-.kicker {
-  display: block;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  font-weight: 600;
-  color: var(--link);
-}
-
 .container,
 .wrap {
   width: 100%;
@@ -154,10 +144,6 @@ p {
 .section {
   padding-block: var(--sec);
   background: var(--bg);
-}
-
-.section-surface {
-  background: var(--surface);
 }
 
 .sr-only {
@@ -261,13 +247,6 @@ p {
   text-decoration: underline;
 }
 
-/* Legacy section header, kept until the block rebuild. */
-.section-header {
-  display: grid;
-  gap: var(--s-16);
-  margin-bottom: clamp(40px, 5vw, 56px);
-}
-
 /* Navy surfaces (hero, panels, band): the default focus colour would vanish there. */
 .on-navy :focus-visible {
   outline-color: var(--white);
@@ -283,21 +262,6 @@ p {
   }
 }
 
-@media (min-width: 1000px) {
-  .section-header-split {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: var(--s-16) var(--s-56);
-    align-items: end;
-  }
-
-  .section-header-split .kicker {
-    grid-column: 1 / -1;
-  }
-
-  .section-header-split .lead {
-    max-width: none;
-  }
-}
 
 /*
  * Block backgrounds (DS v3 §9: bg | surface | band). On `band` the text tokens point at the band colours, so any

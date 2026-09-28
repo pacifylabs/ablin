@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
-import type { Availability } from '@/cms/schema';
+import type { Availability, AvailabilityCopy } from '@/cms/schema';
+import { defaultAvailabilityCopy } from '@/cms/globals/defaults';
+import { TextField } from './fields/shared';
 import styles from './admin.module.css';
 
 const MODES: { value: Availability['mode']; label: string }[] = [
@@ -16,7 +18,12 @@ const MODES: { value: Availability['mode']; label: string }[] = [
 export function AvailabilityForm({ initial }: { initial: Availability }) {
   const router = useRouter();
   const [mode, setMode] = useState(initial.mode);
-  const [message, setMessage] = useState(initial.message);
+  const [comingSoon, setComingSoon] = useState<AvailabilityCopy>(
+    initial.comingSoon ?? { ...defaultAvailabilityCopy.comingSoon },
+  );
+  const [underConstruction, setUnderConstruction] = useState<AvailabilityCopy>(
+    initial.underConstruction ?? { ...defaultAvailabilityCopy.underConstruction },
+  );
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
   async function onSubmit(event: FormEvent) {
@@ -26,7 +33,7 @@ export function AvailabilityForm({ initial }: { initial: Availability }) {
       const response = await fetch('/api/admin/settings/availability', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, message }),
+        body: JSON.stringify({ mode, message: initial.message, comingSoon, underConstruction }),
       });
       setStatus(response.ok ? 'saved' : 'error');
       if (response.ok) router.refresh();
@@ -62,21 +69,50 @@ export function AvailabilityForm({ initial }: { initial: Availability }) {
           </div>
         ))}
       </fieldset>
-      <div className={styles.field}>
-        <label htmlFor="availability-message">Message shown to visitors (when not live)</label>
-        <textarea
-          id="availability-message"
-          className={styles.textarea}
-          value={message}
-          placeholder="e.g. We're rebuilding the site. Please check back soon."
-          onChange={(e) => setMessage(e.target.value)}
-        />
-      </div>
+      <CopyFields title="Coming soon" value={comingSoon} onChange={setComingSoon} />
+      <CopyFields
+        title="Under construction"
+        value={underConstruction}
+        onChange={setUnderConstruction}
+      />
       <div className={styles.formActions}>
         <button type="submit" className="btn btn-primary" disabled={status === 'saving'}>
           {status === 'saving' ? 'Saving…' : 'Save'}
         </button>
       </div>
     </form>
+  );
+}
+
+function CopyFields({
+  title,
+  value,
+  onChange,
+}: {
+  title: string;
+  value: AvailabilityCopy;
+  onChange: (v: AvailabilityCopy) => void;
+}) {
+  return (
+    <fieldset className={styles.repeatItem}>
+      <legend className={styles.hint}>{title} page</legend>
+      <TextField
+        label="Headline"
+        value={value.headline}
+        onChange={(headline) => onChange({ ...value, headline })}
+      />
+      <TextField
+        label="Message"
+        value={value.message}
+        multiline
+        onChange={(message) => onChange({ ...value, message })}
+      />
+      <TextField
+        label="Contact line (optional)"
+        value={value.contactLine}
+        placeholder="e.g. Email info@ablinlimited.com"
+        onChange={(contactLine) => onChange({ ...value, contactLine })}
+      />
+    </fieldset>
   );
 }

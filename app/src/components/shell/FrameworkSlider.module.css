@@ -1,6 +1,6 @@
 .slider {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--s-20);
   min-width: 0;
 }
 
@@ -9,7 +9,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-2) var(--space-6);
+  gap: var(--s-8) var(--s-24);
 }
 
 .title {
@@ -51,17 +51,17 @@
 
 .set {
   display: flex;
-  gap: var(--space-4);
-  padding-right: var(--space-4);
+  gap: var(--s-16);
+  padding-right: var(--s-16);
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--s-16);
   flex: 0 0 auto;
   width: 17.5rem;
-  padding: var(--space-4) var(--space-5);
+  padding: var(--s-16) var(--s-20);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   white-space: nowrap;

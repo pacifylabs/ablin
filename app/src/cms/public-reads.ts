@@ -1,3 +1,4 @@
+import { draftMode } from 'next/headers';
 import { cachedQuery } from './cached';
 import { keys } from './keys';
 import { redis } from './redis';
@@ -22,6 +23,7 @@ import { getArticle, listPublishedArticles } from './store';
  * too, except for legal pages, which fail loudly rather than show unreviewed bundled copy.
  */
 export async function getPublicPage(slug: PageSlug): Promise<PageDoc> {
+  if ((await draftMode()).isEnabled) return previewPage(slug);
   let raw: unknown;
   try {
     raw = await cachedQuery(
@@ -75,4 +77,21 @@ export async function getPublishedArticleCached(slug: string): Promise<ArticleDo
     console.error(`Failed to read insights:article:${slug} from Redis.`, error);
     return null;
   }
+}
+
+/** Draft mode (admin preview): read straight from Redis and show the staged draft over the live page. */
+async function previewPage(slug: PageSlug): Promise<PageDoc> {
+  const raw = await redis().get(keys.page(slug));
+  const parsed = pageDocSchema.safeParse(raw);
+  if (!parsed.success) return seedPage(slug);
+  const { draft, ...live } = parsed.data;
+  return draft ? { ...live, ...draft } : live;
+}
+
+/** Draft mode: an article by slug whatever its status, with its staged draft applied. */
+export async function getPreviewArticle(slug: string): Promise<ArticleDoc | null> {
+  const article = await getArticle(slug);
+  if (!article) return null;
+  const { draft, ...live } = article;
+  return draft ? { ...live, ...draft } : live;
 }

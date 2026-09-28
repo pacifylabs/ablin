@@ -8,15 +8,20 @@ import { isSameOrigin, json } from '@/admin/http';
  * GET/PUT for the seven `settings:*` singletons. Reads bypass the public cache so the editor always shows what is
  * stored; a value that no longer validates is reported with the seed default alongside, never silently replaced.
  */
-export async function handleGetGlobal(name: string): Promise<Response> {
-  if (!isGlobalName(name)) return json({ error: 'not_found' }, 404);
+export async function readGlobalForAdmin(
+  name: GlobalName,
+): Promise<{ value: unknown; stored: boolean; invalid?: string }> {
   const { key, schema, seed } = GLOBALS[name];
   const raw = await redis().get(key);
-  if (raw === null) return json({ value: seed, stored: false }, 200);
+  if (raw === null) return { value: seed, stored: false };
   const parsed = schema.safeParse(raw);
-  if (!parsed.success)
-    return json({ value: seed, stored: true, invalid: z.prettifyError(parsed.error) }, 200);
-  return json({ value: parsed.data, stored: true }, 200);
+  if (!parsed.success) return { value: seed, stored: true, invalid: z.prettifyError(parsed.error) };
+  return { value: parsed.data, stored: true };
+}
+
+export async function handleGetGlobal(name: string): Promise<Response> {
+  if (!isGlobalName(name)) return json({ error: 'not_found' }, 404);
+  return json(await readGlobalForAdmin(name), 200);
 }
 
 export async function handlePutGlobal(name: string, request: Request): Promise<Response> {

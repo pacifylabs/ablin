@@ -119,7 +119,7 @@ export function ArticleEditor({
         />
       </div>
 
-      <p className={styles.panelTitle} style={{ marginTop: 'var(--space-8)' }}>
+      <p className={styles.panelTitle} style={{ marginTop: 'var(--s-32)' }}>
         Blocks
       </p>
       <BlockList
@@ -129,7 +129,7 @@ export function ArticleEditor({
         allowed={['richText', 'image', 'splitImage', 'ctaBand']}
       />
 
-      <div className={styles.formActions} style={{ marginTop: 'var(--space-6)' }}>
+      <div className={styles.formActions} style={{ marginTop: 'var(--s-24)' }}>
         {error ? (
           <p className={styles.formNote} data-tone="error" role="alert">
             {error}
@@ -140,9 +140,17 @@ export function ArticleEditor({
             Saved.
           </p>
         ) : null}
+        <a
+          className="btn btn-line"
+          href={`/api/admin/preview?path=${encodeURIComponent(`/insights/${article.slug}`)}`}
+          target="_blank"
+          rel="noopener"
+        >
+          Preview
+        </a>
         <button
           type="button"
-          className="btn btn-ghost"
+          className="btn btn-line"
           disabled={status === 'saving'}
           onClick={save}
         >
@@ -151,7 +159,7 @@ export function ArticleEditor({
         {article.status === 'published' ? (
           <button
             type="button"
-            className="btn btn-ghost"
+            className="btn btn-line"
             disabled={status === 'saving'}
             onClick={() => publish(false)}
           >

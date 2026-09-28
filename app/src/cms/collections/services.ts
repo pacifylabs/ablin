@@ -15,7 +15,9 @@ import { mediaRefSchema } from './media-schema';
  * `order`). Cards (carousel, footer, related) read the card fields; /services/{slug} renders `blocks`.
  * Any service write expires both its own key and `services:index`, which every listing is tagged with.
  */
-export const SERVICE_SLUG = /^(?!index$)[a-z0-9][a-z0-9-]{0,63}$/;
+import { SERVICE_SLUG } from './service-rules';
+
+export { SERVICE_SLUG };
 
 export const serviceSchema = z.object({
   slug: z.string().regex(SERVICE_SLUG, 'Lowercase letters, numbers and hyphens; not "index"'),

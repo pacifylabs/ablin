@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import { resolveImage } from '@/cms/collections/media';
 import { getSeoSettings, getSiteSettings } from '@/cms/globals';
 import { absoluteUrl, getSiteUrl } from '@/cms/site-meta';
-import { getPublishedArticleCached } from '@/cms/public-reads';
+import { draftMode } from 'next/headers';
+import { getPreviewArticle, getPublishedArticleCached } from '@/cms/public-reads';
 import { BlockRenderer } from '@/components/public/BlockRenderer';
 import { Photo } from '@/components/public/Photo';
 import { jsonLdScriptContent } from '@/lib/json-ld';
@@ -11,8 +12,12 @@ import styles from './article.module.css';
 
 type Params = Promise<{ slug: string }>;
 
+async function loadArticle(slug: string) {
+  return (await draftMode()).isEnabled ? getPreviewArticle(slug) : getPublishedArticleCached(slug);
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const article = await getPublishedArticleCached((await params).slug);
+  const article = await loadArticle((await params).slug);
   if (!article) return {};
   const [cover, siteUrl] = await Promise.all([resolveImage(article.coverImage), getSiteUrl()]);
   const images = cover ? [{ url: absoluteUrl(siteUrl, cover.src), alt: cover.alt }] : undefined;
@@ -25,7 +30,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function ArticlePage({ params }: { params: Params }) {
-  const article = await getPublishedArticleCached((await params).slug);
+  const article = await loadArticle((await params).slug);
   if (!article) notFound();
 
   const [siteUrl, seo, site, cover] = await Promise.all([

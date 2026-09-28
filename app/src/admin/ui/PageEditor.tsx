@@ -10,7 +10,15 @@ import { CheckboxField } from './fields/more';
 import { TextField } from './fields/shared';
 import styles from './admin.module.css';
 
+/** Public path for a page slug; null for the availability pages, which only show while the site is gated. */
+function pagePath(slug: string): string | null {
+  if (slug === 'home') return '/';
+  if (slug === 'coming-soon' || slug === 'under-construction') return null;
+  return `/${slug}`;
+}
+
 export function PageEditor({ page, refs }: { page: PageDoc; refs: BlockRefs }) {
+  const previewPath = pagePath(page.slug);
   const router = useRouter();
   // Editing starts from the staged draft when one exists, so unpublished edits aren't lost on reload.
   const initial = page.draft ?? page;
@@ -92,12 +100,12 @@ export function PageEditor({ page, refs }: { page: PageDoc; refs: BlockRefs }) {
         />
       </div>
 
-      <p className={styles.panelTitle} style={{ marginTop: 'var(--space-8)' }}>
+      <p className={styles.panelTitle} style={{ marginTop: 'var(--s-32)' }}>
         Blocks
       </p>
       <BlockList blocks={blocks} onChange={setBlocks} refs={refs} />
 
-      <div className={styles.formActions} style={{ marginTop: 'var(--space-6)' }}>
+      <div className={styles.formActions} style={{ marginTop: 'var(--s-24)' }}>
         {error ? (
           <p className={styles.formNote} data-tone="error" role="alert">
             {error}
@@ -108,9 +116,19 @@ export function PageEditor({ page, refs }: { page: PageDoc; refs: BlockRefs }) {
             Saved.
           </p>
         ) : null}
+        {previewPath ? (
+          <a
+            className="btn btn-line"
+            href={`/api/admin/preview?path=${encodeURIComponent(previewPath)}`}
+            target="_blank"
+            rel="noopener"
+          >
+            Preview draft
+          </a>
+        ) : null}
         <button
           type="button"
-          className="btn btn-ghost"
+          className="btn btn-line"
           disabled={status === 'saving'}
           onClick={() => save(false)}
         >

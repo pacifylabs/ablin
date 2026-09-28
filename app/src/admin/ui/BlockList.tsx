@@ -12,13 +12,14 @@ import {
 } from '@/cms/blocks';
 import { BlockForm, type BlockRefs } from './blocks/registry';
 import { SelectField, TextField, move } from './fields/shared';
+import { DragHandle, SortableList } from './Sortable';
 import styles from './admin.module.css';
 
 const newId = (type: BlockType) => `${type}-${crypto.randomUUID().slice(0, 8)}`;
 
 /**
- * The block editor (DS v3 §9): add from the closed palette, reorder, hide/show, duplicate, delete, and set each
- * block's anchor and background. Admins edit content only; there is no styling control beyond the background.
+ * The block editor (DS v3 §9): add from the closed palette, reorder (drag, keyboard, or the arrow buttons),
+ * hide/show, duplicate, delete, and set each block's anchor and background. Admins edit content only; there is no styling control beyond the background.
  */
 export function BlockList({
   blocks,
@@ -41,18 +42,15 @@ export function BlockList({
 
   return (
     <div>
-      <ol className={styles.blockList}>
-        {blocks.map((block, i) => {
+      <SortableList items={blocks} getId={(b) => b.id} onReorder={onChange}>
+        {(block, i) => {
           const label = PALETTE[block.type].label;
           const summary =
             'title' in block.data && typeof block.data.title === 'string' ? block.data.title : '';
           return (
-            <li
-              key={block.id}
-              className={styles.blockItem}
-              data-hidden={!block.visible || undefined}
-            >
+            <div className={styles.blockItem} data-hidden={!block.visible || undefined}>
               <div className={styles.blockItemHead}>
+                <DragHandle label={`Reorder ${label} (block ${i + 1})`} />
                 <button
                   type="button"
                   className={styles.blockToggle}
@@ -139,10 +137,10 @@ export function BlockList({
                   />
                 </div>
               )}
-            </li>
+            </div>
           );
-        })}
-      </ol>
+        }}
+      </SortableList>
 
       <div className={styles.panel} style={{ marginTop: 'var(--s-20)' }}>
         <p className={styles.panelTitle}>Add a block</p>
