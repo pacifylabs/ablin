@@ -1,0 +1,26 @@
+.header {
+  padding-block: clamp(56px, 7vw, 96px) clamp(40px, 5vw, 64px);
+}
+
+.narrow {
+  display: grid;
+  gap: 16px;
+  max-width: calc(var(--narrow) + var(--gutter) * 2);
+}
+
+.date {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.cover {
+  margin-top: clamp(24px, 4vw, 40px);
+}
+
+.coverFrame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--chip);
+}

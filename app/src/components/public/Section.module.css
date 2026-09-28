@@ -1,0 +1,32 @@
+.section {
+  position: relative;
+}
+
+.default {
+  padding-block: var(--sec);
+}
+
+.tight {
+  padding-block: calc(var(--sec) / 2);
+}
+
+.none {
+  padding-block: 0;
+}
+
+.flushTop {
+  padding-top: 0;
+}
+
+/*
+ * Vertical rhythm (matches the Home reference): two sections on the same light background read as one run, so the
+ * second drops its top padding; a light section that ends the page leaves the gap to the footer's own padding.
+ */
+.section[data-bg='bg'] + .section[data-bg='bg'],
+.section[data-bg='surface'] + .section[data-bg='surface'] {
+  padding-top: 0;
+}
+
+.section[data-bg='bg']:last-child {
+  padding-bottom: 0;
+}

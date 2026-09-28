@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import type { EnquiryType } from '@/content/schema';
+import type { ContactFormCopy } from '@/cms/globals/schemas';
 // Types only: the validation library (zod) is loaded on first submit, so it never weighs on the page's first load.
 import type { ContactField, FieldErrors } from '@/lib/contact';
 import styles from './ContactForm.module.css';
@@ -39,7 +39,8 @@ const order: ContactField[] = [
   'consent',
 ];
 
-export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryType[] }) {
+export function ContactForm({ copy }: { copy: ContactFormCopy }) {
+  const { enquiryTypes, fields } = copy;
   const [values, setValues] = useState<Values>(empty);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [status, setStatus] = useState<Status>('idle');
@@ -66,7 +67,10 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
 
     const payload = { ...values, startedAt: startedAt.current || Date.now() };
     const { buildContactSchema, toFieldErrors } = await import('@/lib/contact');
-    const parsed = buildContactSchema(enquiryTypes.map((t) => t.value)).safeParse(payload);
+    const parsed = buildContactSchema(
+      enquiryTypes.map((t) => t.value),
+      copy.errors,
+    ).safeParse(payload);
     if (!parsed.success) {
       const found = toFieldErrors(parsed.error);
       setErrors(found);
@@ -103,14 +107,12 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
     return (
       <div className={styles.sent} role="status">
         <h2 ref={sentHeading} tabIndex={-1}>
-          Message sent
+          {copy.successTitle}
         </h2>
-        <p className="lead">
-          Thank you. A consultant will read your message and reply to {values.email.trim()}.
-        </p>
+        <p className="lead">{copy.successMessage.replaceAll('{email}', values.email.trim())}</p>
         <button
           type="button"
-          className="btn btn-ghost"
+          className="btn btn-ghost-white"
           onClick={() => {
             setValues(empty);
             startedAt.current = Date.now();
@@ -139,21 +141,25 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
         className={styles.summary}
         hidden={!hasErrors && status !== 'failed' && status !== 'limited'}
       >
-        {hasErrors ? 'Check the fields marked below and try again.' : null}
-        {status === 'failed' ? 'We could not send your message. Try again in a few minutes.' : null}
-        {status === 'limited'
-          ? 'Too many messages were sent from your connection. Wait a few minutes and try again.'
-          : null}
+        {hasErrors ? copy.errors.summary : null}
+        {status === 'failed' ? copy.errors.generic : null}
+        {status === 'limited' ? copy.errors.rateLimited : null}
       </div>
 
       <div className={styles.row}>
-        <Field id="fullName" label="Full name" required error={errors.fullName}>
+        <Field
+          id="fullName"
+          label={fields.fullName.label}
+          marks={copy}
+          required
+          error={errors.fullName}
+        >
           <input
             id="fullName"
             name="fullName"
             type="text"
             autoComplete="name"
-            placeholder="e.g. Jane Doe"
+            placeholder={fields.fullName.placeholder}
             value={values.fullName}
             onChange={(e) => update('fullName', e.target.value)}
             aria-invalid={Boolean(errors.fullName)}
@@ -161,13 +167,13 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
             aria-required="true"
           />
         </Field>
-        <Field id="email" label="Work email" required error={errors.email}>
+        <Field id="email" label={fields.email.label} marks={copy} required error={errors.email}>
           <input
             id="email"
             name="email"
             type="email"
             autoComplete="email"
-            placeholder="you@company.com"
+            placeholder={fields.email.placeholder}
             value={values.email}
             onChange={(e) => update('email', e.target.value)}
             aria-invalid={Boolean(errors.email)}
@@ -178,20 +184,31 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
       </div>
 
       <div className={styles.row}>
-        <Field id="organisation" label="Organisation" error={errors.organisation}>
+        <Field
+          id="organisation"
+          label={fields.organisation.label}
+          marks={copy}
+          error={errors.organisation}
+        >
           <input
             id="organisation"
             name="organisation"
             type="text"
             autoComplete="organization"
-            placeholder="e.g. Acme Ltd"
+            placeholder={fields.organisation.placeholder}
             value={values.organisation}
             onChange={(e) => update('organisation', e.target.value)}
             aria-invalid={Boolean(errors.organisation)}
             aria-describedby={errors.organisation ? 'organisation-error' : undefined}
           />
         </Field>
-        <Field id="enquiryType" label="Enquiry type" required error={errors.enquiryType}>
+        <Field
+          id="enquiryType"
+          label={fields.enquiryType.label}
+          marks={copy}
+          required
+          error={errors.enquiryType}
+        >
           <select
             id="enquiryType"
             name="enquiryType"
@@ -201,7 +218,7 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
             aria-describedby={errors.enquiryType ? 'enquiryType-error' : undefined}
             aria-required="true"
           >
-            <option value="">Select an enquiry type</option>
+            <option value="">{fields.enquiryType.placeholder}</option>
             {enquiryTypes.map((type) => (
               <option key={type.value} value={type.value}>
                 {type.label}
@@ -211,12 +228,19 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
         </Field>
       </div>
 
-      <Field id="message" label="Message" required error={errors.message}>
+      <Field
+        id="message"
+        label={fields.message.label}
+        marks={copy}
+        required
+        full
+        error={errors.message}
+      >
         <textarea
           id="message"
           name="message"
           rows={6}
-          placeholder="Tell us about your organisation and what you need."
+          placeholder={fields.message.placeholder}
           value={values.message}
           onChange={(e) => update('message', e.target.value)}
           aria-invalid={Boolean(errors.message)}
@@ -227,7 +251,7 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
 
       {/* Honeypot: invisible and unreachable for people; bots fill it in. */}
       <div className={styles.trap} aria-hidden="true">
-        <label htmlFor="website">Leave this field empty</label>
+        <label htmlFor="website">{copy.honeypotLabel}</label>
         <input
           id="website"
           name="website"
@@ -251,8 +275,13 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
             aria-required="true"
           />
           <span>
-            I agree to Ablin Limited processing this enquiry in line with the{' '}
-            <Link href="/privacy-policy">Privacy Policy</Link>.
+            {copy.consentText}
+            {copy.consentLinkLabel && copy.consentLinkHref ? (
+              <>
+                {' '}
+                <Link href={copy.consentLinkHref}>{copy.consentLinkLabel}</Link>
+              </>
+            ) : null}
           </span>
         </label>
         {errors.consent ? (
@@ -262,9 +291,9 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
         ) : null}
       </div>
 
-      <div>
-        <button type="submit" className="btn btn-primary" disabled={status === 'sending'}>
-          {status === 'sending' ? 'Sending message' : 'Send message'}
+      <div className={styles.actions}>
+        <button type="submit" className="btn btn-white" disabled={status === 'sending'}>
+          {status === 'sending' ? copy.sendingLabel : copy.submitLabel}
         </button>
       </div>
     </form>
@@ -274,20 +303,23 @@ export function ContactForm({ enquiryTypes }: { enquiryTypes: readonly EnquiryTy
 interface FieldProps {
   id: string;
   label: string;
+  marks: { requiredMark: string; optionalMark: string };
   required?: boolean;
+  /** Span both columns (the message field). */
+  full?: boolean;
   error?: string | undefined;
   children: React.ReactNode;
 }
 
-function Field({ id, label, required, error, children }: FieldProps) {
+function Field({ id, label, marks, required, full, error, children }: FieldProps) {
   return (
-    <div className={styles.field}>
+    <div className={`${styles.field}${full ? ` ${styles.full}` : ''}`}>
       <label htmlFor={id}>
         {label}
         {required ? (
-          <span className={styles.required}> (required)</span>
+          <span className={styles.required}> {marks.requiredMark}</span>
         ) : (
-          <span className={styles.optional}> (optional)</span>
+          <span className={styles.optional}> {marks.optionalMark}</span>
         )}
       </label>
       {children}

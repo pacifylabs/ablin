@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PAGE_SLUGS, type PageSlug } from '@/cms/schema';
-import { getFrameworksWithFallback, getPageWithFallback } from '@/cms/store';
-import { getAudiences, getServices } from '@/lib/content';
+import { getPage } from '@/cms/store';
+import { seedPage } from '@/cms/seed-data';
+import { loadBlockRefs } from '@/admin/refs';
 import { PageEditor } from '@/admin/ui/PageEditor';
 import styles from '@/admin/ui/admin.module.css';
 
@@ -21,12 +22,9 @@ export default async function EditPagePage({ params }: { params: Params }) {
   const { slug } = await params;
   if (!isPageSlug(slug)) notFound();
 
-  const [page, services, audiences, frameworks] = await Promise.all([
-    getPageWithFallback(slug),
-    getServices(),
-    getAudiences(),
-    getFrameworksWithFallback(),
-  ]);
+  // A stored page from an older layout (or none yet) opens as the bundled v3 page; saving replaces it.
+  const [stored, refs] = await Promise.all([getPage(slug).catch(() => null), loadBlockRefs()]);
+  const page = stored ?? seedPage(slug);
 
   return (
     <div className={styles.page}>
@@ -36,14 +34,12 @@ export default async function EditPagePage({ params }: { params: Params }) {
           <p className={styles.pageLead}>/{slug === 'home' ? '' : slug}</p>
         </div>
       </header>
-      <PageEditor
-        page={page}
-        refs={{
-          services: services.map((s) => ({ slug: s.slug, title: s.title })),
-          audiences: audiences.map((a) => ({ slug: a.slug, title: a.title })),
-          frameworks: frameworks.map((f) => ({ id: f.id, name: f.name })),
-        }}
-      />
+      {stored ? null : (
+        <p className={styles.formNote} data-tone="warning">
+          This page has not been saved in the current layout yet. Publishing saves it.
+        </p>
+      )}
+      <PageEditor page={page} refs={refs} />
     </div>
   );
 }

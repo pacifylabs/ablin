@@ -1,20 +1,17 @@
-import { z } from 'zod';
-import { revalidateTag } from 'next/cache';
-import { frameworkSchema } from '@/content/schema';
-import { getFrameworksWithFallback, putFrameworks } from '@/cms/store';
-import { FOOTER_FRAMEWORKS_TAG } from '@/cms/frameworks-cache';
+import { expireKeys } from '@/cms/cached';
+import {
+  SEED_FRAMEWORKS,
+  frameworksListSchema,
+  putFrameworks,
+  readFrameworks,
+} from '@/cms/collections/frameworks';
+import { keys } from '@/cms/keys';
 import { isSameOrigin, json } from '@/admin/http';
 
+/** GET/PUT the `frameworks` collection. The whole ordered list is replaced on save. */
 export async function handleGetFrameworks(): Promise<Response> {
-  return json(await getFrameworksWithFallback(), 200);
+  return json((await readFrameworks()) ?? SEED_FRAMEWORKS, 200);
 }
-
-/**
- * The list shown by the footer slider and offered by the frameworkIndex block's picker. `id` stays the fixed
- * five-value enum from content/schema.ts — each has its own hand-drawn glyph in ui/FrameworkBadge.tsx with no
- * generic fallback, so this can reorder, edit or hide the five frameworks, but not invent a new one.
- */
-const putSchema = z.array(frameworkSchema).min(1);
 
 export async function handlePutFrameworks(request: Request): Promise<Response> {
   if (!isSameOrigin(request)) return json({ error: 'bad_origin' }, 403);
@@ -25,14 +22,17 @@ export async function handlePutFrameworks(request: Request): Promise<Response> {
   } catch {
     return json({ error: 'invalid_json' }, 400);
   }
-  const parsed = putSchema.safeParse(payload);
+  const parsed = frameworksListSchema.safeParse(payload);
   if (!parsed.success)
-    return json({ error: 'validation', fieldErrors: parsed.error.flatten().fieldErrors }, 422);
-
-  const ids = parsed.data.map((f) => f.id);
-  if (new Set(ids).size !== ids.length) return json({ error: 'duplicate_id' }, 422);
+    return json(
+      {
+        error: 'validation',
+        issues: parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+      },
+      422,
+    );
 
   await putFrameworks(parsed.data);
-  revalidateTag(FOOTER_FRAMEWORKS_TAG, 'default');
+  expireKeys(keys.frameworksList);
   return json(parsed.data, 200);
 }

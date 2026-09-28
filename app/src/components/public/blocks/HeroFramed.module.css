@@ -1,0 +1,105 @@
+/* DS v3 §7.3 — the hero is navy in both themes (raw navy values permitted here, §2). */
+.hero {
+  padding-top: 20px;
+}
+
+.frame {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  background: var(--navy-ink);
+  color: var(--white);
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    linear-gradient(
+      95deg,
+      rgba(10, 26, 50, 0.92) 0%,
+      rgba(14, 39, 71, 0.82) 45%,
+      rgba(20, 58, 105, 0.3) 75%,
+      rgba(20, 58, 105, 0) 100%
+    ),
+    linear-gradient(0deg, rgba(10, 26, 50, 0.55) 0%, rgba(10, 26, 50, 0) 45%);
+}
+
+.tag {
+  position: absolute;
+  top: clamp(24px, 4vw, 40px);
+  right: clamp(24px, 4vw, 48px);
+  z-index: 3;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--band-muted);
+}
+
+.copy {
+  position: relative;
+  z-index: 3;
+  max-width: 840px;
+  padding: clamp(56px, 8vw, 112px) clamp(24px, 6vw, 80px) clamp(150px, 16vw, 210px);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--band-muted);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1.5px;
+  background: var(--band-muted);
+}
+
+.title {
+  max-width: 15ch;
+  margin: 6px 0 26px;
+  font-size: clamp(2.5rem, 5.4vw, 4.6rem);
+  line-height: 1.01;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--white);
+}
+
+.lead {
+  max-width: 48ch;
+  margin-bottom: 36px;
+  font-size: clamp(1.04rem, 1.4vw, 1.2rem);
+  color: #d2dae5;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/*
+ * On narrow screens the copy spans the full frame, so the left-to-right shade would leave the right half of the text
+ * over bright photo. The shade evens out to hold AA across the whole width (checked on real pixels in
+ * tests/hero-signal.spec.ts).
+ */
+@media (max-width: 1000px) {
+  .shade {
+    background:
+      linear-gradient(95deg, rgba(10, 26, 50, 0.92) 0%, rgba(14, 39, 71, 0.86) 100%),
+      linear-gradient(0deg, rgba(10, 26, 50, 0.55) 0%, rgba(10, 26, 50, 0) 45%);
+  }
+}
+
+@media (max-width: 600px) {
+  .tag {
+    display: none;
+  }
+}

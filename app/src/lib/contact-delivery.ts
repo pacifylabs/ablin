@@ -15,6 +15,8 @@ export type DeliveryResult =
 export interface DeliveryDeps {
   fetchImpl?: typeof fetch;
   contact?: typeof config.contact;
+  /** Inboxes from `settings:contact.recipients`; empty falls back to CONTACT_TO_EMAIL. */
+  recipients?: readonly string[];
 }
 
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -35,8 +37,10 @@ export async function deliverContact(
 ): Promise<DeliveryResult> {
   const { resendApiKey, toEmail, fromEmail } = deps.contact ?? config.contact;
   const fetchImpl = deps.fetchImpl ?? fetch;
+  const to = deps.recipients?.length ? [...deps.recipients] : toEmail ? [toEmail] : [];
 
-  if (!resendApiKey || !toEmail || !fromEmail) return { ok: false, reason: 'not_configured' };
+  if (!resendApiKey || to.length === 0 || !fromEmail)
+    return { ok: false, reason: 'not_configured' };
 
   const lines = [
     `Name: ${oneLine(message.fullName)}`,
@@ -53,7 +57,7 @@ export async function deliverContact(
       headers: { Authorization: `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: fromEmail,
-        to: [toEmail],
+        to,
         reply_to: message.email,
         subject: `Website enquiry: ${message.enquiryLabel}`,
         text: lines.join('\n'),
@@ -70,6 +74,41 @@ export async function deliverContact(
       'Enquiry email provider unreachable:',
       error instanceof Error ? error.message : 'unknown error',
     );
+    return { ok: false, reason: 'unreachable' };
+  }
+}
+
+export interface AutoReply {
+  subject: string;
+  body: string;
+}
+
+/**
+ * Optional acknowledgement to the enquirer (`settings:contact.autoReply`). Fixed admin text only — nothing the
+ * visitor typed is echoed back — so the form cannot be used to send arbitrary content to a third party.
+ */
+export async function sendAutoReply(
+  to: string,
+  reply: AutoReply,
+  deps: Omit<DeliveryDeps, 'recipients'> = {},
+): Promise<DeliveryResult> {
+  const { resendApiKey, fromEmail } = deps.contact ?? config.contact;
+  const fetchImpl = deps.fetchImpl ?? fetch;
+  if (!resendApiKey || !fromEmail) return { ok: false, reason: 'not_configured' };
+  try {
+    const response = await fetchImpl(RESEND_ENDPOINT, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${resendApiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: fromEmail,
+        to: [to],
+        subject: oneLine(reply.subject),
+        text: reply.body,
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    return response.ok ? { ok: true } : { ok: false, reason: 'rejected' };
+  } catch {
     return { ok: false, reason: 'unreachable' };
   }
 }

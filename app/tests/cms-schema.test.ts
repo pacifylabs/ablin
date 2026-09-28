@@ -7,93 +7,110 @@ import {
   type Block,
 } from '@/cms/schema';
 
-const heroHome: Block = {
-  id: 'hero-1',
-  type: 'hero',
+import { BLOCK_TYPES, PALETTE, duplicateBlock, newBlock } from '@/cms/blocks';
+
+const hero = {
+  ...newBlock('heroFramed', 'hero-1'),
   data: {
-    variant: 'home',
     eyebrow: 'e',
     title: 't',
     lead: 'l',
-    primary: { label: 'Go', href: '/contact' },
-    secondary: { label: 'Go', href: '/contact' },
-    frameworksLabel: 'f',
-    frameworkNames: ['ISO 27001'],
+    image: { mediaId: 'glass-converge', decorative: true },
+    locationTag: 'UNITED KINGDOM',
+    primaryCta: { label: 'Go', href: '/services' },
+    secondaryCta: null,
+    lattice: true,
   },
-};
+} as Block;
 
-describe('blockSchema', () => {
-  it('accepts a valid hero (home variant) block', () => {
-    expect(blockSchema.safeParse(heroHome).success).toBe(true);
+describe('block palette (DS v3 §9)', () => {
+  it('is exactly the closed twenty-block palette', () => {
+    expect(BLOCK_TYPES).toEqual([
+      'pageHeader',
+      'heroFramed',
+      'capabilityPanels',
+      'aboutIntro',
+      'factStrip',
+      'frameworkStrip',
+      'serviceCarousel',
+      'approachSplit',
+      'approachSteps',
+      'audienceList',
+      'splitImage',
+      'whyGrid',
+      'valuesGrid',
+      'missionVision',
+      'topicList',
+      'articleGrid',
+      'richText',
+      'image',
+      'ctaBand',
+      'contactBand',
+    ]);
   });
 
-  it('rejects a block whose data does not match its declared variant', () => {
-    const bad = { ...heroHome, data: { ...heroHome.data, variant: 'page' } };
-    expect(blockSchema.safeParse(bad).success).toBe(false);
+  it('every block carries anchorId, background and visible', () => {
+    for (const type of BLOCK_TYPES) {
+      const block = newBlock(type, `${type}-1`);
+      expect(block).toMatchObject({ anchorId: '', visible: true });
+      expect(['bg', 'surface', 'band']).toContain(block.background);
+      expect(block.background).toBe(PALETTE[type].bg);
+    }
   });
 
-  it('rejects an unknown block type', () => {
-    const bad = { id: 'x', type: 'video', data: {} };
-    expect(blockSchema.safeParse(bad).success).toBe(false);
+  it('accepts a valid hero and rejects an unknown type', () => {
+    expect(blockSchema.safeParse(hero).success).toBe(true);
+    expect(blockSchema.safeParse({ ...hero, type: 'video' }).success).toBe(false);
   });
 
-  it('requires approachSteps to have exactly 5 steps', () => {
-    const step = { title: 't', description: 'd' };
-    const base = { id: 'a-1', type: 'approachSteps' as const };
-    expect(
-      blockSchema.safeParse({
-        ...base,
-        data: { kicker: 'k', title: 't', lead: 'l', steps: Array(5).fill(step) },
-      }).success,
-    ).toBe(true);
-    expect(
-      blockSchema.safeParse({
-        ...base,
-        data: { kicker: 'k', title: 't', lead: 'l', steps: Array(4).fill(step) },
-      }).success,
-    ).toBe(false);
-  });
-
-  it('requires an image block url to be site-relative or https', () => {
-    const base = { id: 'img-1', type: 'image' as const };
-    const ok = (url: string) =>
-      blockSchema.safeParse({
-        ...base,
-        data: { url, alt: '', width: 10, height: 10, blur: 'data:image/gif;base64,x' },
-      }).success;
-    expect(ok('/image/photo/x.jpg')).toBe(true);
-    expect(ok('https://res.cloudinary.com/x/image/upload/y.jpg')).toBe(true);
-    expect(ok('http://insecure.example/y.jpg')).toBe(false);
-    expect(ok('javascript:alert(1)')).toBe(false);
-    expect(ok('//evil.example/x.jpg')).toBe(false);
-    expect(ok('https://other-cdn.example/x.jpg')).toBe(false);
-  });
-
-  it('rejects unsafe CTA hrefs on hero blocks', () => {
+  it('rejects unsafe links and bad anchors', () => {
     const bad = {
-      ...heroHome,
-      data: { ...heroHome.data, primary: { label: 'Go', href: 'javascript:alert(1)' } },
+      ...hero,
+      data: { ...hero.data, primaryCta: { label: 'Go', href: 'javascript:alert(1)' } },
     };
     expect(blockSchema.safeParse(bad).success).toBe(false);
+    expect(blockSchema.safeParse({ ...hero, anchorId: 'Has Spaces' }).success).toBe(false);
+    expect(blockSchema.safeParse({ ...hero, background: 'red' }).success).toBe(false);
   });
 
-  it('rejects a capabilityGrid with zero items', () => {
-    const base = { id: 'c-1', type: 'capabilityGrid' as const };
-    expect(
-      blockSchema.safeParse({ ...base, data: { title: 't', lead: 'l', items: [] } }).success,
-    ).toBe(false);
+  it('holds images as media references only, never raw URLs', () => {
+    const raw = { ...hero, data: { ...hero.data, image: { url: 'https://example.com/x.jpg' } } };
+    expect(blockSchema.safeParse(raw).success).toBe(false);
+  });
+
+  it('caps capability panels at three and fact strips at four', () => {
+    const panel = { icon: 'shield', title: 't', text: 'x', link: { label: 'l', href: '/' } };
+    const caps = { ...newBlock('capabilityPanels', 'c'), data: { panels: Array(4).fill(panel) } };
+    expect(blockSchema.safeParse(caps).success).toBe(false);
+    const facts = {
+      ...newBlock('factStrip', 'f'),
+      data: { facts: Array(5).fill({ value: '1', label: 'x' }), approvedByClient: true },
+    };
+    expect(blockSchema.safeParse(facts).success).toBe(false);
+  });
+
+  it('duplicate gives a new id and clears the anchor', () => {
+    const copy = duplicateBlock({ ...hero, anchorId: 'top' }, 'hero-2');
+    expect(copy.id).toBe('hero-2');
+    expect(copy.anchorId).toBe('');
+    expect(copy.data).toEqual(hero.data);
   });
 });
 
 describe('pageDocSchema', () => {
+  const fields = {
+    title: 'Home',
+    seoTitle: 'Home',
+    seoDescription: 'Home',
+    ogImage: null,
+    noindex: false,
+    blocks: [hero],
+  };
+
   it('accepts a published page with no draft', () => {
     const doc = {
       slug: 'home',
-      title: 'Home',
-      seoTitle: 'Home',
-      seoDescription: 'Home',
-      ogImage: '',
-      blocks: [heroHome],
+      ...fields,
       status: 'published',
       updatedAt: new Date().toISOString(),
     };
@@ -101,13 +118,6 @@ describe('pageDocSchema', () => {
   });
 
   it('accepts a published page carrying a staged, unpublished draft', () => {
-    const fields = {
-      title: 'Home',
-      seoTitle: 'Home',
-      seoDescription: 'Home',
-      ogImage: '',
-      blocks: [heroHome],
-    };
     const doc = {
       slug: 'home',
       ...fields,
@@ -117,6 +127,20 @@ describe('pageDocSchema', () => {
     };
     expect(pageDocSchema.safeParse(doc).success).toBe(true);
   });
+
+  it('rejects a v2 page document (so the public site serves the bundled v3 page instead)', () => {
+    const legacy = {
+      slug: 'home',
+      title: 'Home',
+      seoTitle: 'Home',
+      seoDescription: 'Home',
+      ogImage: '',
+      blocks: [{ id: 'hero-1', type: 'hero', data: {} }],
+      status: 'published',
+      updatedAt: new Date().toISOString(),
+    };
+    expect(pageDocSchema.safeParse(legacy).success).toBe(false);
+  });
 });
 
 describe('articleDocSchema', () => {
@@ -124,6 +148,7 @@ describe('articleDocSchema', () => {
     const fields = {
       title: 't',
       excerpt: 'e',
+      coverImage: null,
       topics: [],
       blocks: [],
       seoTitle: 't',

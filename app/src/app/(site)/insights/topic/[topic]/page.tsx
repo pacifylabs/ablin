@@ -1,58 +1,40 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ArticleCard } from '@/components/insights/ArticleCard';
-import { getPageWithFallback, listPublishedArticlesSafe } from '@/cms/store';
-import { getInsightsPage } from '@/lib/content';
+import { getTopics } from '@/cms/collections/topics';
+import { getPublicPage } from '@/cms/public-reads';
+import { PageView } from '@/components/public/PageView';
+import { defaultShareImage } from '@/cms/site-meta';
 import { buildPageMetadata } from '@/lib/seo';
-
-export const dynamic = 'force-dynamic';
 
 type Params = Promise<{ topic: string }>;
 
-async function resolveTopic(encoded: string): Promise<string | null> {
-  const decoded = decodeURIComponent(encoded);
-  const insightsPage = await getInsightsPage();
-  return insightsPage.topics.find((t) => t.toLowerCase() === decoded.toLowerCase()) ?? null;
+async function resolveTopic(param: string) {
+  const slug = decodeURIComponent(param);
+  return (await getTopics()).find((t) => t.slug === slug) ?? null;
+}
+
+export async function generateStaticParams() {
+  return (await getTopics()).map((t) => ({ topic: t.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const topic = await resolveTopic((await params).topic);
+  const [topic, page, fallback] = await Promise.all([
+    resolveTopic((await params).topic),
+    getPublicPage('insights'),
+    defaultShareImage(),
+  ]);
   if (!topic) return {};
-  const insightsPage = await getPageWithFallback('insights');
   return buildPageMetadata({
-    title: `${topic} — Insights`,
-    description: insightsPage.seoDescription,
-    path: `/insights/topic/${encodeURIComponent(topic)}`,
+    title: `${topic.name} — ${page.seoTitle}`,
+    description: page.seoDescription,
+    path: `/insights/topic/${topic.slug}`,
+    defaultImage: fallback,
   });
 }
 
+/** The Insights index filtered to one topic: the same page:insights blocks, with the topic in the render context. */
 export default async function TopicPage({ params }: { params: Params }) {
   const topic = await resolveTopic((await params).topic);
   if (!topic) notFound();
-
-  const articles = (await listPublishedArticlesSafe()).filter((a) =>
-    a.topics.some((t) => t.toLowerCase() === topic.toLowerCase()),
-  );
-
-  return (
-    <section className="section" aria-labelledby="page-title">
-      <div className="container" style={{ display: 'grid', gap: 'var(--space-8)' }}>
-        <header style={{ display: 'grid', gap: 'var(--space-4)' }}>
-          <p className="kicker">Insights</p>
-          <h1 id="page-title">{topic}</h1>
-        </header>
-        {articles.length > 0 ? (
-          <ul className="card-grid cols-3">
-            {articles.map((article) => (
-              <li key={article.slug}>
-                <ArticleCard article={article} />
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="muted">No articles are published under this topic yet.</p>
-        )}
-      </div>
-    </section>
-  );
+  return <PageView slug="insights" ctx={{ topic: topic.slug }} />;
 }

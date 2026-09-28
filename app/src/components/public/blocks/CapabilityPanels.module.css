@@ -1,0 +1,97 @@
+/* DS v3 §7.4 — navy in both themes (sits on the hero photo). One of the four permitted shadows. */
+.wrap {
+  position: relative;
+  z-index: 3;
+}
+
+.overlap {
+  margin-top: -120px;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-inline: clamp(12px, 3vw, 40px);
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-panels);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: clamp(26px, 3vw, 40px);
+  background: rgba(20, 58, 105, 0.93);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  transition: background-color 0.25s;
+}
+
+.panel:last-child {
+  border-right: 0;
+}
+
+.panel:hover {
+  background: rgba(28, 78, 139, 0.97);
+}
+
+.icon {
+  color: var(--band-muted);
+}
+
+.title {
+  font-size: 1.22rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--white);
+}
+
+.text {
+  font-size: 0.93rem;
+  line-height: 1.55;
+  color: var(--band-muted);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 8px;
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: var(--white);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--white);
+  text-decoration: underline;
+}
+
+.link svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 1000px) {
+  .overlap {
+    margin-top: -90px;
+  }
+
+  .panels {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .panel:last-child {
+    border-bottom: 0;
+  }
+}

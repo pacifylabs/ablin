@@ -1,14 +1,12 @@
 import type { Metadata } from 'next';
-import { getFrameworksWithFallback } from '@/cms/store';
-import { seedFrameworks } from '@/cms/seed-data';
+import { SEED_FRAMEWORKS, readFrameworks } from '@/cms/collections/frameworks';
 import { FrameworksEditor } from '@/admin/ui/FrameworksEditor';
 import styles from '@/admin/ui/admin.module.css';
 
 export const metadata: Metadata = { title: 'Frameworks' };
 
 export default async function FrameworksPage() {
-  const frameworks = await getFrameworksWithFallback();
-  const seedById = Object.fromEntries(seedFrameworks.map((f) => [f.id, f]));
+  const frameworks = (await readFrameworks()) ?? SEED_FRAMEWORKS;
 
   return (
     <div className={styles.page}>
@@ -16,13 +14,12 @@ export default async function FrameworksPage() {
         <div>
           <h1>Frameworks</h1>
           <p className={styles.pageLead}>
-            What the footer strip shows, and what the framework-index block on any page can pick
-            from. Turn one off to drop it everywhere; reorder to change the footer strip&rsquo;s
-            order.
+            The frameworks shown in the footer strip and in any framework strip on a page, in this
+            order. A logo appears only when the client has approved it.
           </p>
         </div>
       </header>
-      <FrameworksEditor initial={frameworks} seedById={seedById} />
+      <FrameworksEditor initial={frameworks} />
     </div>
   );
 }

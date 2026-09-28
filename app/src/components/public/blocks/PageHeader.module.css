@@ -1,0 +1,115 @@
+.outer {
+  padding-top: 20px;
+}
+
+.frame {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  background: var(--navy-ink);
+  color: var(--white);
+}
+
+.shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      95deg,
+      rgba(10, 26, 50, 0.92) 0%,
+      rgba(14, 39, 71, 0.8) 50%,
+      rgba(20, 58, 105, 0.25) 100%
+    ),
+    linear-gradient(0deg, rgba(10, 26, 50, 0.55) 0%, rgba(10, 26, 50, 0) 50%);
+}
+
+.frame .copy {
+  position: relative;
+  z-index: 2;
+  padding: clamp(40px, 6vw, 72px) clamp(24px, 6vw, 72px);
+}
+
+.frame .title,
+.frame .crumbs a,
+.frame .crumbs li {
+  color: var(--white);
+}
+
+.frame .eyebrow,
+.frame .lead {
+  color: var(--band-muted);
+}
+
+.plain {
+  padding-block: clamp(56px, 7vw, 96px) clamp(40px, 5vw, 64px);
+}
+
+.copy {
+  display: grid;
+  gap: 16px;
+  max-width: 820px;
+}
+
+.eyebrow {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--link);
+}
+
+.title {
+  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+  line-height: 1.04;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.lead {
+  max-width: 60ch;
+  font-size: clamp(1.02rem, 1.3vw, 1.14rem);
+  color: var(--muted);
+}
+
+.crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.crumbs li + li::before {
+  content: '/';
+  margin-right: 8px;
+  opacity: 0.6;
+}
+
+.crumbs a {
+  color: inherit;
+}
+
+/* Plain header: the copy on the left, a still lattice filling the right on wide screens. */
+.plainGrid {
+  display: grid;
+  align-items: center;
+  gap: 40px;
+}
+
+.art {
+  display: none;
+}
+
+@media (min-width: 1001px) {
+  .plainGrid {
+    grid-template-columns: 1.5fr 1fr;
+  }
+
+  .art {
+    display: block;
+    max-height: 260px;
+  }
+}

@@ -2,6 +2,8 @@ import { put } from '@vercel/blob';
 import { generateBlurDataUrl, readImageDimensions } from '@/admin/upload/blur';
 import { uploadImage } from '@/admin/upload/cloudinary';
 import { isSameOrigin, json } from '@/admin/http';
+import { putMedia, type Media } from '@/cms/collections/media';
+import { slugify } from '@/cms/collections/topics';
 
 const MAX_BYTES = 4 * 1024 * 1024; // Vercel's serverless request body cap is 4.5MB; stay under it with headroom.
 
@@ -19,7 +21,9 @@ function isAllowedBlobFile(file: File): boolean {
   return ext === 'pdf' || ext === 'txt' || ext === 'doc' || ext === 'docx';
 }
 
-async function readFile(request: Request): Promise<{ file: File } | { error: Response }> {
+async function readFile(
+  request: Request,
+): Promise<{ file: File; form: FormData } | { error: Response }> {
   let form: FormData;
   try {
     form = await request.formData();
@@ -31,7 +35,7 @@ async function readFile(request: Request): Promise<{ file: File } | { error: Res
   if (file.size === 0) return { error: json({ error: 'empty_file' }, 400) };
   if (file.size > MAX_BYTES)
     return { error: json({ error: 'too_large', maxBytes: MAX_BYTES }, 413) };
-  return { file };
+  return { file, form };
 }
 
 /**
@@ -66,7 +70,26 @@ export async function handleUploadImage(request: Request): Promise<Response> {
     return json({ error: 'upstream' }, 502);
   }
 
-  return json({ url: result.data.url, width, height, blur, alt: '' }, 200);
+  // Every upload becomes a media-library entry, so it can be reused and its alt text edited in one place.
+  const text = (name: string) => {
+    const v = read.form.get(name);
+    return typeof v === 'string' ? v.trim().slice(0, 500) : '';
+  };
+  const base = slugify(read.file.name.replace(/\.[a-z0-9]+$/i, '')) || 'image';
+  const media: Media = {
+    id: `${base.slice(0, 48)}-${crypto.randomUUID().slice(0, 8)}`,
+    url: result.data.url,
+    publicId: result.data.publicId,
+    alt: text('alt'),
+    credit: text('credit'),
+    width,
+    height,
+    blur,
+    createdAt: new Date().toISOString(),
+  };
+  await putMedia(media);
+
+  return json({ mediaId: media.id, url: media.url, width, height, blur, alt: media.alt }, 200);
 }
 
 /** Everything that isn't an image goes to Vercel Blob and is linked to (a PDF in rich text, for example). */

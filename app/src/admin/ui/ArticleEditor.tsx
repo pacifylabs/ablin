@@ -4,9 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { ArticleDoc, Block } from '@/cms/schema';
 import { BlockList } from './BlockList';
-import type { BlockRefs } from './BlockFields';
-import { ImagePicker } from './ImagePicker';
-import { StringListEditor, TextField } from './fields/shared';
+import type { BlockRefs } from './blocks/registry';
+import { MediaField } from './MediaField';
+import { ListEditor } from './fields/more';
+import { TextField } from './fields/shared';
 import styles from './admin.module.css';
 
 export function ArticleEditor({
@@ -86,8 +87,26 @@ export function ArticleEditor({
         <p className={styles.panelTitle}>Article settings</p>
         <TextField label="Title" value={title} onChange={setTitle} />
         <TextField label="Excerpt" value={excerpt} onChange={setExcerpt} multiline />
-        <ImagePicker label="Cover image" value={coverImage} onChange={setCoverImage} />
-        <StringListEditor label="Topics" items={topics} onChange={setTopics} />
+        <MediaField
+          label="Cover image (16:9 on cards)"
+          value={coverImage}
+          onChange={setCoverImage}
+        />
+        <ListEditor
+          label="Topics"
+          itemLabel="Topic"
+          items={topics}
+          onChange={setTopics}
+          create={() => ''}
+          render={(topic, update) => (
+            <TextField
+              label="Topic name"
+              value={topic}
+              placeholder="e.g. ISO 27001"
+              onChange={update}
+            />
+          )}
+        />
         {knownTopics.length > 0 ? (
           <p className={styles.hint}>Existing topics: {knownTopics.join(', ')}</p>
         ) : null}
@@ -100,12 +119,17 @@ export function ArticleEditor({
         />
       </div>
 
-      <p className={styles.panelTitle} style={{ marginTop: 'var(--space-8)' }}>
+      <p className={styles.panelTitle} style={{ marginTop: 'var(--s-32)' }}>
         Blocks
       </p>
-      <BlockList blocks={blocks} onChange={setBlocks} refs={refs} />
+      <BlockList
+        blocks={blocks}
+        onChange={setBlocks}
+        refs={refs}
+        allowed={['richText', 'image', 'splitImage', 'ctaBand']}
+      />
 
-      <div className={styles.formActions} style={{ marginTop: 'var(--space-6)' }}>
+      <div className={styles.formActions} style={{ marginTop: 'var(--s-24)' }}>
         {error ? (
           <p className={styles.formNote} data-tone="error" role="alert">
             {error}
@@ -116,9 +140,17 @@ export function ArticleEditor({
             Saved.
           </p>
         ) : null}
+        <a
+          className="btn btn-line"
+          href={`/api/admin/preview?path=${encodeURIComponent(`/insights/${article.slug}`)}`}
+          target="_blank"
+          rel="noopener"
+        >
+          Preview
+        </a>
         <button
           type="button"
-          className="btn btn-ghost"
+          className="btn btn-line"
           disabled={status === 'saving'}
           onClick={save}
         >
@@ -127,7 +159,7 @@ export function ArticleEditor({
         {article.status === 'published' ? (
           <button
             type="button"
-            className="btn btn-ghost"
+            className="btn btn-line"
             disabled={status === 'saving'}
             onClick={() => publish(false)}
           >

@@ -1,6 +1,12 @@
-import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Server } from 'node:http';
 import { startFakeUpstash } from './helpers/fake-upstash';
+
+// Next's data cache needs a request context; outside one it is a pass-through and tag expiry a no-op.
+vi.mock('next/cache', () => ({
+  unstable_cache: (fn: () => unknown) => fn,
+  revalidateTag: () => undefined,
+}));
 
 /**
  * Integration tests for the admin API handlers, run against tests/helpers/fake-upstash.ts (a real HTTP server
@@ -155,7 +161,8 @@ describe('pages handler', () => {
       title: 'About Ablin',
       seoTitle: 'About Ablin',
       seoDescription: 'd',
-      ogImage: '',
+      ogImage: null,
+      noindex: false,
       blocks: [],
       status: 'published',
       updatedAt: new Date().toISOString(),
@@ -166,7 +173,8 @@ describe('pages handler', () => {
         title: 'About Ablin (draft edit)',
         seoTitle: 'About Ablin',
         seoDescription: 'd',
-        ogImage: '',
+        ogImage: null,
+        noindex: false,
         blocks: [],
         publish: false,
       }),
@@ -183,7 +191,8 @@ describe('pages handler', () => {
         title: 'About Ablin (published)',
         seoTitle: 'About Ablin',
         seoDescription: 'd',
-        ogImage: '',
+        ogImage: null,
+        noindex: false,
         blocks: [],
         publish: true,
       }),
@@ -202,7 +211,8 @@ describe('pages handler', () => {
         title: 't',
         seoTitle: 't',
         seoDescription: 'd',
-        ogImage: '',
+        ogImage: null,
+        noindex: false,
         blocks: [],
         publish: true,
       }),
@@ -211,38 +221,52 @@ describe('pages handler', () => {
     expect(res.status).toBe(404);
   });
 
-  it('rejects a capabilityGrid block that links to a service slug that does not exist', async () => {
+  it('rejects a serviceCarousel block that references a service slug that does not exist', async () => {
     const { handlePutPage } = await import('@/admin/handlers/pages-handler');
+    const { newBlock } = await import('@/cms/blocks');
+    const block = newBlock('serviceCarousel', 'svc-1');
+    block.data = {
+      ...block.data,
+      cardLinkLabel: 'View',
+      prevLabel: 'Prev',
+      nextLabel: 'Next',
+      trackLabel: 'Services',
+      serviceSlugs: ['not-a-real-service'],
+    };
     const res = await handlePutPage(
       post({
         title: 't',
         seoTitle: 't',
         seoDescription: 'd',
-        ogImage: '',
-        blocks: [
-          {
-            id: 'c-1',
-            type: 'capabilityGrid',
-            data: {
-              title: 't',
-              lead: 'l',
-              items: [
-                {
-                  title: 't',
-                  description: 'd',
-                  serviceSlug: 'not-a-real-service',
-                  illustration: 'structure',
-                },
-              ],
-            },
-          },
-        ],
+        ogImage: null,
+        noindex: false,
+        blocks: [block],
         publish: true,
       }),
       'home',
     );
     expect(res.status).toBe(422);
     expect((await res.json()) as { error: string }).toMatchObject({ error: 'invalid_reference' });
+  });
+
+  it('rejects an image reference that is not in the media library', async () => {
+    const { handlePutPage } = await import('@/admin/handlers/pages-handler');
+    const { newBlock } = await import('@/cms/blocks');
+    const block = newBlock('image', 'img-1');
+    block.data = { ...block.data, image: { mediaId: 'nowhere', decorative: false } };
+    const res = await handlePutPage(
+      post({
+        title: 't',
+        seoTitle: 't',
+        seoDescription: 'd',
+        ogImage: null,
+        noindex: false,
+        blocks: [block],
+        publish: true,
+      }),
+      'home',
+    );
+    expect(res.status).toBe(422);
   });
 });
 
@@ -257,6 +281,7 @@ describe('insights handler', () => {
         slug: 'test-article',
         title: 'Test article',
         excerpt: 'e',
+        coverImage: null,
         topics: [],
         blocks: [],
         seoTitle: 't',
@@ -284,6 +309,7 @@ describe('insights handler', () => {
       slug: 'dup-slug',
       title: 'T',
       excerpt: 'e',
+      coverImage: null,
       topics: [],
       blocks: [],
       seoTitle: 't',
@@ -301,6 +327,7 @@ describe('insights handler', () => {
         slug: 'live-article',
         title: 'Original',
         excerpt: 'e',
+        coverImage: null,
         topics: [],
         blocks: [],
         seoTitle: 't',
@@ -313,6 +340,7 @@ describe('insights handler', () => {
       post({
         title: 'Edited',
         excerpt: 'e',
+        coverImage: null,
         topics: [],
         blocks: [],
         seoTitle: 't',

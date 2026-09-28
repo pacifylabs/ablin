@@ -14,6 +14,8 @@
     "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "@node-rs/argon2": "^2.2.1",
     "@tiptap/pm": "^3.31.3",
     "@tiptap/react": "^3.31.3",

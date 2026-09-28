@@ -1,13 +1,13 @@
 import type { MetadataRoute } from 'next';
-import { config } from '@/lib/config';
+import { getSiteUrl } from '@/cms/site-meta';
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
     rules: {
       userAgent: '*',
       allow: '/',
       disallow: ['/admin', '/admin/', '/api/', '/status'],
     },
-    sitemap: `${config.siteUrl}/sitemap.xml`,
+    sitemap: `${await getSiteUrl()}/sitemap.xml`,
   };
 }

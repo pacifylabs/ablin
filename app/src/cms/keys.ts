@@ -9,9 +9,25 @@ export const keys = {
   reset: (token: string) => `reset:${token}`,
 
   availability: 'settings:availability',
-  /** Not in the original build brief's schema — added so the footer slider and frameworkIndex blocks' list of
-   *  frameworks (previously fixed content/frameworks.json) can be edited from /admin/frameworks. */
-  frameworks: 'settings:frameworks',
+  settings: {
+    site: 'settings:site',
+    navigation: 'settings:navigation',
+    footer: 'settings:footer',
+    seo: 'settings:seo',
+    contact: 'settings:contact',
+    cookies: 'settings:cookies',
+    errors: 'settings:errors',
+  },
+  /** v2 keys, read once by the seed to migrate into `frameworks` / `topics`, then deleted. */
+  legacyFrameworks: 'settings:frameworks',
+  legacyTopicsIndex: 'topics:index',
+
+  media: (id: string) => `media:${id}`,
+  mediaIndex: 'media:index',
+  service: (slug: string) => `services:${slug}`,
+  servicesIndex: 'services:index',
+  frameworksList: 'frameworks',
+  topics: 'topics',
 
   page: (slug: string) => `page:${slug}`,
   pagesIndex: 'pages:index',
@@ -19,7 +35,6 @@ export const keys = {
   article: (slug: string) => `insights:article:${slug}`,
   articlesIndex: 'insights:index',
   articleDrafts: 'insights:drafts',
-  topicsIndex: 'topics:index',
 
   submission: (id: string) => `submission:${id}`,
   submissionsIndex: 'submissions:index',

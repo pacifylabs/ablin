@@ -111,7 +111,7 @@ export function RichTextEditor({
         </ToolbarButton>
       </div>
       {linkOpen ? (
-        <div className={styles.formActions} style={{ padding: 'var(--space-2) 0' }}>
+        <div className={styles.formActions} style={{ padding: 'var(--s-8) 0' }}>
           <input
             type="url"
             className={styles.input}

@@ -1,9 +1,6 @@
-import { z } from 'zod';
 import { redis } from './redis';
 import { keys } from './keys';
-import { frameworkSchema, type Framework } from '@/content/schema';
 import {
-  LEGAL_PAGE_SLUGS,
   type AdminUser,
   type Availability,
   type PageDoc,
@@ -22,7 +19,6 @@ import {
   submissionSchema,
 } from './schema';
 import { sha256Hex } from '@/lib/token-hash';
-import { seedFrameworks, seedPage } from './seed-data';
 
 /**
  * The data-access layer over Redis. Every read parses with the matching zod schema — a value written by an
@@ -59,34 +55,6 @@ export async function getAvailability(): Promise<Availability | null> {
 
 export async function setAvailability(value: Availability): Promise<void> {
   await redis().set(keys.availability, value);
-}
-
-// --- Frameworks (footer slider + frameworkIndex blocks' picker) ------------------------------------------------
-
-export async function getFrameworks(): Promise<Framework[] | null> {
-  const raw = await redis().get(keys.frameworks);
-  if (!raw) return null;
-  return z.array(frameworkSchema).parse(raw);
-}
-
-export async function putFrameworks(frameworks: readonly Framework[]): Promise<void> {
-  await redis().set(keys.frameworks, frameworks);
-}
-
-/** What the footer slider, the frameworkIndex block picker and the public FrameworkBand all read: the
- *  admin-edited list, or — before it's ever been saved, or if Redis is briefly unreachable — the bundled
- *  starting content (content/frameworks.json via cms/seed-data.ts), the same fail-open pattern as
- *  getPageWithFallback below. */
-export async function getFrameworksWithFallback(): Promise<readonly Framework[]> {
-  try {
-    return (await getFrameworks()) ?? seedFrameworks;
-  } catch (error) {
-    console.error(
-      'Failed to read settings:frameworks from Redis; serving the bundled starting content instead.',
-      error,
-    );
-    return seedFrameworks;
-  }
 }
 
 // --- Admin user ------------------------------------------------------------------------------------------------
@@ -165,28 +133,6 @@ export async function listPageSlugs(): Promise<PageSlug[]> {
   return slugs as PageSlug[];
 }
 
-/**
- * What every public page.tsx reads (see cms/seed-data.ts): the live page:{slug} document, or — when Redis has
- * never been seeded (page:{slug} doesn't exist yet) or is briefly unreachable — the bundled starting content,
- * so neither a fresh deployment nor a transient Redis outage ever takes the public site down. A page that DOES
- * exist in Redis is always used as-is, even mid-edit; only a missing key or a genuine error falls back.
- */
-export async function getPageWithFallback(slug: PageSlug): Promise<PageDoc> {
-  try {
-    return (await getPage(slug)) ?? seedPage(slug);
-  } catch (error) {
-    if (LEGAL_PAGE_SLUGS.has(slug)) {
-      console.error(`Failed to read legal page:${slug} from Redis; refusing bundled fallback.`, error);
-      throw error;
-    }
-    console.error(
-      `Failed to read page:${slug} from Redis; serving the bundled starting content instead.`,
-      error,
-    );
-    return seedPage(slug);
-  }
-}
-
 export async function listPages(): Promise<PageDoc[]> {
   const slugs = await listPageSlugs();
   if (slugs.length === 0) return [];
@@ -241,44 +187,12 @@ export async function listPublishedArticles(limit = 100): Promise<ArticleDoc[]> 
   return docs.filter((d): d is object => d != null).map((d) => articleDocSchema.parse(d));
 }
 
-/** Public-read equivalents of getArticle/listPublishedArticles: degrade to "nothing published" rather than a
- *  500 if Redis is briefly unreachable, the same fail-open reasoning as getPageWithFallback above. Only for the
- *  public /insights routes — the admin editor uses getArticle/listAllArticles directly and should fail loudly. */
-export async function getPublishedArticle(slug: string): Promise<ArticleDoc | null> {
-  try {
-    const article = await getArticle(slug);
-    return article && article.status === 'published' ? article : null;
-  } catch (error) {
-    console.error(`Failed to read insights:article:${slug} from Redis.`, error);
-    return null;
-  }
-}
-
-export async function listPublishedArticlesSafe(limit = 100): Promise<ArticleDoc[]> {
-  try {
-    return await listPublishedArticles(limit);
-  } catch (error) {
-    console.error('Failed to list published articles from Redis.', error);
-    return [];
-  }
-}
-
 export async function listAllArticles(): Promise<ArticleDoc[]> {
   const [published, drafts] = await Promise.all([listPublishedSlugs(500), listDraftSlugs()]);
   const slugs = [...published, ...drafts];
   if (slugs.length === 0) return [];
   const docs = await redis().mget<unknown[]>(...slugs.map((s) => keys.article(s)));
   return docs.filter((d): d is object => d != null).map((d) => articleDocSchema.parse(d));
-}
-
-export async function addTopics(topics: readonly string[]): Promise<void> {
-  const [first, ...rest] = topics;
-  if (!first) return;
-  await redis().sadd(keys.topicsIndex, first, ...rest);
-}
-
-export async function listTopics(): Promise<string[]> {
-  return redis().smembers<string[]>(keys.topicsIndex);
 }
 
 // --- Submissions -------------------------------------------------------------------------------------------
@@ -308,8 +222,10 @@ export async function setSubmissionStatus(
   const updated: Submission = { ...existing, status };
   const r = redis();
   await r.set(keys.submission(id), updated, { ex: SUBMISSION_RETENTION_SECONDS });
-  if (existing.status === 'unread' && status !== 'unread') await r.decr(keys.submissionsUnreadCount);
-  if (existing.status !== 'unread' && status === 'unread') await r.incr(keys.submissionsUnreadCount);
+  if (existing.status === 'unread' && status !== 'unread')
+    await r.decr(keys.submissionsUnreadCount);
+  if (existing.status !== 'unread' && status === 'unread')
+    await r.incr(keys.submissionsUnreadCount);
   return updated;
 }
 

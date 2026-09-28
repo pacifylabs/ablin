@@ -1,7 +1,12 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { buildContactSchema, MIN_FILL_MS, toFieldErrors } from '@/lib/contact';
-import { deliverContact, type ContactMessage, type DeliveryResult } from '@/lib/contact-delivery';
-import { getContactPage } from '@/lib/content';
+import {
+  deliverContact,
+  sendAutoReply,
+  type ContactMessage,
+  type DeliveryResult,
+} from '@/lib/contact-delivery';
+import { getContactSettings, type ContactSettings } from '@/cms/globals';
 import { putSubmission } from '@/cms/store';
 import type { Submission } from '@/cms/schema';
 
@@ -14,6 +19,10 @@ export interface ContactDeps {
   store?: (submission: Submission) => Promise<void>;
   now?: () => number;
   newId?: () => string;
+  /** Swappable in tests; defaults to `settings:contact`. */
+  settings?: () => Promise<ContactSettings>;
+  /** Swappable in tests; defaults to emailing the admin's auto-reply text through Resend. */
+  autoReply?: (to: string, reply: { subject: string; body: string }) => Promise<DeliveryResult>;
 }
 
 function json(body: unknown, status: number, headers?: Record<string, string>): Response {
@@ -36,8 +45,12 @@ function clientIp(request: Request): string {
 export async function handleContact(request: Request, deps: ContactDeps): Promise<Response> {
   const now = deps.now ?? Date.now;
   const newId = deps.newId ?? randomUUID;
-  const deliver = deps.deliver ?? ((message: ContactMessage) => deliverContact(message));
+  const settings = await (deps.settings ?? getContactSettings)();
+  const deliver =
+    deps.deliver ??
+    ((message: ContactMessage) => deliverContact(message, { recipients: settings.recipients }));
   const store = deps.store ?? putSubmission;
+  const autoReply = deps.autoReply ?? sendAutoReply;
 
   let payload: unknown;
   try {
@@ -46,8 +59,11 @@ export async function handleContact(request: Request, deps: ContactDeps): Promis
     return json({ error: 'invalid_json' }, 400);
   }
 
-  const { enquiryTypes } = await getContactPage();
-  const parsed = buildContactSchema(enquiryTypes.map((t) => t.value)).safeParse(payload);
+  const { enquiryTypes } = settings;
+  const parsed = buildContactSchema(
+    enquiryTypes.map((t) => t.value),
+    settings.errors,
+  ).safeParse(payload);
 
   if (!parsed.success) {
     const fieldErrors = toFieldErrors(parsed.error);
@@ -100,7 +116,15 @@ export async function handleContact(request: Request, deps: ContactDeps): Promis
 
   const delivered = deliverResult.status === 'fulfilled' && deliverResult.value.ok;
   const stored = storeResult.status === 'fulfilled';
-  if (delivered || stored) return json({ ok: true }, 200);
+  if (delivered || stored) {
+    const { enabled, subject, body } = settings.autoReply;
+    if (enabled && subject && body) {
+      // An acknowledgement failing must not turn a captured enquiry into an error for the visitor.
+      const result = await autoReply(input.email, { subject, body }).catch(() => null);
+      if (!result?.ok) console.error('Contact auto-reply was not sent.');
+    }
+    return json({ ok: true }, 200);
+  }
 
   // Neither side got the enquiry: this is the one case a visitor must be told it did not go through.
   if (storeResult.status === 'rejected')

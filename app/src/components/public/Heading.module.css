@@ -1,0 +1,12 @@
+.heading {
+  display: grid;
+  gap: 14px;
+}
+
+.heading :global(.eyebrow) {
+  margin-bottom: 0;
+}
+
+.heading :global(.lead) {
+  margin-top: 4px;
+}

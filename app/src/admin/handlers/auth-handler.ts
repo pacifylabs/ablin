@@ -59,9 +59,7 @@ export async function handleLogin(request: Request): Promise<Response> {
     return json({ error: 'rate_limited' }, 429, { 'Retry-After': String(retryAfterEmail) });
 
   const user = await getAdminUser();
-  const emailMatches = Boolean(
-    user && user.email.toLowerCase() === emailKey,
-  );
+  const emailMatches = Boolean(user && user.email.toLowerCase() === emailKey);
   const hashToVerify = emailMatches && user ? user.passwordHash : await loginTimingHash();
   const passwordOk = await verifyPassword(hashToVerify, parsed.data.password);
   if (!emailMatches || !passwordOk || !user) return json({ error: 'invalid_credentials' }, 401);

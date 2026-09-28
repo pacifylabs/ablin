@@ -2,66 +2,54 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { FRAMEWORK_IDS, type Framework } from '@/content/schema';
-import { MoveDeleteButtons, TextField, move } from './fields/shared';
+import type { Framework } from '@/cms/collections/frameworks';
+import { ICON_NAMES } from '@/cms/collections/icons';
+import { MediaField } from './MediaField';
+import { MoveDeleteButtons, SelectField, TextField, move } from './fields/shared';
 import styles from './admin.module.css';
 
-interface Item {
-  id: (typeof FRAMEWORK_IDS)[number];
-  included: boolean;
-  data: Framework;
-}
+const BLANK: Framework = {
+  id: '',
+  name: '',
+  descriptor: '',
+  icon: 'document',
+  visible: true,
+  logo: null,
+  approvedByClient: false,
+  publisher: '',
+  edition: '',
+  sources: [],
+};
 
 /**
- * Manages the fixed five frameworks: their text, their order, and whether each appears at all — in the footer
- * slider and in the frameworkIndex block's picker (see admin/README.md §Frameworks). The five ids themselves are
- * fixed (each has its own hand-drawn glyph with no generic fallback — see ui/FrameworkBadge.tsx), so this
- * reorders, edits and shows/hides; it doesn't add a sixth.
+ * The `frameworks` collection: order is display order in the footer strip and the frameworkStrip block. A logo is
+ * shown only when "Approved by the client" is ticked (DS v3 §7.6); otherwise the chosen line icon is used.
  */
-export function FrameworksEditor({
-  initial,
-  seedById,
-}: {
-  initial: readonly Framework[];
-  seedById: Record<string, Framework>;
-}) {
+export function FrameworksEditor({ initial }: { initial: readonly Framework[] }) {
   const router = useRouter();
-  const [items, setItems] = useState<Item[]>(() => {
-    const included = initial.map((f) => ({ id: f.id, included: true, data: f }));
-    const includedIds = new Set(initial.map((f) => f.id));
-    const excluded = FRAMEWORK_IDS.filter((id) => !includedIds.has(id)).map((id) => ({
-      id,
-      included: false,
-      data: seedById[id]!,
-    }));
-    return [...included, ...excluded];
-  });
+  const [items, setItems] = useState<Framework[]>(() => [...initial]);
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  function update(id: string, patch: Partial<Item>) {
-    setItems((current) => current.map((it) => (it.id === id ? { ...it, ...patch } : it)));
-  }
-  function updateData(id: string, patch: Partial<Framework>) {
-    setItems((current) =>
-      current.map((it) => (it.id === id ? { ...it, data: { ...it.data, ...patch } } : it)),
-    );
+  function update(index: number, patch: Partial<Framework>) {
+    setItems((current) => current.map((f, i) => (i === index ? { ...f, ...patch } : f)));
   }
 
   async function save() {
     setStatus('saving');
     setError(null);
     try {
-      const payload = items.filter((it) => it.included).map((it) => it.data);
       const response = await fetch('/api/admin/frameworks', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(items),
       });
       if (!response.ok) {
-        setError(
-          'Could not save. Check that every included framework has a name, scope, publisher and at least one source.',
-        );
+        const body = (await response.json().catch(() => ({}))) as {
+          issues?: { path: string; message: string }[];
+        };
+        const first = body.issues?.[0];
+        setError(first ? `${first.path}: ${first.message}` : 'Could not save.');
         setStatus('error');
         return;
       }
@@ -73,129 +61,135 @@ export function FrameworksEditor({
     }
   }
 
-  const includedItems = items.filter((it) => it.included);
-
   return (
     <div>
       <div className={styles.blockList}>
-        {items.map((item) => {
-          const orderIndex = includedItems.findIndex((it) => it.id === item.id);
-          return (
-            <div key={item.id} className={styles.blockItem}>
-              <div className={styles.blockItemHead}>
-                <span className={styles.blockItemTitle}>
-                  <input
-                    type="checkbox"
-                    checked={item.included}
-                    onChange={(e) => update(item.id, { included: e.target.checked })}
-                    aria-label={`Show ${item.data.name} in the frameworks strip`}
-                  />
-                  {item.data.name}
-                </span>
-                {item.included ? (
-                  <MoveDeleteButtons
-                    index={orderIndex}
-                    count={includedItems.length}
-                    onMove={(to) => {
-                      const reordered = move(includedItems, orderIndex, to);
-                      const excluded = items.filter((it) => !it.included);
-                      setItems([...reordered, ...excluded]);
-                    }}
-                    onDelete={() => update(item.id, { included: false })}
-                  />
-                ) : null}
-              </div>
-              {item.included ? (
-                <div className={styles.blockItemBody}>
-                  <TextField
-                    label="Name"
-                    value={item.data.name}
-                    onChange={(v) => updateData(item.id, { name: v })}
-                  />
-                  <TextField
-                    label="Scope"
-                    value={item.data.scope}
-                    onChange={(v) => updateData(item.id, { scope: v })}
-                  />
-                  <TextField
-                    label="Publisher"
-                    value={item.data.publisher}
-                    onChange={(v) => updateData(item.id, { publisher: v })}
-                  />
-                  <TextField
-                    label="Edition (optional)"
-                    value={item.data.edition ?? ''}
-                    onChange={(v) => updateData(item.id, { edition: v || undefined })}
-                  />
-                  <div className={styles.field}>
-                    <label>Sources</label>
-                    {item.data.sources.map((source, i) => (
-                      <fieldset key={i} className={styles.repeatItem}>
-                        <div className={styles.repeatRow}>
-                          <legend className={styles.hint}>Source {i + 1}</legend>
-                          {item.data.sources.length > 1 ? (
-                            <button
-                              type="button"
-                              className={styles.iconBtn}
-                              data-danger="true"
-                              aria-label="Remove source"
-                              onClick={() =>
-                                updateData(item.id, {
-                                  sources: item.data.sources.filter((_, j) => j !== i),
-                                })
-                              }
-                            >
-                              ✕
-                            </button>
-                          ) : null}
-                        </div>
-                        <TextField
-                          label="Label"
-                          value={source.label}
-                          placeholder="e.g. ISO/IEC 27001:2022 on iso.org"
-                          onChange={(v) =>
-                            updateData(item.id, {
-                              sources: item.data.sources.map((s, j) =>
-                                j === i ? { ...s, label: v } : s,
-                              ),
-                            })
-                          }
-                        />
-                        <TextField
-                          label="URL"
-                          value={source.url}
-                          placeholder="https://…"
-                          onChange={(v) =>
-                            updateData(item.id, {
-                              sources: item.data.sources.map((s, j) =>
-                                j === i ? { ...s, url: v } : s,
-                              ),
-                            })
-                          }
-                        />
-                      </fieldset>
-                    ))}
-                    <button
-                      type="button"
-                      className={styles.iconBtn}
-                      style={{ width: 'auto', padding: '0 0.75rem' }}
-                      onClick={() =>
-                        updateData(item.id, {
-                          sources: [...item.data.sources, { label: '', url: 'https://' }],
-                        })
-                      }
-                    >
-                      + Add source
-                    </button>
-                  </div>
-                </div>
-              ) : null}
+        {items.map((item, index) => (
+          <div key={index} className={styles.blockItem}>
+            <div className={styles.blockItemHead}>
+              <span className={styles.blockItemTitle}>
+                {item.name || 'New framework'}
+                {!item.visible ? <span className={styles.badgeMuted}>Hidden</span> : null}
+              </span>
+              <MoveDeleteButtons
+                index={index}
+                count={items.length}
+                onMove={(to) => setItems((c) => move(c, index, to))}
+                onDelete={() => setItems((c) => c.filter((_, i) => i !== index))}
+              />
             </div>
-          );
-        })}
+            <div className={styles.blockItemBody}>
+              <label className={styles.checkRow}>
+                <input
+                  type="checkbox"
+                  checked={item.visible}
+                  onChange={(e) => update(index, { visible: e.target.checked })}
+                />
+                Show on the site (footer strip and framework strips)
+              </label>
+              <TextField
+                label="Name"
+                value={item.name}
+                onChange={(v) => update(index, { name: v })}
+              />
+              <TextField
+                label="Identifier"
+                value={item.id}
+                placeholder="e.g. iso-27001"
+                hint="Lowercase letters, numbers and hyphens. Used by blocks that pick frameworks."
+                onChange={(v) => update(index, { id: v })}
+              />
+              <TextField
+                label="Descriptor"
+                value={item.descriptor}
+                placeholder="e.g. Information security"
+                onChange={(v) => update(index, { descriptor: v })}
+              />
+              <SelectField
+                label="Icon"
+                value={item.icon}
+                options={ICON_NAMES}
+                onChange={(v) => update(index, { icon: v })}
+              />
+              <MediaField
+                label="Logo (optional — shown only when approved by the client)"
+                value={item.logo}
+                onChange={(logo) => update(index, { logo })}
+              />
+              <label className={styles.checkRow}>
+                <input
+                  type="checkbox"
+                  checked={item.approvedByClient}
+                  onChange={(e) => update(index, { approvedByClient: e.target.checked })}
+                />
+                Approved by the client (the logo is only shown when this is ticked)
+              </label>
+              <TextField
+                label="Publisher (optional)"
+                value={item.publisher}
+                onChange={(v) => update(index, { publisher: v })}
+              />
+              <TextField
+                label="Edition (optional)"
+                value={item.edition}
+                onChange={(v) => update(index, { edition: v })}
+              />
+              {item.sources.map((source, i) => (
+                <fieldset key={i} className={styles.repeatItem}>
+                  <legend className={styles.hint}>Source {i + 1}</legend>
+                  <TextField
+                    label="Label"
+                    value={source.label}
+                    placeholder="e.g. ISO/IEC 27001:2022 on iso.org"
+                    onChange={(v) =>
+                      update(index, {
+                        sources: item.sources.map((s, j) => (j === i ? { ...s, label: v } : s)),
+                      })
+                    }
+                  />
+                  <TextField
+                    label="URL"
+                    value={source.url}
+                    placeholder="https://…"
+                    onChange={(v) =>
+                      update(index, {
+                        sources: item.sources.map((s, j) => (j === i ? { ...s, url: v } : s)),
+                      })
+                    }
+                  />
+                  <button
+                    type="button"
+                    className={styles.linkBtn}
+                    onClick={() =>
+                      update(index, { sources: item.sources.filter((_, j) => j !== i) })
+                    }
+                  >
+                    Remove source
+                  </button>
+                </fieldset>
+              ))}
+              <button
+                type="button"
+                className={styles.linkBtn}
+                onClick={() =>
+                  update(index, { sources: [...item.sources, { label: '', url: '' }] })
+                }
+              >
+                + Add source
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className={styles.formActions} style={{ marginTop: 'var(--space-6)' }}>
+      <div className={styles.formActions} style={{ marginTop: 'var(--s-24)' }}>
+        <button
+          type="button"
+          className="btn btn-line"
+          onClick={() => setItems((c) => [...c, { ...BLANK }])}
+        >
+          Add framework
+        </button>
         {error ? (
           <p className={styles.formNote} data-tone="error" role="alert">
             {error}

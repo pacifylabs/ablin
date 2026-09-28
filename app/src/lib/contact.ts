@@ -3,29 +3,28 @@ import { z } from 'zod';
 /** Minimum seconds a human needs to write a message; faster submissions are treated as bots. */
 export const MIN_FILL_MS = 3000;
 
-/** Shared by the browser (inline errors) and the server (authoritative check), so the rules cannot drift. */
-export function buildContactSchema(enquiryTypes: readonly string[]) {
+/** The visitor-facing validation messages, from `settings:contact.errors`. */
+export interface ContactMessages {
+  fullName: string;
+  email: string;
+  enquiryType: string;
+  message: string;
+  consent: string;
+  tooLong: string;
+}
+
+/**
+ * Shared by the browser (inline errors) and the server (authoritative check), so the rules cannot drift. Messages
+ * are admin copy; the limits are fixed here.
+ */
+export function buildContactSchema(enquiryTypes: readonly string[], messages: ContactMessages) {
   return z.object({
-    fullName: z
-      .string()
-      .trim()
-      .min(2, 'Enter your full name.')
-      .max(120, 'Use 120 characters or fewer.'),
-    email: z
-      .string()
-      .trim()
-      .max(254, 'Use 254 characters or fewer.')
-      .pipe(z.email('Enter a valid work email so we can reply.')),
-    organisation: z.string().trim().max(160, 'Use 160 characters or fewer.'),
-    enquiryType: z
-      .string()
-      .refine((value) => enquiryTypes.includes(value), 'Choose an enquiry type.'),
-    message: z
-      .string()
-      .trim()
-      .min(20, 'Tell us a little more, at least 20 characters.')
-      .max(4000, 'Use 4,000 characters or fewer.'),
-    consent: z.boolean().refine((value) => value, 'Tick the box to confirm you agree.'),
+    fullName: z.string().trim().min(2, messages.fullName).max(120, messages.tooLong),
+    email: z.string().trim().max(254, messages.tooLong).pipe(z.email(messages.email)),
+    organisation: z.string().trim().max(160, messages.tooLong),
+    enquiryType: z.string().refine((value) => enquiryTypes.includes(value), messages.enquiryType),
+    message: z.string().trim().min(20, messages.message).max(4000, messages.tooLong),
+    consent: z.boolean().refine((value) => value, messages.consent),
     /** Honeypot: hidden from people, so any value means a bot. */
     website: z.string().max(0),
     /** When the form was shown (epoch ms), for the submission-time trap. */

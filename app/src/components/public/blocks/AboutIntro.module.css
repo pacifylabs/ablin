@@ -1,0 +1,69 @@
+.split {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(40px, 6vw, 96px);
+  align-items: start;
+}
+
+.photo {
+  position: relative;
+  align-self: stretch;
+  min-height: 320px;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  background: var(--chip);
+}
+
+.intro {
+  display: grid;
+  gap: 16px;
+}
+
+.intro :global(.lead) {
+  max-width: 60ch;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px 32px;
+  margin: 0;
+  padding-top: 12px;
+}
+
+/* Number first visually, label second; the DOM keeps term (label) before definition (value) for assistive tech. */
+.fact {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.fact dd {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(2.6rem, 5vw, 3.8rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--heading);
+}
+
+.fact dt {
+  max-width: 18ch;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+@media (max-width: 1000px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .facts {
+    gap: 28px 20px;
+  }
+}

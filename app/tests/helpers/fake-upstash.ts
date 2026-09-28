@@ -2,7 +2,7 @@ import { createServer, type Server } from 'node:http';
 
 /**
  * A minimal, in-memory stand-in for the Upstash Redis REST API — just enough of it for this project's own
- * commands (GET/SET/DEL/SADD/SREM/SMEMBERS/ZADD/ZREM/ZRANGE/MGET/INCR/EXPIRE, plus /pipeline) — so tests and
+ * commands (GET/SET/DEL/EXISTS/SADD/SREM/SMEMBERS/ZADD/ZREM/ZRANGE/MGET/INCR/EXPIRE, plus /pipeline) — so tests and
  * local smoke-checks can run against something that speaks the real wire protocol without a live Upstash
  * database. Not used by the shipped app; only by tests/dev tooling that import it directly.
  */
@@ -112,6 +112,8 @@ function runCommand(store: Store, cmd: unknown[]): unknown {
       const zset = get(store, args[0]!) as Map<string, number> | undefined;
       return zset instanceof Map ? zset.size : 0;
     }
+    case 'EXISTS':
+      return args.filter((key) => get(store, key) !== undefined).length;
     case 'EXPIRE': {
       const [key, seconds] = args;
       if (!store.values.has(key!)) return 0;

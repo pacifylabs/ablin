@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArticle, getFrameworksWithFallback, listTopics } from '@/cms/store';
-import { getAudiences, getServices } from '@/lib/content';
+import { getArticle } from '@/cms/store';
+import { loadBlockRefs } from '@/admin/refs';
+import { readTopics, SEED_TOPICS } from '@/cms/collections/topics';
 import { ArticleEditor } from '@/admin/ui/ArticleEditor';
 import { DeleteArticleButton } from '@/admin/ui/DeleteArticleButton';
 import styles from '@/admin/ui/admin.module.css';
@@ -15,12 +16,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 export default async function EditInsightPage({ params }: { params: Params }) {
   const { slug } = await params;
-  const [article, services, audiences, frameworks, topics] = await Promise.all([
+  const [article, refs, topics] = await Promise.all([
     getArticle(slug),
-    getServices(),
-    getAudiences(),
-    getFrameworksWithFallback(),
-    listTopics(),
+    loadBlockRefs(),
+    readTopics().then((t) => (t ?? SEED_TOPICS).map((x) => x.name)),
   ]);
   if (!article) notFound();
 
@@ -33,15 +32,7 @@ export default async function EditInsightPage({ params }: { params: Params }) {
         </div>
         <DeleteArticleButton slug={slug} />
       </header>
-      <ArticleEditor
-        article={article}
-        knownTopics={topics}
-        refs={{
-          services: services.map((s) => ({ slug: s.slug, title: s.title })),
-          audiences: audiences.map((a) => ({ slug: a.slug, title: a.title })),
-          frameworks: frameworks.map((f) => ({ id: f.id, name: f.name })),
-        }}
-      />
+      <ArticleEditor article={article} knownTopics={topics} refs={refs} />
     </div>
   );
 }

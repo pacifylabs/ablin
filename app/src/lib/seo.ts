@@ -1,31 +1,11 @@
 import type { Metadata } from 'next';
-import type { BlockImage } from '@/cms/schema';
-import { site } from '@/lib/site';
 
-const DEFAULT_OG_IMAGE = '/opengraph-image.png';
-const DEFAULT_OG_SIZE = { width: 1200, height: 630 } as const;
-
-export const defaultSiteDescription =
-  'Ablin Limited is a UK governance, risk, compliance and technology advisory firm helping organisations manage regulatory, information security, data and AI risk.';
-
-/** Root layout defaults — inherited by pages unless overridden. */
-export const rootOpenGraph: NonNullable<Metadata['openGraph']> = {
-  siteName: site.name,
-  locale: 'en_GB',
-  type: 'website',
-  images: [
-    {
-      url: DEFAULT_OG_IMAGE,
-      ...DEFAULT_OG_SIZE,
-      alt: `${site.name} — ${site.positioning}`,
-    },
-  ],
-};
-
-export const rootTwitter: NonNullable<Metadata['twitter']> = {
-  card: 'summary_large_image',
-  images: [DEFAULT_OG_IMAGE],
-};
+export interface ShareImage {
+  url: string;
+  width?: number;
+  height?: number;
+  alt?: string;
+}
 
 export type PageMetadataInput = {
   title: string;
@@ -36,29 +16,29 @@ export type PageMetadataInput = {
   absoluteTitle?: boolean;
   robots?: Metadata['robots'];
   openGraphType?: 'website' | 'article';
-  /** Article cover or other page-specific share image (absolute or site-relative URL). */
-  image?: Pick<BlockImage, 'url' | 'width' | 'height' | 'alt'>;
+  /** Page-specific share image; falls back to `defaultImage` (settings:seo). */
+  image?: ShareImage | null;
+  defaultImage?: ShareImage | null;
 };
 
-function shareImages(image?: PageMetadataInput['image']) {
-  if (image) {
-    return [
-      {
-        url: image.url,
-        width: image.width,
-        height: image.height,
-        alt: image.alt.trim() || undefined,
-      },
-    ];
-  }
-  return rootOpenGraph.images;
-}
-
-/** Canonical, Open Graph and Twitter metadata for a public page. */
+/**
+ * Canonical, Open Graph and Twitter metadata for a public page. Next replaces (not merges) a page's `openGraph` and
+ * `twitter` objects over the root layout's, so the site default share image is passed in explicitly.
+ */
 export function buildPageMetadata(input: PageMetadataInput): Metadata {
   const description = input.description.trim();
   const shortDescription = description.length > 300 ? `${description.slice(0, 297)}…` : description;
-  const images = shareImages(input.image);
+  const image = input.image ?? input.defaultImage ?? null;
+  const images = image
+    ? [
+        {
+          url: image.url,
+          width: image.width,
+          height: image.height,
+          alt: image.alt?.trim() || undefined,
+        },
+      ]
+    : undefined;
 
   return {
     title: input.absoluteTitle ? { absolute: input.title } : input.title,
@@ -72,10 +52,10 @@ export function buildPageMetadata(input: PageMetadataInput): Metadata {
       images,
     },
     twitter: {
-      ...rootTwitter,
+      card: 'summary_large_image',
       title: input.title,
       description: shortDescription,
-      images: input.image ? [input.image.url] : rootTwitter.images,
+      images: image ? [image.url] : undefined,
     },
     robots: input.robots,
   };

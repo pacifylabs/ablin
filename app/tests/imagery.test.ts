@@ -1,19 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { frameworkSchema, imagesSchema } from '@/content/schema';
-import { seedFrameworks } from '@/cms/seed-data';
-import { getImages } from '@/lib/content';
+import { SEED_FRAMEWORKS, frameworkSchema, withMarks } from '@/cms/collections/frameworks';
+import { SEED_MEDIA } from '@/cms/collections/media';
 
-const base = {
-  id: 'soc-2',
-  name: 'SOC 2',
-  scope: 'Service organisation controls',
-  publisher: 'AICPA',
-  sources: [{ label: 'SOC on aicpa-cima.com', url: 'https://www.aicpa-cima.com/' }],
-} as const;
+const base = SEED_FRAMEWORKS[0]!;
 
 describe('framework references', () => {
   it('names each framework precisely and links to an authoritative https source', () => {
-    for (const framework of seedFrameworks) {
+    for (const framework of SEED_FRAMEWORKS) {
       expect(framework.publisher.length, framework.id).toBeGreaterThan(1);
       expect(framework.sources.length, framework.id).toBeGreaterThan(0);
       for (const source of framework.sources)
@@ -21,8 +14,7 @@ describe('framework references', () => {
     }
   });
 
-  it('rejects a framework with no source', () => {
-    expect(frameworkSchema.safeParse({ ...base, sources: [] }).success).toBe(false);
+  it('rejects an insecure source link', () => {
     expect(
       frameworkSchema.safeParse({
         ...base,
@@ -32,52 +24,39 @@ describe('framework references', () => {
   });
 });
 
-describe('framework logo slot', () => {
-  it('ships with no official logos: custom badges only, until the client approves some', () => {
-    for (const framework of seedFrameworks) expect(framework.logo, framework.id).toBeUndefined();
+describe('framework logos (DS v3 §7.6)', () => {
+  it('ships with no logos and nothing approved: line icons only', () => {
+    for (const f of SEED_FRAMEWORKS) {
+      expect(f.logo, f.id).toBeNull();
+      expect(f.approvedByClient, f.id).toBe(false);
+    }
   });
 
-  it('accepts a logo only when approval and licence reference are both recorded', () => {
-    const logo = { src: '/image/logos/soc2.svg', alt: 'SOC 2 logo', width: 80, height: 80 };
-    expect(
-      frameworkSchema.safeParse({
-        ...base,
-        logo: { ...logo, approvedBy: 'A. Client', licenceRef: 'LIC-1' },
-      }).success,
-    ).toBe(true);
-    expect(frameworkSchema.safeParse({ ...base, logo }).success).toBe(false);
-    expect(
-      frameworkSchema.safeParse({ ...base, logo: { ...logo, approvedBy: 'A. Client' } }).success,
-    ).toBe(false);
-    expect(
-      frameworkSchema.safeParse({ ...base, logo: { ...logo, licenceRef: 'LIC-1' } }).success,
-    ).toBe(false);
-    expect(
-      frameworkSchema.safeParse({ ...base, logo: { ...logo, approvedBy: '', licenceRef: 'LIC-1' } })
-        .success,
-    ).toBe(false);
+  it('never renders a logo the client has not approved', async () => {
+    const withLogo = { ...base, logo: { mediaId: 'glass-facade', decorative: true } };
+    const [unapproved] = await withMarks([{ ...withLogo, approvedByClient: false }]);
+    expect(unapproved!.mark).toBeNull();
+    const [approved] = await withMarks([{ ...withLogo, approvedByClient: true }]);
+    expect(approved!.mark?.src).toBe('/image/photo/glass-facade.jpg');
   });
 });
 
-describe('image manifest', () => {
-  it('records source and licence for every photograph and flags stand-ins as placeholders', async () => {
-    const images = await getImages();
-    expect(Object.keys(images).length).toBeGreaterThan(0);
-    for (const [id, image] of Object.entries(images)) {
-      expect(image.credit.licence, id).toBe('Unsplash License');
-      expect(image.credit.url, id).toMatch(/^https:\/\/unsplash\.com\/photos\//);
-      expect(image.status, id).toBe('placeholder');
+describe('media library seed', () => {
+  it('credits every bundled photo to its Unsplash source and gives it alt text', () => {
+    for (const m of SEED_MEDIA) {
+      expect(m.credit, m.id).toMatch(/^https:\/\/unsplash\.com\/photos\//);
+      expect(m.alt.length, m.id).toBeGreaterThan(10);
+      expect(m.blur, m.id).toMatch(/^data:image\//);
     }
   });
 
-  it('gives meaningful images alt text and leaves decorative ones empty', async () => {
-    for (const [id, image] of Object.entries(await getImages())) {
-      if (image.decorative) expect(image.alt, id).toBe('');
-      else expect(image.alt.length, id).toBeGreaterThan(10);
-    }
-  });
-
-  it('rejects entries that are missing required fields', () => {
-    expect(imagesSchema.safeParse({ x: { src: '/a.jpg' } }).success).toBe(false);
+  it('gives every service page its own header photo', async () => {
+    const { SEED_SERVICES } = await import('@/cms/collections/services');
+    const headers = SEED_SERVICES.map((s) => {
+      const header = s.blocks.find((b) => b.type === 'pageHeader');
+      return header?.type === 'pageHeader' ? header.data.image?.mediaId : undefined;
+    });
+    expect(headers.every(Boolean)).toBe(true);
+    expect(new Set(headers).size).toBe(SEED_SERVICES.length);
   });
 });

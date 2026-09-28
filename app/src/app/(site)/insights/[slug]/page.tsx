@@ -1,36 +1,57 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { BlockRenderer } from '@/cms/BlockRenderer';
-import { getPublishedArticle } from '@/cms/store';
-import { toImageAsset } from '@/cms/image';
-import { ImageSlot } from '@/components/ui/ImageSlot';
-import { jsonLdScriptContent } from '@/lib/json-ld';
-import { config } from '@/lib/config';
+import { resolveImage } from '@/cms/collections/media';
+import { getSeoSettings, getSiteSettings } from '@/cms/globals';
+import { absoluteUrl, defaultShareImage, getSiteUrl } from '@/cms/site-meta';
 import { buildPageMetadata } from '@/lib/seo';
-import { site } from '@/lib/site';
-
-// Reads the article from Redis, so this must render per-request, not once at build time (see (site)/page.tsx
-// for the same reasoning on the other Redis-backed routes).
-export const dynamic = 'force-dynamic';
+import { draftMode } from 'next/headers';
+import { getPreviewArticle, getPublishedArticleCached } from '@/cms/public-reads';
+import { BlockRenderer } from '@/components/public/BlockRenderer';
+import { Photo } from '@/components/public/Photo';
+import { jsonLdScriptContent } from '@/lib/json-ld';
+import styles from './article.module.css';
 
 type Params = Promise<{ slug: string }>;
 
+async function loadArticle(slug: string) {
+  return (await draftMode()).isEnabled ? getPreviewArticle(slug) : getPublishedArticleCached(slug);
+}
+
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const article = await getPublishedArticle((await params).slug);
+  const article = await loadArticle((await params).slug);
   if (!article) return {};
+  const [cover, siteUrl, fallback] = await Promise.all([
+    resolveImage(article.coverImage),
+    getSiteUrl(),
+    defaultShareImage(),
+  ]);
   return buildPageMetadata({
     title: article.seoTitle,
     description: article.seoDescription,
     path: `/insights/${article.slug}`,
     openGraphType: 'article',
-    image: article.coverImage,
+    image: cover
+      ? {
+          url: absoluteUrl(siteUrl, cover.src),
+          width: cover.width,
+          height: cover.height,
+          alt: cover.alt,
+        }
+      : null,
+    defaultImage: fallback,
   });
 }
 
 export default async function ArticlePage({ params }: { params: Params }) {
-  const article = await getPublishedArticle((await params).slug);
+  const article = await loadArticle((await params).slug);
   if (!article) notFound();
 
+  const [siteUrl, seo, site, cover] = await Promise.all([
+    getSiteUrl(),
+    getSeoSettings(),
+    getSiteSettings(),
+    resolveImage(article.coverImage),
+  ]);
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -38,12 +59,14 @@ export default async function ArticlePage({ params }: { params: Params }) {
     description: article.excerpt,
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
-    author: { '@type': 'Organization', name: site.name, url: config.siteUrl },
-    mainEntityOfPage: `${config.siteUrl}/insights/${article.slug}`,
-    ...(article.coverImage
-      ? { image: article.coverImage.url.startsWith('http') ? article.coverImage.url : `${config.siteUrl}${article.coverImage.url}` }
-      : {}),
+    ...(cover ? { image: absoluteUrl(siteUrl, cover.src) } : {}),
+    author: { '@type': 'Organization', name: seo.organization.name, url: siteUrl },
   };
+  const date = new Intl.DateTimeFormat(site.locale, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 
   return (
     <>
@@ -51,40 +74,28 @@ export default async function ArticlePage({ params }: { params: Params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScriptContent(jsonLd) }}
       />
-      <section className="section" aria-labelledby="page-title">
-        <div
-          className="container container-narrow"
-          style={{ display: 'grid', gap: 'var(--space-6)' }}
-        >
+      <header className={styles.header} data-bg="surface">
+        <div className={`wrap ${styles.narrow}`}>
           {article.topics.length > 0 ? (
-            <p className="kicker">{article.topics.join(' · ')}</p>
+            <p className="eyebrow">{article.topics.join(' · ')}</p>
           ) : null}
-          <h1 id="page-title">{article.title}</h1>
+          <h1>{article.title}</h1>
           <p className="lead">{article.excerpt}</p>
           {article.publishedAt ? (
-            <p className="small muted">
-              Published{' '}
-              {new Date(article.publishedAt).toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
-          ) : null}
-          {article.coverImage ? (
-            <div className="stack">
-              <ImageSlot
-                image={toImageAsset(article.coverImage)}
-                ratio="16 / 9"
-                sizes="(min-width: 900px) 60vw, 100vw"
-                priority
-              />
-            </div>
+            <time dateTime={article.publishedAt} className={styles.date}>
+              {date.format(new Date(article.publishedAt))}
+            </time>
           ) : null}
         </div>
-      </section>
-
-      <BlockRenderer blocks={article.blocks} />
+      </header>
+      {cover ? (
+        <div className={`wrap ${styles.cover}`}>
+          <div className={styles.coverFrame}>
+            <Photo image={cover} fill priority sizes="(max-width: 1240px) 100vw, 1240px" />
+          </div>
+        </div>
+      ) : null}
+      <BlockRenderer blocks={article.blocks} ctx={{ pageTitle: article.title }} />
     </>
   );
 }

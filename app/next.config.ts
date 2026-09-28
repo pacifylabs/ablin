@@ -4,11 +4,12 @@ const isProd = process.env.NODE_ENV === 'production';
 
 const contentSecurityPolicy = [
   "default-src 'self'",
+  // GA4 loads only after cookie consent (components/shell/CookieBanner.tsx), and only if an ID is configured.
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' https://res.cloudinary.com data:",
+  "img-src 'self' https://res.cloudinary.com https://*.google-analytics.com data:",
   "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://api.resend.com https://api.cloudinary.com https://*.blob.vercel-storage.com https://www.google-analytics.com https://region1.google-analytics.com",
+  "connect-src 'self' https://api.resend.com https://api.cloudinary.com https://*.blob.vercel-storage.com https://*.google-analytics.com https://*.analytics.google.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -37,7 +38,10 @@ const config: NextConfig = {
   // Qualities the app may request; anything else is snapped to the nearest (Next 16).
   images: {
     qualities: [60, 72, 75],
-    // Admin-uploaded photos live on Cloudinary; the stock placeholders (content/images.json) are local files.
+    // Every next/image goes through the Cloudinary loader (DS v3 §5): Cloudinary URLs get f_auto,q_auto,w_{n};
+    // bundled /image/… files fall through to Next's own optimiser.
+    loader: 'custom',
+    loaderFile: './src/cms/cloudinary-loader.ts',
     remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' }],
   },
   // Native bindings (argon2 hashing, sharp for upload thumbnails) must run as real Node modules, not be bundled.

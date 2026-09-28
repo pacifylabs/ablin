@@ -1,0 +1,13 @@
+.layout {
+  display: grid;
+  gap: clamp(32px, 4vw, 48px);
+}
+
+/* Non-compact on desktop: heading on the left, steps across the rest, so the section has no empty half. */
+@media (min-width: 1001px) {
+  .split {
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: clamp(40px, 6vw, 96px);
+    align-items: start;
+  }
+}

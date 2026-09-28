@@ -78,7 +78,7 @@ function renderBlock(node: RichNode, key: string): ReactNode {
           key={key}
           style={{
             display: 'grid',
-            gap: 'var(--space-2)',
+            gap: 'var(--s-8)',
             paddingLeft: '1.25em',
             listStyle: 'decimal',
           }}
